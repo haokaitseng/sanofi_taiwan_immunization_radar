@@ -5,18 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taiwan Immunization Radar</title>
 <meta name="description" content="Daily policy and social-listening dashboard for flu (including enhanced, adjuvanted and high-dose vaccines), RSV and Tdap in Taiwan. Independent portfolio project.">
+<script>/* set the language before first paint, so Chinese readers never see the English layout flash */
+try { var l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('radar-lang'); if (l === 'zh') document.documentElement.lang = 'zh-Hant-TW'; } catch (e) {}</script>
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-page="main">
+<body data-page="main" data-title-zh="台灣疫苗接種雷達 · Taiwan Immunization Radar">
 <div class="top-banner" role="note">
   <div class="wrap">
-    <span><strong>Sanofi lens</strong> · independent analysis of what this week’s policy and social signals could mean for Sanofi’s vaccines in Taiwan.</span>
-    <a href="lens/">Open the Sanofi lens →</a>
+    <span data-lang="en"><strong>Sanofi lens</strong> · independent analysis of what this week’s policy and social signals could mean for Sanofi’s vaccines in Taiwan.</span>
+    <span data-lang="zh"><strong>Sanofi 視角</strong>・獨立分析本週政策與社群訊號對 Sanofi 在台疫苗可能的意涵。</span>
+    <a href="lens/" data-keep-lang><span data-lang="en">Open the Sanofi lens →</span><span data-lang="zh">開啟 Sanofi 視角 →</span></a>
   </div>
 </div>
 <header class="site-header">
   <div class="wrap header-row">
-    <a class="brand" href="#today" aria-label="Taiwan Immunization Radar, home">
+    <a class="brand" href="#today" aria-label="Taiwan Immunization Radar, home" data-aria-zh="台灣疫苗接種雷達，首頁">
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
         <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"/>
         <circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
@@ -25,105 +28,168 @@
         <circle cx="23.2" cy="11.3" r="2.3" fill="currentColor"/>
       </svg>
       <span>
-        <span class="brand-name">Taiwan Immunization Radar</span>
-        <span class="brand-sub">Policy &amp; social listening · Flu · Enhanced flu · RSV · Tdap</span>
+        <span class="brand-name"><span data-lang="en">Taiwan Immunization Radar</span><span data-lang="zh">台灣疫苗接種雷達</span></span>
+        <span class="brand-sub"><span data-lang="en">Policy &amp; social listening · Flu · Enhanced flu · RSV · Tdap</span><span data-lang="zh">政策追蹤與社群輿情 · 流感 · 加強型流感 · RSV · Tdap</span></span>
       </span>
     </a>
     <div class="header-meta">
       <span class="updated" id="updated"></span>
-      <a class="btn-ghost gh-link gh-mobile" href="https://github.com/haokaitseng/sanofi_taiwan_immunization_radar" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      </a>
-      <button class="btn-ghost" id="theme-btn" type="button">Theme: Auto</button>
+      <div class="meta-controls">
+        <a class="btn-ghost gh-link gh-mobile" href="https://github.com/haokaitseng/sanofi_taiwan_immunization_radar" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)" data-aria-zh="GitHub 原始碼（另開新分頁）">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        </a>
+        <button class="btn-ghost" id="theme-btn" type="button">Theme: Auto</button>
+        <div class="lang-switch" role="group" aria-label="Language / 語言">
+          <button type="button" data-lang-set="en" aria-pressed="true" lang="en">EN</button>
+          <button type="button" data-lang-set="zh" aria-pressed="false" lang="zh-Hant-TW">中文</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="wrap nav-row">
-    <nav class="tabs" role="tablist" aria-label="Views">
-      <button type="button" role="tab" id="tab-today" data-view="today" aria-controls="view-today">Today</button>
-      <button type="button" role="tab" id="tab-policy" data-view="policy" aria-controls="view-policy">Policy</button>
-      <button type="button" role="tab" id="tab-social" data-view="social" aria-controls="view-social">Social listening</button>
-      <button type="button" role="tab" id="tab-method" data-view="method" aria-controls="view-method">Methodology</button>
+    <nav class="tabs" role="tablist" aria-label="Views" data-aria-zh="頁面">
+      <button type="button" role="tab" id="tab-today" data-view="today" aria-controls="view-today"><span data-lang="en">Today</span><span data-lang="zh">今日</span></button>
+      <button type="button" role="tab" id="tab-policy" data-view="policy" aria-controls="view-policy"><span data-lang="en">Policy</span><span data-lang="zh">政策</span></button>
+      <button type="button" role="tab" id="tab-social" data-view="social" aria-controls="view-social"><span data-lang="en">Social listening</span><span data-lang="zh">社群輿情</span></button>
+      <button type="button" role="tab" id="tab-method" data-view="method" aria-controls="view-method"><span data-lang="en">Methodology</span><span data-lang="zh">方法說明</span></button>
     </nav>
-    <a class="btn-ghost gh-link gh-desktop" href="https://github.com/haokaitseng/sanofi_taiwan_immunization_radar" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)">
+    <a class="btn-ghost gh-link gh-desktop" href="https://github.com/haokaitseng/sanofi_taiwan_immunization_radar" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)" data-aria-zh="GitHub 原始碼（另開新分頁）">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       <span class="hide-sm">GitHub</span>
     </a>
   </div>
 </header>
 
-<div class="wrap status-strip" id="status-strip" role="list" aria-label="Data source status"></div>
+<div class="wrap status-strip" id="status-strip" role="list" aria-label="Data source status" data-aria-zh="資料來源狀態"></div>
 
 <main class="wrap" id="main">
-  <noscript><p class="card">This dashboard needs JavaScript to draw its charts.</p></noscript>
-  <p class="card" id="load-error" hidden>Could not load today’s data file. Please try again later.</p>
+  <noscript><p class="card">This dashboard needs JavaScript to draw its charts. 此儀表板需要 JavaScript 才能繪製圖表。</p></noscript>
+  <p class="card" id="load-error" hidden><span data-lang="en">Could not load today’s data file. Please try again later.</span><span data-lang="zh">無法載入今日的資料檔，請稍後再試。</span></p>
   <section id="view-today" role="tabpanel" aria-labelledby="tab-today"></section>
   <section id="view-policy" role="tabpanel" aria-labelledby="tab-policy" hidden></section>
   <section id="view-social" role="tabpanel" aria-labelledby="tab-social" hidden></section>
 
   <section id="view-method" role="tabpanel" aria-labelledby="tab-method" hidden>
     <div class="view-head">
-      <h2>Methodology</h2>
-      <p class="muted">How the radar is built, what it can and cannot tell you, and the rules it follows.</p>
+      <h2><span data-lang="en">Methodology</span><span data-lang="zh">方法說明</span></h2>
+      <p class="muted"><span data-lang="en">How the radar is built, what it can and cannot tell you, and the rules it follows.</span><span data-lang="zh">雷達如何建置、能與不能告訴你什麼，以及所遵循的規則。</span></p>
     </div>
     <section class="card">
-      <h3 class="card-title">Daily pipeline</h3>
-      <p class="card-sub">Runs by itself every day at 05:17 Taipei time on GitHub Actions. The site is a static page on GitHub Pages, so it never sleeps and needs no server.</p>
-      <ol class="pipeline">
-        <li><span class="step-n">1</span><strong>Collect</strong><span>Taiwan CDC, TFDA, Google News, PTT, Threads, comments on public Facebook pages, Wikipedia pageviews</span></li>
-        <li><span class="step-n">2</span><strong>Clean</strong><span>Remove duplicates by URL and near-identical headlines, drop off-topic items such as animal influenza</span></li>
-        <li><span class="step-n">3</span><strong>Tag</strong><span>Claude Haiku 5.5 labels vaccine, issue, stance, speaker and storyline, and translates zh-TW to English</span></li>
-        <li><span class="step-n">4</span><strong>Analyse</strong><span>Claude Opus 5.5 writes the daily brief, explains official actions and groups storylines, citing sources for every claim</span></li>
-        <li><span class="step-n">5</span><strong>Validate</strong><span>Schema and sanity checks. If a source fails, its light turns amber and the rest of the run carries on</span></li>
-        <li><span class="step-n">6</span><strong>Publish</strong><span>Commit the data to GitHub and redeploy. Git history doubles as a dated archive</span></li>
-      </ol>
+      <div data-lang="en">
+        <h3 class="card-title">Daily pipeline</h3>
+        <p class="card-sub">Runs by itself every day at 05:17 Taipei time on GitHub Actions. The site is a static page on GitHub Pages, so it never sleeps and needs no server.</p>
+        <ol class="pipeline">
+          <li><span class="step-n">1</span><strong>Collect</strong><span>Taiwan CDC, TFDA, Google News, PTT, Threads, comments on public Facebook pages, Wikipedia pageviews</span></li>
+          <li><span class="step-n">2</span><strong>Clean</strong><span>Remove duplicates by URL and near-identical headlines, drop off-topic items such as animal influenza</span></li>
+          <li><span class="step-n">3</span><strong>Tag</strong><span>Claude Haiku 5.5 labels vaccine, issue, stance, speaker and storyline, and writes short English and Chinese summaries</span></li>
+          <li><span class="step-n">4</span><strong>Analyse</strong><span>Claude Opus 5.5 writes the daily brief, explains official actions and groups storylines, citing sources for every claim, then translates it into Traditional Chinese</span></li>
+          <li><span class="step-n">5</span><strong>Validate</strong><span>Schema and sanity checks. If a source fails, its light turns amber and the rest of the run carries on</span></li>
+          <li><span class="step-n">6</span><strong>Publish</strong><span>Commit the data to GitHub and redeploy. Git history doubles as a dated archive</span></li>
+        </ol>
+      </div>
+      <div data-lang="zh">
+        <h3 class="card-title">每日資料流程</h3>
+        <p class="card-sub">每天台北時間 05:17 在 GitHub Actions 上自動執行。網站是 GitHub Pages 上的靜態頁面，不需要伺服器，也不會休眠。</p>
+        <ol class="pipeline">
+          <li><span class="step-n">1</span><strong>收集</strong><span>疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言、維基百科瀏覽量</span></li>
+          <li><span class="step-n">2</span><strong>清理</strong><span>依網址與近似標題去除重複，剔除禽流感等離題內容</span></li>
+          <li><span class="step-n">3</span><strong>標註</strong><span>Claude Haiku 5.5 標註疫苗、議題、立場、發言者與敘事主軸，並撰寫中英文簡短摘要</span></li>
+          <li><span class="step-n">4</span><strong>分析</strong><span>Claude Opus 5.5 撰寫每日簡報、說明官方行動並歸納敘事主軸，每項論述都附上來源，再譯為繁體中文</span></li>
+          <li><span class="step-n">5</span><strong>驗證</strong><span>結構與合理性檢查。若某個來源失敗，其燈號轉為黃色，其餘流程照常進行</span></li>
+          <li><span class="step-n">6</span><strong>發布</strong><span>將資料提交至 GitHub 並重新部署，Git 歷史同時是有日期的存檔</span></li>
+        </ol>
+      </div>
     </section>
     <section class="card">
-      <h3 class="card-title">Sources</h3>
-      <p class="card-sub">Policy sources are limited to Taiwan CDC and TFDA. Social data is published only as counts, themes and paraphrases.</p>
+      <h3 class="card-title"><span data-lang="en">Sources</span><span data-lang="zh">資料來源</span></h3>
+      <p class="card-sub"><span data-lang="en">Policy sources are limited to Taiwan CDC and TFDA. Social data is published only as counts, themes and paraphrases.</span><span data-lang="zh">政策來源僅限疾管署與食藥署。社群資料只以數量、主題與改寫內容發布。</span></p>
       <div class="table-wrap" id="sources-table"></div>
     </section>
     <div class="grid-2">
       <section class="card">
-        <h3 class="card-title">Definitions</h3>
-        <dl class="defs" style="margin-top:12px">
-          <dt>Vaccine groups</dt>
-          <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑); and <strong>High-dose</strong> (高劑量). A mention that names both types counts under both. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself.</dd>
-          <dt>Stance scale</dt>
-          <dd>Adapted from the WHO SAGE vaccine-hesitancy continuum. <strong>Advocating</strong>: urges others to vaccinate. <strong>Accepting</strong>: has vaccinated or intends to. <strong>Neutral</strong>: news or information with no stance. <strong>Hesitant</strong>: delays, doubts or asks for reassurance. <strong>Opposed</strong>: rejects vaccination or spreads anti-vaccine claims.</dd>
-          <dt>Evidence tiers</dt>
-          <dd><strong>▲ Policy</strong>: official notices from Taiwan CDC or TFDA. <strong>■ Media</strong>: news reports. <strong>◆ Signal</strong>: social posts. Signals show volume and narratives, never facts.</dd>
-          <dt>Issues</dt>
-          <dd>Eligibility and access · Cost and self-pay · Safety and side effects · Effectiveness and evidence · Supply and availability · Disease risk and outbreaks. One mention can touch several issues.</dd>
-        </dl>
+        <div data-lang="en">
+          <h3 class="card-title">Definitions</h3>
+          <dl class="defs" style="margin-top:12px">
+            <dt>Vaccine groups</dt>
+            <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑); and <strong>High-dose</strong> (高劑量). A mention that names both types counts under both. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself.</dd>
+            <dt>Stance scale</dt>
+            <dd>Adapted from the WHO SAGE vaccine-hesitancy continuum. <strong>Advocating</strong>: urges others to vaccinate. <strong>Accepting</strong>: has vaccinated or intends to. <strong>Neutral</strong>: news or information with no stance. <strong>Hesitant</strong>: delays, doubts or asks for reassurance. <strong>Opposed</strong>: rejects vaccination or spreads anti-vaccine claims.</dd>
+            <dt>Evidence tiers</dt>
+            <dd><strong>▲ Policy</strong>: official notices from Taiwan CDC or TFDA. <strong>■ Media</strong>: news reports. <strong>◆ Signal</strong>: social posts. Signals show volume and narratives, never facts.</dd>
+            <dt>Issues</dt>
+            <dd>Eligibility and access · Cost and self-pay · Safety and side effects · Effectiveness and evidence · Supply and availability · Disease risk and outbreaks. One mention can touch several issues.</dd>
+          </dl>
+        </div>
+        <div data-lang="zh">
+          <h3 class="card-title">名詞定義</h3>
+          <dl class="defs" style="margin-top:12px">
+            <dt>疫苗分類</dt>
+            <dd><strong>流感</strong>：一般的流感疫苗接種。<strong>加強型流感</strong>分為三類追蹤：<strong>加強型</strong>，指提及佐劑或高劑量疫苗但未說明是哪一種；<strong>佐劑</strong>；以及<strong>高劑量</strong>。同時提到兩種類型的提及會分別計入。<strong>RSV</strong>：包括 nirsevimab（Beyfortus）在內的長效嬰兒抗體，以及孕婦與長者 RSV 疫苗。<strong>Tdap</strong>：破傷風、白喉、非細胞性百日咳追加劑（包括孕期接種），以及百日咳本身。</dd>
+            <dt>立場量表</dt>
+            <dd>改編自 WHO SAGE 疫苗猶豫連續光譜。<strong>倡議</strong>：鼓勵他人接種。<strong>接受</strong>：已接種或打算接種。<strong>中立</strong>：沒有立場的新聞或資訊。<strong>猶豫</strong>：延後、懷疑或需要再三確認。<strong>反對</strong>：拒絕接種或散布反疫苗說法。</dd>
+            <dt>證據層級</dt>
+            <dd><strong>▲ 政策</strong>：疾管署或食藥署的官方公告。<strong>■ 媒體</strong>：新聞報導。<strong>◆ 社群訊號</strong>：社群貼文。訊號反映聲量與敘事，不代表事實。</dd>
+            <dt>議題</dt>
+            <dd>接種資格與可近性 · 費用與自費 · 安全性與副作用 · 效果與科學證據 · 供應與取得 · 疾病風險與疫情。一則提及可涉及多個議題。</dd>
+          </dl>
+        </div>
       </section>
       <section class="card">
-        <h3 class="card-title">Limitations</h3>
-        <ul class="plain" style="margin-top:12px">
-          <li>Closed spaces such as LINE groups and private Facebook groups are invisible. Facebook coverage is limited to public pages.</li>
-          <li>Threads and Facebook arrive through third-party scrapers that break when platforms change. Each source has its own status light.</li>
-          <li>Dcard is not covered: no reliable, permitted collector is available for it.</li>
-          <li>Keyword-based collection misses posts that never name the vaccine or disease. News headlines that name no vaccine are kept only when they came from a vaccine-specific search, and the AI tagger confirms or drops them.</li>
-          <li>Stance and issue tags are AI-generated. A hand-checked sample is re-scored monthly, and agreement will be reported here.</li>
-          <li>Volumes count mentions, not people. One active account can post many times.</li>
-        </ul>
+        <div data-lang="en">
+          <h3 class="card-title">Limitations</h3>
+          <ul class="plain" style="margin-top:12px">
+            <li>Closed spaces such as LINE groups and private Facebook groups are invisible. Facebook coverage is limited to public pages.</li>
+            <li>Threads and Facebook arrive through third-party scrapers that break when platforms change. Each source has its own status light.</li>
+            <li>Dcard is not covered: no reliable, permitted collector is available for it.</li>
+            <li>Keyword-based collection misses posts that never name the vaccine or disease. News headlines that name no vaccine are kept only when they came from a vaccine-specific search, and the AI tagger confirms or drops them.</li>
+            <li>Stance and issue tags are AI-generated. A hand-checked sample is re-scored monthly, and agreement will be reported here.</li>
+            <li>Volumes count mentions, not people. One active account can post many times.</li>
+          </ul>
+        </div>
+        <div data-lang="zh">
+          <h3 class="card-title">限制</h3>
+          <ul class="plain" style="margin-top:12px">
+            <li>LINE 群組與私人 Facebook 社團等封閉空間無法觀察。Facebook 僅涵蓋公開粉專。</li>
+            <li>Threads 與 Facebook 透過第三方爬蟲取得，平台改版時可能失效。每個來源都有各自的狀態燈號。</li>
+            <li>未涵蓋 Dcard：目前沒有可靠且獲許可的收集工具。</li>
+            <li>以關鍵字收集會漏掉從未提及疫苗或疾病名稱的貼文。未提及疫苗的新聞標題，只有來自特定疫苗搜尋時才會保留，並由 AI 標註確認或剔除。</li>
+            <li>立場與議題標註由 AI 產生。每月會重新評分一批人工檢核樣本，並在此公布一致性。</li>
+            <li>聲量計算的是提及次數而非人數，一個活躍帳號可能多次發文。</li>
+          </ul>
+        </div>
       </section>
     </div>
     <section class="card">
-      <h3 class="card-title">Privacy, compliance and AI use</h3>
-      <ul class="plain" style="margin-top:12px">
-        <li>Social posts are stored as counts, tags and short AI paraphrases. Verbatim post text is deleted once a post is tagged, and no usernames or profile data are kept, including in the public code repository.</li>
-        <li>Only public pages and permitted APIs are collected, within each platform’s terms and robots rules.</li>
-        <li>No product claims and no medical advice. Advertising prescription medicines to the public is restricted in Taiwan.</li>
-        <li>AI-written text is labelled and linked to its sources. Prompts and model versions are kept in the code repository.</li>
-        <li>Independent portfolio project. Not affiliated with or endorsed by any company or agency named.</li>
-      </ul>
+      <div data-lang="en">
+        <h3 class="card-title">Privacy, compliance and AI use</h3>
+        <ul class="plain" style="margin-top:12px">
+          <li>Social posts are stored as counts, tags and short AI paraphrases. Verbatim post text is deleted once a post is tagged, and no usernames or profile data are kept, including in the public code repository.</li>
+          <li>Only public pages and permitted APIs are collected, within each platform’s terms and robots rules.</li>
+          <li>No product claims and no medical advice. Advertising prescription medicines to the public is restricted in Taiwan.</li>
+          <li>AI-written text is labelled and linked to its sources. Prompts and model versions are kept in the code repository.</li>
+          <li>The Traditional Chinese version is written by the same AI models: Haiku drafts the item summaries and Opus translates the analysis. Product names and acronyms stay in English, and official notices keep their original Chinese titles.</li>
+          <li>Independent portfolio project. Not affiliated with or endorsed by any company or agency named.</li>
+        </ul>
+      </div>
+      <div data-lang="zh">
+        <h3 class="card-title">隱私、法規遵循與 AI 使用</h3>
+        <ul class="plain" style="margin-top:12px">
+          <li>社群貼文僅以數量、標籤與簡短的 AI 改寫內容儲存。貼文完成標註後即刪除原文，不保留任何使用者名稱或個人檔案資料，公開的程式碼儲存庫中亦然。</li>
+          <li>只收集公開頁面與獲許可的 API，並遵守各平台的使用條款與 robots 規則。</li>
+          <li>不含產品宣稱，也不提供醫療建議。台灣限制對一般民眾刊登處方藥廣告。</li>
+          <li>AI 撰寫的內容均有標示並連結至來源。提示詞與模型版本都保存在程式碼儲存庫中。</li>
+          <li>繁體中文版同樣由 AI 產生：Haiku 撰寫各則摘要，Opus 翻譯分析內容。產品名稱與縮寫保留英文，官方公告則維持原始中文標題。</li>
+          <li>獨立作品集專案，與文中提及的任何公司或機關均無隸屬或背書關係。</li>
+        </ul>
+      </div>
     </section>
   </section>
 </main>
 
 <footer class="site-footer">
   <div class="wrap">
-    <p><strong>Independent portfolio project</strong> by Hao-Kai Tseng. Not affiliated with or endorsed by any company or agency named. AI-written summaries can be wrong, so check the linked source. Not medical advice.</p>
+    <p data-lang="en"><strong>Independent portfolio project</strong> by Hao-Kai Tseng. Not affiliated with or endorsed by any company or agency named. AI-written summaries can be wrong, so check the linked source. Not medical advice.</p>
+    <p data-lang="zh"><strong>獨立作品集專案</strong>，作者 Hao-Kai Tseng。與文中提及的任何公司或機關均無隸屬或背書關係。AI 撰寫的摘要可能有誤，請查證連結的原始來源。非醫療建議。</p>
     <p id="footer-meta"></p>
   </div>
 </footer>

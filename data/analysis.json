@@ -18,7 +18,9 @@
      "5b43c84498d84de3",
      "2bceea60801b3b56"
     ],
-    "confidence": "High"
+    "confidence": "High",
+    "headline_zh": "流感單週219例重症、44例死亡，成為報導焦點",
+    "why_zh": "多家媒體報導單週數字達高峰，部分稱為五年新高，部分則稱「上季以來最高」。重症嚴重度已成為推升急迫感的主要框架，醫師呼籲對象鎖定長者及慢性病患。"
    },
    {
     "type": "media",
@@ -36,7 +38,9 @@
      "4601f3abe185e83a",
      "e8b9076b8f33b731"
     ],
-    "confidence": "High"
+    "confidence": "High",
+    "headline_zh": "公費流感疫苗8天接種達191萬劑；官方表態憂心供應",
+    "why_zh": "羅一鈞公開表示，6天內已接種132萬劑，疫苗恐不敷使用，屬罕見的公開表態，顯示配送壓力。預期利害關係人將詢問庫存及第二階段準備情形。"
    },
    {
     "type": "policy",
@@ -52,7 +56,9 @@
      "c58fde2d02bd889c",
      "05ec54c795d7ae33"
     ],
-    "confidence": "High"
+    "confidence": "High",
+    "headline_zh": "疾管署表示接種踴躍，呼籲符合資格者於連假前接種",
+    "why_zh": "此為疾管署最新立場：將持續出現的重症連結至及早接種的呼籲，並定調官方口徑，高雄、基隆、新竹等地衛生局皆跟進呼應。"
    },
    {
     "type": "signal",
@@ -68,7 +74,9 @@
      "4ff3fdca67d28434",
      "31478c32a766efdf"
     ],
-    "confidence": "Medium"
+    "confidence": "Medium",
+    "headline_zh": "網友反映自費流感疫苗缺貨、診所僅有單一廠牌；高雄傳出排隊人潮",
+    "why_zh": "貼文指出，高雄診所告知來電民眾自費疫苗11月才到貨，公費診所僅備有單一廠牌。另有新聞報導，高雄35人死亡後醫院出現排隊人潮，接種可近性問題正成為地方議題。"
    },
    {
     "type": "signal",
@@ -84,7 +92,9 @@
      "ea6eca5155353258",
      "3b39dfe939b73f54"
     ],
-    "confidence": "Medium"
+    "confidence": "Medium",
+    "headline_zh": "加強型及含佐劑疫苗相關宣稱經由醫師、媒體與診所貼文流傳",
+    "why_zh": "醫師呼籲長者接種加強型疫苗，一則診所貼文（131次互動）針對某含佐劑產品提出比較性效力與保護期宣稱，提高此品類的廣告合規與聲譽風險。"
    },
    {
     "type": "signal",
@@ -101,21 +111,29 @@
      "4387b0b1023c4c7b",
      "d0711f5e471403f9"
     ],
-    "confidence": "Medium"
+    "confidence": "Medium",
+    "headline_zh": "家長對兒童兩劑規定感到困惑；鼻噴及注射型疫苗接種後發燒貼文",
+    "why_zh": "據報6個月至3歲幼兒的劑次規定有所調整，各診所說法不一。家長分享接種後發燒的貼文引發互動，可能形成兒科疫苗猶豫的局部族群。"
    }
   ],
   "watch": [
    {
     "when": "2026-11-02",
-    "text": "Second stage of the publicly funded flu programme opens. Watch whether early supply concerns lead to allocation changes or messaging on stock."
+    "text": "Second stage of the publicly funded flu programme opens. Watch whether early supply concerns lead to allocation changes or messaging on stock.",
+    "when_zh": "2026-11-02",
+    "text_zh": "公費流感疫苗第二階段開打。關注先前的供應疑慮是否導致配送調整或庫存相關說明。"
    },
    {
     "when": "Late October 2026",
-    "text": "150,000 Novavax COVID doses are reported to start as part of the joint 'left flu, right COVID' campaign, which may refresh dual-shot safety questions."
+    "text": "150,000 Novavax COVID doses are reported to start as part of the joint 'left flu, right COVID' campaign, which may refresh dual-shot safety questions.",
+    "when_zh": "2026年10月下旬",
+    "text_zh": "據報15萬劑Novavax新冠疫苗將納入「左流右新」聯合接種活動開始施打，可能再度引發同時接種兩劑的安全性疑問。"
    },
    {
     "when": "November 2026",
-    "text": "Posts say Kaohsiung clinics expect self-pay flu stock only then. One outlet also says flu will not ease until November. Track access complaints and severity reporting."
+    "text": "Posts say Kaohsiung clinics expect self-pay flu stock only then. One outlet also says flu will not ease until November. Track access complaints and severity reporting.",
+    "when_zh": "2026年11月",
+    "text_zh": "貼文指出高雄診所預計屆時才有自費流感疫苗；另有媒體稱流感疫情要到11月才會趨緩。持續追蹤接種可近性抱怨與重症報導。"
    }
   ],
   "qa": []
@@ -124,17 +142,20 @@
   {
    "id": "54d66e3a431d782f",
    "why": "Sets the 2026 programme baseline: phase 1 for 11 groups from October 1 with about 6.449 million standard and 170,000 enhanced doses plus health-coin incentives.",
-   "marker": true
+   "marker": true,
+   "why_zh": "確立2026年計畫基準：第一階段10月1日起開放11類對象，約644.9萬劑標準型及17萬劑加強型疫苗，並搭配健康幣獎勵。"
   },
   {
    "id": "1b5b0864f5157eaa",
    "why": "Launch event confirmed 7.05 million flu doses procured including enhanced vaccine, the figure now used to judge supply adequacy.",
-   "marker": false
+   "marker": false,
+   "why_zh": "開打記者會確認採購705萬劑流感疫苗（含加強型），此數字現為評估供應是否充足的依據。"
   },
   {
    "id": "adfe2abf07813c56",
    "why": "CDC links ongoing severe flu activity to unvaccinated older adults and urges pre-holiday vaccination, framing the current severity narrative.",
-   "marker": true
+   "marker": true,
+   "why_zh": "疾管署將持續的流感重症疫情連結至未接種疫苗的長者，並呼籲連假前接種，形塑當前的重症敘事。"
   }
  ],
  "misinfo": [],
@@ -157,7 +178,9 @@
     "public flu vaccine uptake in first two days",
     "record public flu and covid vaccine uptake 2026",
     "record first-day uptake of subsidized flu shots"
-   ]
+   ],
+   "title_zh": "公費流感及新冠疫苗接種人數激增",
+   "para_zh": "報導追蹤公費疫苗快速接種情形，8天內約191萬劑流感疫苗，並常伴隨官方對供應恐跟不上的憂慮。"
   },
   {
    "id": "n-launch",
@@ -181,7 +204,9 @@
     "weekend and holiday flu vaccine clinic sites",
     "subsidised flu vaccine 2026 programme guide",
     "2026 flu vaccine choice guide"
-   ]
+   ],
+   "title_zh": "秋季公費流感及新冠疫苗開打",
+   "para_zh": "10月1日「左流右新」開打首日的報導框架，正逐漸轉向地方宣導活動、連假接種站及說明指南。"
   },
   {
    "id": "n-severity",
@@ -198,7 +223,9 @@
     "flu surge and urgent care visits",
     "flu season peak and outpatient surge forecast",
     "influenza deaths rising after holiday season"
-   ]
+   ],
+   "title_zh": "流感重症及死亡創新高",
+   "para_zh": "多家媒體報導單週219例重症、44例死亡，稱為五年新高；加護病房醫師表示重症患者皆未接種疫苗。"
   },
   {
    "id": "n-health-coins",
@@ -223,7 +250,9 @@
     "health coin rewards for vaccination",
     "subsidized flu shots with health coin incentive",
     "elder lucky-draw incentive for flu shots"
-   ]
+   ],
+   "title_zh": "健康幣獎勵與地方獎勵措施",
+   "para_zh": "健康幣獎勵及地方抽獎被認為有助提升接種率，但也有報導指出長者在App登錄及接種可近性上遇到困難。"
   },
   {
    "id": "n-supply-selfpay",
@@ -238,7 +267,9 @@
     "public flu vaccine supply and stock levels",
     "young adults rush self-pay flu vaccines",
     "limited self-pay flu vaccine release"
-   ]
+   ],
+   "title_zh": "供應吃緊、缺貨與自費接種可近性",
+   "para_zh": "網友反映自費疫苗11月前無法取得、診所僅備單一公費廠牌，官方亦表達供應疑慮。"
   },
   {
    "id": "n-enhanced-older",
@@ -258,7 +289,9 @@
     "enhanced flu vaccine first offered to public",
     "enhanced flu vaccine advice for older adults",
     "older adult enhanced flu vaccine funding"
-   ]
+   ],
+   "title_zh": "長者用加強型及含佐劑疫苗",
+   "para_zh": "醫師呼籲長者接種加強型疫苗，疾管署優先將其配置於長照機構，同時媒體與診所貼文流傳以百分比表示的效力宣稱。"
   },
   {
    "id": "n-older-access",
@@ -271,7 +304,9 @@
    "storylines": [
     "hsinchu priority flu vaccine for seniors",
     "priority flu vaccine access for high-risk groups"
-   ]
+   ],
+   "title_zh": "長者優先接種與接種進度",
+   "para_zh": "報導指出前4天約11%的65歲以上長者已接種，地方亦設有優先通道，如新竹針對85歲以上長者。"
   },
   {
    "id": "n-pediatric",
@@ -284,7 +319,9 @@
    "storylines": [
     "child flu vaccine two-dose rule change",
     "parents asking about infant flu vaccination"
-   ]
+   ],
+   "title_zh": "兒童劑次規定與鼻噴疫苗疑問",
+   "para_zh": "家長詢問幼兒兩劑規定的修訂及診所建議不一致，醫師則將鼻噴疫苗作為怕打針兒童的選項。"
   },
   {
    "id": "n-chronic-risk",
@@ -301,7 +338,9 @@
     "chronic lung disease vaccine recommendations",
     "vaccines urged for copd and asthma patients",
     "flu vaccination urged for chronic lung patients"
-   ]
+   ],
+   "title_zh": "慢性病與心血管風險框架",
+   "para_zh": "醫師以糖尿病、腎臟病、心臟病及慢性肺病患者的較高風險為接種訴求，亦有心血管效益研究報導，以及針對COPD和氣喘患者的呼吸道疫苗建議。"
   },
   {
    "id": "n-safety-doubts",
@@ -315,7 +354,9 @@
     "personal flu vaccine side-effect experiences",
     "public perception of vaccine side effects",
     "flu vaccine effectiveness doubts among parents"
-   ]
+   ],
+   "title_zh": "副作用經驗與安全性疑慮",
+   "para_zh": "高互動貼文記錄接種後症狀與兒童發燒，少數反對貼文則對疫苗成分及同時接種兩劑的安全性提出誤導性說法。"
   },
   {
    "id": "n-japan-regional",
@@ -329,7 +370,9 @@
     "japan flu surge and taiwan vaccine demand",
     "japan flu surge travel risk",
     "early flu season in japan"
-   ]
+   ],
+   "title_zh": "日本流感季提早與區域需求",
+   "para_zh": "日本流感提早升溫的報導被連結至旅遊風險及台灣疫苗需求，近3天無新報導。"
   },
   {
    "id": "n-rsv-maternal",
@@ -341,7 +384,9 @@
    "para": "A post summarising a European real-world study on prenatal RSV vaccination and infant hospitalisation marks early RSV conversation, noting recommendations vary by country.",
    "storylines": [
     "maternal rsv vaccine infant protection evidence"
-   ]
+   ],
+   "title_zh": "孕婦RSV疫苗接種與嬰兒保護",
+   "para_zh": "一則摘要歐洲孕期RSV疫苗接種與嬰兒住院真實世界研究的貼文，象徵RSV討論初現，並提及各國建議不一。"
   }
  ],
  "lens": {
@@ -361,6 +406,16 @@
     ],
     "source_ids": [
      "07db659216836573"
+    ],
+    "name_zh": "Beyfortus",
+    "sub_zh": "nirsevimab，嬰兒RSV抗體",
+    "signal_zh": "本週無nirsevimab相關報導或官方公告。RSV討論稀少但屬新興：一則低互動貼文談及歐洲孕婦RSV疫苗研究，另有將RSV與COPD及氣喘建議歸為一類的報導主軸。",
+    "implication_zh": "嬰兒RSV預防正先以孕婦接種框架進入公共討論，因此嬰兒抗體選項可能先以比較方式被討論，而非就其本身被討論。",
+    "action_zh": "為兒科及產科利害關係人準備中立的嬰兒RSV預防方式實證與政策簡報，並隨RSV討論發展建立家長提問監測。不參與公開比較。",
+    "who_zh": [
+     "兒科及新生兒科醫師",
+     "婦產科醫師及孕產婦健康團體",
+     "疾管署預防接種政策官員"
     ]
    },
    {
@@ -385,6 +440,17 @@
      "2bceea60801b3b56",
      "29fa28f9492b7688",
      "01e330c1cc59a5cb"
+    ],
+    "name_zh": "高劑量流感疫苗",
+    "sub_zh": "長者；加強型疫苗品類",
+    "signal_zh": "本週無高劑量專屬項目。加強型品類（未註明類型）仍受關注：疾管署優先將加強型疫苗配置於長照機構，醫師在重症創新高之際呼籲長者接種加強型疫苗，另有一則媒體報導及一則診所貼文（標記為誤導）流傳百分比效力宣稱。",
+    "implication_zh": "長者重症與供應疑慮使加強型疫苗持續受到關注，但公眾框架受鬆散的效力百分比及診所促銷主導，恐使整個品類面臨法規及聲譽檢視。",
+    "action_zh": "以平衡且附參考文獻的實證，向老年醫學及長照利害關係人說明加強型疫苗各品類。於第二階段前準備供應與配送問題的回應口徑，並避免與診所層級的比較性宣稱產生任何關聯。",
+    "who_zh": [
+     "老年醫學及家庭醫學會",
+     "長照機構業者",
+     "疾管署及地方衛生局",
+     "食藥署廣告合規聯絡窗口"
     ]
    },
    {
@@ -399,7 +465,16 @@
      "Chest and respiratory physician societies",
      "Patient groups for COPD and asthma"
     ],
-    "source_ids": []
+    "source_ids": [],
+    "name_zh": "Tdap追加劑",
+    "sub_zh": "成人及孕婦百日咳保護",
+    "signal_zh": "本週聲量極少：無Tdap新聞或官方公告。Tdap僅出現在少數關於慢性肺病、COPD及氣喘患者疫苗建議的報導主軸中。",
+    "implication_zh": "百日咳目前並非公共議題；唯一切入點是針對慢性肺病患者的呼吸道風險框架。",
+    "action_zh": "盤點胸腔及呼吸道科醫師利害關係人，並備妥成人追加劑實證摘要，以因應呼吸道風險報導擴及流感與新冠以外的情況。",
+    "who_zh": [
+     "胸腔及呼吸道醫學會",
+     "COPD及氣喘病友團體"
+    ]
    }
   ],
   "issues": [
@@ -408,21 +483,30 @@
     "title": "Supply adequacy as the second public-programme stage opens",
     "likelihood": "Medium",
     "impact": "High",
-    "note": "An official has voiced concern about supply after rapid uptake, and users report self-pay doses unavailable until November. Expect questions on allocation, including enhanced vaccines for older adults."
+    "note": "An official has voiced concern about supply after rapid uptake, and users report self-pay doses unavailable until November. Expect questions on allocation, including enhanced vaccines for older adults.",
+    "when_zh": "自2026-11-02起（第二階段開打）",
+    "title_zh": "公費第二階段開打之際的供應充足性",
+    "note_zh": "在接種快速增加後，已有官員表達供應疑慮，網友亦反映自費疫苗11月前無法取得。預期將出現配送相關提問，包括長者用加強型疫苗。"
    },
    {
     "when": "Next 30 days",
     "title": "Comparative efficacy claims for enhanced and adjuvanted vaccines",
     "likelihood": "Medium",
     "impact": "Medium",
-    "note": "A clinic post with misleading adjuvanted-vaccine claims drew notable engagement, and media repeat a 25% enhanced-vaccine figure. Manufacturers should be ready to distance themselves from promotional claims."
+    "note": "A clinic post with misleading adjuvanted-vaccine claims drew notable engagement, and media repeat a 25% enhanced-vaccine figure. Manufacturers should be ready to distance themselves from promotional claims.",
+    "when_zh": "未來30天",
+    "title_zh": "加強型及含佐劑疫苗的比較性效力宣稱",
+    "note_zh": "一則含誤導性含佐劑疫苗宣稱的診所貼文獲得可觀互動，媒體亦反覆引用加強型疫苗25%的數字。藥廠應準備好與促銷性宣稱劃清界線。"
    },
    {
     "when": "Next 2-4 weeks",
     "title": "Safety narrative from side-effect posts and injury relief coverage",
     "likelihood": "Medium",
     "impact": "Medium",
-    "note": "Side-effect logs and child-fever posts draw high engagement, a vaccine injury relief award was reported, and opposed posts question dual-shot safety. Prepare factual reference material for HCP and agency partners."
+    "note": "Side-effect logs and child-fever posts draw high engagement, a vaccine injury relief award was reported, and opposed posts question dual-shot safety. Prepare factual reference material for HCP and agency partners.",
+    "when_zh": "未來2至4週",
+    "title_zh": "副作用貼文與預防接種受害救濟報導引發的安全性敘事",
+    "note_zh": "副作用紀錄及兒童發燒貼文互動度高，有報導一件預防接種受害救濟獲補償，反對貼文則質疑同時接種兩劑的安全性。應為醫療人員及主管機關夥伴準備事實性參考資料。"
    }
   ]
  },
@@ -432,5 +516,9 @@
   "input_tokens": 66358,
   "output_tokens": 9973
  },
- "items_considered": 83
+ "items_considered": 83,
+ "usage_translate": {
+  "input_tokens": 4685,
+  "output_tokens": 4148
+ }
 }

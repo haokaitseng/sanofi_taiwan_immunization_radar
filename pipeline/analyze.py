@@ -42,7 +42,7 @@ Sections
    type = policy (official notice), media (news coverage) or signal (social conversation). For policy entries
    put the original Chinese title in zh. confidence: High (official/multiple outlets), Medium, Low (thin social signal).
    watch: up to 3 dated things to watch next (dates only if stated in the digest or clearly scheduled).
-   qa: 3 questions a public-affairs lead would ask today, with short evidence-based answers.
+   qa: exactly 3 questions a public-affairs lead would ask today, with short evidence-based answers (never empty).
 2. policy_notes: for each official item in the digest, one sentence on why it matters; set marker=true for at
    most 3 of the most significant (they become markers on the volume chart).
 3. narratives: group the storyline labels into 4-12 narratives (merge near-duplicates). Keep ids stable across
@@ -50,7 +50,8 @@ Sections
    last ~7 days), rising, steady or fading, judged from the counts given. para = one-sentence paraphrase.
 4. misinfo: recurring false or misleading claims visible in the digest (items flagged misinformation), with
    level monitor / watch / respond and a one-line note on the suggested response. Empty list if none.
-5. voices_ids: up to 6 social items that best represent different stances and vaccines (ids only).
+5. voices_ids: 4-6 ids of items whose kind is "social", chosen to show different stances and vaccines
+   (never empty when the digest has social items).
 6. lens: an unlisted analyst lens for Sanofi's portfolio in Taiwan: exactly three products in this order:
    Beyfortus (nirsevimab; vaccine rsv), high-dose influenza vaccine (vaccine hd), Tdap booster (vaccine tdap).
    For each: what this week's signal is, the implication, a suggested public-affairs action (stakeholder
@@ -220,7 +221,7 @@ def analyze(dry_run: bool = False) -> dict:
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
             system=SYSTEM,
-            messages=[{"role": "user", "content": payload + f"\n\nIn this response, return only these sections: {', '.join(part)}."}],
+            messages=[{"role": "user", "content": payload + f"\n\nIn this response, return only these sections, each fully filled as specified above: {', '.join(part)}."}],
             output_config={"effort": "high", "format": {"type": "json_schema", "schema": schema}},
         ) as stream:
             msg = stream.get_final_message()

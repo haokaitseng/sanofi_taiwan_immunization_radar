@@ -170,6 +170,15 @@ def keyword_vaccines(text: str) -> list[str]:
 
 
 # ------------------------------------------------------------------ storage
+def _shares_run(a: str, b: str, n: int) -> bool:
+    """True if a and b share a run of at least n characters (whitespace ignored)."""
+    a, b = re.sub(r"\s+", "", a), re.sub(r"\s+", "", b)
+    if len(a) < n or len(b) < n:
+        return False
+    grams = {b[i:i + n] for i in range(len(b) - n + 1)}
+    return any(a[i:i + n] in grams for i in range(len(a) - n + 1))
+
+
 def scrub_social() -> int:
     """The repository is public, so verbatim social text never stays in it.
 
@@ -183,7 +192,13 @@ def scrub_social() -> int:
         for d in records:
             if d["kind"] != "social":
                 continue
-            new_title = (d.get("tags") or {}).get("title_en", "")
+            tags = d.get("tags") or {}
+            original = f"{d.get('title', '')} {d.get('text', '')}"
+            for key in ("title_zh", "summary_zh"):      # a "paraphrase" that copies the post is dropped
+                if tags.get(key) and _shares_run(tags[key], original, 12):
+                    tags[key] = ""
+                    dirty = True
+            new_title = tags.get("title_en", "")
             if d.get("text") or d.get("title") != new_title:
                 d["text"], d["title"] = "", new_title
                 dirty = True

@@ -120,7 +120,7 @@ button { font: inherit; }
 .status-icon { flex: none; display: block; }
 @media (max-width: 700px) {
   .site-header { position: static; }
-  .header-meta { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
+  .header-meta { width: 100%; justify-content: space-between; }   /* controls wrap under "Updated" on narrow phones */
   .hide-sm { display: none; }
 }
 
@@ -404,7 +404,18 @@ body.is-lens .tabs, body.is-lens #status-strip { display: none; }
 .gh-mobile { display: none; }
 @media (max-width: 700px) {
   .gh-desktop { display: none; }
-  .gh-mobile { display: inline-flex; margin-left: auto; }
-  .gh-mobile + #theme-btn { flex: none; }
+  .gh-mobile { display: inline-flex; }
 }
 @media (max-width: 700px) { .tabs button { padding-left: 10px; padding-right: 10px; } }
+
+/* ---------- language switch (top right) ---------- */
+.meta-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.lang-switch { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; }
+.lang-switch button {
+  appearance: none; background: none; border: 0; border-radius: 6px; padding: 2px 8px;
+  font-size: 12.5px; color: var(--text-2); cursor: pointer; white-space: nowrap;
+}
+.lang-switch button:hover { background: var(--surface-2); color: var(--text-1); }
+.lang-switch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+/* Static markup holds both languages; the one that does not match <html lang> is hidden. */
+html:not([lang|="zh"]) [data-lang="zh"], html[lang|="zh"] [data-lang="en"] { display: none !important; }

@@ -128,11 +128,31 @@ def analyze_step(dry_run: bool) -> bool:
     return _ai_step("analyst", run) if not dry_run else bool(run() or True)
 
 
+def zh_step() -> bool:
+    """Chinese title/summary for tagged items that lack them (catch-up; new items get them from the tagger)."""
+    from .tag import zh_backfill
+    def run():
+        stats = zh_backfill()
+        print(f"[zh] {stats}", flush=True)
+        return stats
+    return _ai_step("zh_items", run)
+
+
+def translate_step() -> bool:
+    """Traditional Chinese version of the analysis; only untranslated fields are sent."""
+    from .translate import translate
+    def run():
+        stats = translate()
+        print(f"[translate] {stats}", flush=True)
+        return stats
+    return _ai_step("translator", run)
+
+
 def main(argv: list[str] | None = None) -> int:
     from dotenv import load_dotenv
     load_dotenv(config.ROOT / ".env")   # local runs; in GitHub Actions the variables come from secrets
     p = argparse.ArgumentParser(prog="pipeline.run")
-    p.add_argument("step", choices=["collect", "tag", "analyze", "scrub", "build", "daily"])
+    p.add_argument("step", choices=["collect", "tag", "zh", "analyze", "translate", "scrub", "build", "daily"])
     p.add_argument("--backfill", action="store_true", help=f"collect the last {config.BACKFILL_DAYS} days")
     p.add_argument("--only", default="", help="comma-separated source names")
     p.add_argument("--limit", type=int, default=None, help="tag at most N items (testing)")
@@ -147,6 +167,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if tag_step(args.limit, args.dry_run) else 1
     if args.step == "analyze":
         return 0 if analyze_step(args.dry_run) else 1
+    if args.step == "zh":
+        return 0 if zh_step() else 1
+    if args.step == "translate":
+        return 0 if translate_step() else 1
     if args.step == "scrub":
         print(f"[scrub] {scrub_social()} social records reduced to paraphrase + tags", flush=True)
         return 0
@@ -156,8 +180,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.step == "daily":
         collect(args.backfill, only)
         tag_step(None, False)
+        zh_step()
         print(f"[scrub] {scrub_social()} social records reduced to paraphrase + tags", flush=True)
         analyze_step(False)
+        translate_step()  # only fields without a Chinese version are sent
         build_site()      # always publish: yesterday's analysis is reused if today's AI steps failed
     return 0
 

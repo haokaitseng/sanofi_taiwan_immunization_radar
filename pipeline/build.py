@@ -22,6 +22,16 @@ CHANNELS = ["News", "PTT", "Threads", "Dcard", "Facebook"]
 POLICY_TYPES = {"press": "Press release", "letter": "Letter to physicians", "clarification": "Clarification",
                 "news": "News", "announcement": "Announcement", "drug_safety": "Drug safety", "rumor": "Rumour rebuttal"}
 
+SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
+    "cdc": ("疾管署", "新聞稿、致醫界通函、澄清專區", "列表頁＋RSS"),
+    "tfda": ("食藥署", "新聞、公告、藥品安全資訊、闢謠專區", "RSS＋列表頁"),
+    "gnews": ("Google 新聞", "符合疫苗關鍵字的台灣中文新聞", "RSS 搜尋"),
+    "ptt": ("PTT", "親子、健康與綜合看板的貼文", "公開網頁、低頻率擷取；僅限本機執行（雲端主機被封鎖）"),
+    "threads": ("Threads", "符合關鍵字的公開貼文", "Apify 擷取程式"),
+    "facebook": ("Facebook", "公部門公開粉專疫苗貼文下的留言", "Apify 擷取程式"),
+    "wiki": ("維基百科", "中英文疫苗條目的每日瀏覽量", "Pageviews API"),
+}
+
 SOURCE_INFO = [  # display metadata for the status strip and the Methodology table
     ("cdc", "Taiwan CDC", "Policy", "Press releases, letters to physicians, clarifications", "List pages + RSS"),
     ("tfda", "TFDA", "Policy", "News, announcements, drug-safety notices, rumour rebuttals", "RSS + list pages"),
@@ -85,11 +95,11 @@ def _spikes(dates: list[str], series: dict[str, list[int]]) -> list[dict]:
 
 
 STANCE_SCORE = {"opposed": -1.0, "hesitant": -0.5, "neutral": 0.0, "accepting": 0.5, "advocating": 1.0}
-SPEAKERS = {  # speaker tag -> (label, map type)
-    "government": ("Government agencies", "gov"), "health_professional": ("Doctors, pharmacists, nurses", "hcp"),
-    "medical_society": ("Medical societies", "hcp"), "media": ("News media", "pub"), "kol": ("Health influencers", "pub"),
-    "parent": ("Parents", "pub"), "older_adult_or_carer": ("Older adults & carers", "pub"),
-    "general_public": ("General public", "pub"), "industry": ("Industry", "pub"),
+SPEAKERS = {  # speaker tag -> (label, map type, Chinese label)
+    "government": ("Government agencies", "gov", "政府機關"), "health_professional": ("Doctors, pharmacists, nurses", "hcp", "醫師、藥師、護理師"),
+    "medical_society": ("Medical societies", "hcp", "醫學會"), "media": ("News media", "pub", "新聞媒體"), "kol": ("Health influencers", "pub", "健康 KOL"),
+    "parent": ("Parents", "pub", "家長"), "older_adult_or_carer": ("Older adults & carers", "pub", "長者與照顧者"),
+    "general_public": ("General public", "pub", "一般民眾"), "industry": ("Industry", "pub", "產業"),
 }
 
 
@@ -124,7 +134,8 @@ def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
         total = sum(stances.values()) or 1
         net = round(100 * (stances["accepting"] + stances["advocating"] - stances["hesitant"] - stances["opposed"]) / total)
         channels = [c for c, _ in Counter(it["channel"] for it in mine).most_common(2)]
-        out.append({"id": n["id"], "title": n["title"], "vaccines": n["vaccines"], "status": n["status"], "para": n["para"],
+        out.append({"id": n["id"], "title": n["title"], "title_zh": n.get("title_zh", ""), "vaccines": n["vaccines"],
+                    "status": n["status"], "para": n["para"], "para_zh": n.get("para_zh", ""),
                     "channels": channels, "net": net, "series": series, "mentions": len(mine)})
     return [n for n in out if n["mentions"]]
 
@@ -145,9 +156,28 @@ def _stakeholders(conv: list[dict], since: str) -> list[dict]:
         return []
     weight = {sp: a["n"] + a["eng"] / 10 for sp, a in pts}
     top = max(weight.values())
-    return [{"label": SPEAKERS[sp][0], "type": SPEAKERS[sp][1], "stance": round(a["score"] / a["n"], 2),
+    return [{"label": SPEAKERS[sp][0], "label_zh": SPEAKERS[sp][2], "type": SPEAKERS[sp][1], "stance": round(a["score"] / a["n"], 2),
              "influence": round(10 + 85 * math.sqrt(weight[sp] / top)), "mentions": a["n"]}
             for sp, a in sorted(pts, key=lambda p: -weight[p[0]])]
+
+
+def _voice(it: dict) -> dict:
+    t = it["tags"]
+    return {"channel": it["channel"], "vaccine": (t.get("vaccines") or it["vaccines"])[0], "stance": t.get("stance"),
+            "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"]}
+
+
+def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
+    """When the analyst picks no examples: the most relevant recent social posts, one per stance first."""
+    recent = sorted((it for it in conv if it["kind"] == "social" and it.get("tags") and it["published"] >= since),
+                    key=lambda it: (it["tags"].get("pa_relevance", 0), it.get("engagement", 0)), reverse=True)
+    picked, stances = [], set()
+    for it in recent:                      # first pass: variety of stances
+        if it["tags"].get("stance") not in stances:
+            picked.append(it)
+            stances.add(it["tags"].get("stance"))
+    picked += [it for it in recent if it not in picked]   # then fill by relevance
+    return [_voice(it) for it in picked[:n]]
 
 
 def build(analysis: dict | None = None) -> dict:
@@ -186,8 +216,8 @@ def build(analysis: dict | None = None) -> dict:
             policy.append({
                 "id": it["id"], "date": it["published"], "source": it["source"], "vaccines": it["_vaccines"],
                 "type": POLICY_TYPES.get(it["subtype"], it["subtype"]), "title_zh": it["title"],
-                "title_en": t.get("title_en", ""), "summary": t.get("summary_en", ""),
-                "why": notes.get(it["id"], {}).get("why", ""), "url": it["url"],
+                "title_en": t.get("title_en", ""), "summary": t.get("summary_en", ""), "summary_zh": t.get("summary_zh", ""),
+                "why": notes.get(it["id"], {}).get("why", ""), "why_zh": notes.get(it["id"], {}).get("why_zh", ""), "url": it["url"],
                 "marker": it["id"] in notes and notes[it["id"]].get("marker", False),
             })
     policy.sort(key=lambda p: p["date"], reverse=True)
@@ -215,7 +245,9 @@ def build(analysis: dict | None = None) -> dict:
             state = "ok"
         else:
             state = "stale" if st.get("last_success") else "failed"
+        zh = SOURCE_ZH.get(sid, (name, what, how))
         sources.append({"id": sid, "name": name, "type": kind, "what": what, "how": how, "status": state,
+                        "name_zh": zh[0], "what_zh": zh[1], "how_zh": zh[2],
                         "last_success": (st or {}).get("last_success"), "error": (st or {}).get("last_error") if state != "ok" else None})
 
     day_files = sorted(p.stem for p in config.ITEMS_DIR.glob("*.jsonl"))
@@ -257,9 +289,12 @@ def build(analysis: dict | None = None) -> dict:
         latest["misinfo"] = [{**{k: v for k, v in m.items() if k != "source_ids"}, "sources": _refs(m["source_ids"], by_id)}
                              for m in analysis.get("misinfo", [])]
         latest["voices"] = [{"channel": it["channel"], "vaccine": (it["tags"].get("vaccines") or it["vaccines"])[0],
-                             "stance": it["tags"].get("stance"), "text": it["tags"].get("summary_en", ""), "url": it["url"]}
+                             "stance": it["tags"].get("stance"), "text": it["tags"].get("summary_en", ""),
+                             "text_zh": it["tags"].get("summary_zh", ""), "url": it["url"]}
                             for it in (by_id[i] for i in analysis.get("voices_ids", []) if i in by_id)
                             if it["kind"] == "social" and it.get("tags")]
+        if not latest["voices"]:
+            latest["voices"] = _fallback_voices(conv, dates[-14])
         if analysis.get("lens"):
             lens = {
                 "title": "Analyst lens: Sanofi vaccines in Taiwan", "date": analysis.get("date", end.isoformat()),
