@@ -81,7 +81,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
         <ol class="pipeline">
           <li><span class="step-n">1</span><strong>Collect</strong><span>Taiwan CDC, TFDA, Google News, PTT, Threads, comments on public Facebook pages, Wikipedia pageviews</span></li>
           <li><span class="step-n">2</span><strong>Clean</strong><span>Remove duplicates by URL and near-identical headlines, drop off-topic items such as animal influenza</span></li>
-          <li><span class="step-n">3</span><strong>Tag</strong><span>Claude Haiku 5.5 labels vaccine, issue, stance, speaker and storyline, and writes short English and Chinese summaries</span></li>
+          <li><span class="step-n">3</span><strong>Tag</strong><span>Claude Haiku 5.5 labels vaccine, who pays (公費 / 自費), issue, stance, speaker and storyline, and writes short English and Chinese summaries</span></li>
           <li><span class="step-n">4</span><strong>Analyse</strong><span>Claude Opus 5.5 writes the daily brief, explains official actions and groups storylines, citing sources for every claim, then translates it into Traditional Chinese</span></li>
           <li><span class="step-n">5</span><strong>Validate</strong><span>Schema and sanity checks. If a source fails, its light turns amber and the rest of the run carries on</span></li>
           <li><span class="step-n">6</span><strong>Publish</strong><span>Commit the data to GitHub and redeploy. Git history doubles as a dated archive</span></li>
@@ -93,7 +93,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
         <ol class="pipeline">
           <li><span class="step-n">1</span><strong>收集</strong><span>疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言、維基百科瀏覽量</span></li>
           <li><span class="step-n">2</span><strong>清理</strong><span>依網址與近似標題去除重複，剔除禽流感等離題內容</span></li>
-          <li><span class="step-n">3</span><strong>標註</strong><span>Claude Haiku 5.5 標註疫苗、議題、立場、發言者與敘事主軸，並撰寫中英文簡短摘要</span></li>
+          <li><span class="step-n">3</span><strong>標註</strong><span>Claude Haiku 5.5 標註疫苗、費用來源（公費／自費）、議題、立場、發言者與敘事主軸，並撰寫中英文簡短摘要</span></li>
           <li><span class="step-n">4</span><strong>分析</strong><span>Claude Opus 5.5 撰寫每日簡報、說明官方行動並歸納敘事主軸，每項論述都附上來源，再譯為繁體中文</span></li>
           <li><span class="step-n">5</span><strong>驗證</strong><span>結構與合理性檢查。若某個來源失敗，其燈號轉為黃色，其餘流程照常進行</span></li>
           <li><span class="step-n">6</span><strong>發布</strong><span>將資料提交至 GitHub 並重新部署，Git 歷史同時是有日期的存檔</span></li>
@@ -111,7 +111,9 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
           <h3 class="card-title">Definitions</h3>
           <dl class="defs" style="margin-top:12px">
             <dt>Vaccine groups</dt>
-            <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑); and <strong>High-dose</strong> (高劑量). A mention that names both types counts under both. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself.</dd>
+            <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑, e.g. FLUAD 輔流禦); and <strong>High-dose</strong> (高劑量, e.g. Efluelda 菲優達). A mention that names both types counts under both. News articles count under a type when a search for that type or brand matched the article’s text, even if the headline only says 加強型. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself.</dd>
+            <dt>Who pays</dt>
+            <dd><strong>Public-funded</strong> (公費): the government programme, free for eligible groups. <strong>Self-pay</strong> (自費): paid out of pocket, for example clinics’ own stock. <strong>Both</strong>: the item mentions both, even in passing. <strong>Not stated</strong>: it mentions neither. In the Who pays filter, 公費 and 自費 each include the items that discuss both.</dd>
             <dt>Stance scale</dt>
             <dd>Adapted from the WHO SAGE vaccine-hesitancy continuum. <strong>Advocating</strong>: urges others to vaccinate. <strong>Accepting</strong>: has vaccinated or intends to. <strong>Neutral</strong>: news or information with no stance. <strong>Hesitant</strong>: delays, doubts or asks for reassurance. <strong>Opposed</strong>: rejects vaccination or spreads anti-vaccine claims.</dd>
             <dt>Evidence tiers</dt>
@@ -124,7 +126,9 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
           <h3 class="card-title">名詞定義</h3>
           <dl class="defs" style="margin-top:12px">
             <dt>疫苗分類</dt>
-            <dd><strong>流感</strong>：一般的流感疫苗接種。<strong>加強型流感</strong>分為三類追蹤：<strong>加強型</strong>，指提及佐劑或高劑量疫苗但未說明是哪一種；<strong>佐劑</strong>；以及<strong>高劑量</strong>。同時提到兩種類型的提及會分別計入。<strong>RSV</strong>：包括 nirsevimab（Beyfortus）在內的長效嬰兒抗體，以及孕婦與長者 RSV 疫苗。<strong>Tdap</strong>：破傷風、白喉、非細胞性百日咳追加劑（包括孕期接種），以及百日咳本身。</dd>
+            <dd><strong>流感</strong>：一般的流感疫苗接種。<strong>加強型流感</strong>分為三類追蹤：<strong>加強型</strong>，指提及佐劑或高劑量疫苗但未說明是哪一種；<strong>佐劑</strong>（如輔流禦 FLUAD）；以及<strong>高劑量</strong>（如菲優達 Efluelda）。同時提到兩種類型的提及會分別計入。若某類型或品牌的搜尋比對到新聞內文，即使標題只寫「加強型」，也計入該類型。<strong>RSV</strong>：包括 nirsevimab（Beyfortus）在內的長效嬰兒抗體，以及孕婦與長者 RSV 疫苗。<strong>Tdap</strong>：破傷風、白喉、非細胞性百日咳追加劑（包括孕期接種），以及百日咳本身。</dd>
+            <dt>費用來源</dt>
+            <dd><strong>公費</strong>：政府計畫，符合資格者免費接種。<strong>自費</strong>：自行付費，例如診所自備的疫苗。<strong>公費＋自費</strong>：項目兩者都提到，即使只是順帶一提。<strong>未說明</strong>：兩者皆未提及。「費用」篩選中的公費與自費，都包含兩者皆談到的項目。</dd>
             <dt>立場量表</dt>
             <dd>改編自 WHO SAGE 疫苗猶豫連續光譜。<strong>倡議</strong>：鼓勵他人接種。<strong>接受</strong>：已接種或打算接種。<strong>中立</strong>：沒有立場的新聞或資訊。<strong>猶豫</strong>：延後、懷疑或需要再三確認。<strong>反對</strong>：拒絕接種或散布反疫苗說法。</dd>
             <dt>證據層級</dt>
@@ -141,7 +145,8 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
             <li>Facebook coverage is limited to public pages.</li>
             <li>Threads and Facebook arrive through third-party scrapers that break when platforms change.</li>
             <li>Keyword-based collection misses posts that never name the vaccine or disease. News headlines that name no vaccine are kept only when they came from a vaccine-specific search, and the AI tagger confirms or drops them.</li>
-            <li>Stance and issue tags are AI-generated.</li>
+            <li>News arrives as headlines only. Vaccine types and who pays inside an article are inferred from separate type, brand and 公費 / 自費 searches, which Google matches against the full text.</li>
+            <li>Stance, issue and who-pays tags are AI-generated. Posts collected before 2026-10-11 were labelled for who pays from their paraphrase.</li>
             <li>Volumes count mentions, not people.</li>
           </ul>
         </div>
@@ -151,7 +156,8 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
             <li>Facebook 僅涵蓋公開粉專。</li>
             <li>Threads 與 Facebook 透過第三方爬蟲取得，平台改版時可能失效。</li>
             <li>以關鍵字收集會漏掉從未提及疫苗或疾病名稱的貼文。未提及疫苗的新聞標題，只有來自特定疫苗搜尋時才會保留，並由 AI 標註確認或剔除。</li>
-            <li>立場與議題標註由 AI 產生。</li>
+            <li>新聞僅取得標題。文章內提到的疫苗類型與費用來源，是由另外的類型、品牌與公費／自費搜尋推得（Google 以全文比對）。</li>
+            <li>立場、議題與費用來源標註由 AI 產生。2026-10-11 前收集的貼文，費用來源依其改寫內容判斷。</li>
             <li>聲量計算的是提及次數而非人數。</li>
           </ul>
         </div>

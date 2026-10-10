@@ -121,12 +121,23 @@ const POLICY_TYPE_ZH = { 'Press release': '新聞稿', 'Letter to physicians': '
 const policyType = t => tr(t, POLICY_TYPE_ZH[t] || t);
 const LEVEL_ZH = { high: '高', medium: '中', low: '低' };
 const hml = v => tr(v, LEVEL_ZH[String(v).toLowerCase()] || v);   // High / Medium / Low
+// Who pays (公費 / 自費). Exclusive labels per item; the filter's 公費 and 自費 views also include "both".
+const FUNDING = ['public', 'self_pay', 'both', 'not_stated'];
+const FUND_TEXT = {
+  public: loc({ v: '--f-pub' }, { label: ['Public', '公費'], badge: ['Public-funded', '公費'] }),
+  self_pay: loc({ v: '--f-self' }, { label: ['Self-pay', '自費'], badge: ['Self-pay', '自費'] }),
+  both: loc({ v: '--f-both' }, { label: ['Both', '公費＋自費'], badge: ['Public + self-pay', '公費＋自費'] }),
+  not_stated: loc({ v: '--f-ns' }, { label: ['Not stated', '未說明'], badge: ['Not stated', '未說明'] }),
+};
+const FUND_VIEWS = { public: ['public', 'both'], self_pay: ['self_pay', 'both'], both: ['both'], not_stated: ['not_stated'] };
+const FUND_CODE = { p: 'public', s: 'self_pay', b: 'both', n: 'not_stated' };
+const inFund = f => state.funding === 'all' || FUND_VIEWS[state.funding].includes(f || 'not_stated');
 
 /* =========================================================
    Data
    ========================================================= */
-let D = null, LENS = null, N = 0, DATES = [], AVG = {}, VACCINES = [], VAC_KEYS = [], VAC = {};
-const state = { view: 'today', range: 90, vac: new Set(), source: 'all', channel: 'all' };
+let D = null, LENS = null, N = 0, DATES = [], VACCINES = [], VAC_KEYS = [], VAC = {};
+const state = { view: 'today', range: 90, vac: new Set(), source: 'all', channel: 'all', funding: 'all' };
 
 function useData(data) {
   D = data;
@@ -135,17 +146,41 @@ function useData(data) {
   VACCINES = D.vaccines.map(v => loc({ key: v.key, zh: v.zh }, VAC_TEXT[v.key] || { label: [v.label, v.label], short: [v.label, v.label] }));
   VAC_KEYS = VACCINES.map(v => v.key);
   VAC = Object.fromEntries(VACCINES.map(v => [v.key, v]));
-  AVG = Object.fromEntries(VAC_KEYS.map(k => {
-    const a = D.series[k];
-    return [k, a.map((_, i) => sum(a.slice(Math.max(0, i - 6), i + 1)) / Math.min(7, i + 1))];
-  }));
   state.vac = new Set(VAC_KEYS);
 }
+// Aggregates for the selected funding view; the whole conversation when the filter is off.
+const AGG = () => (state.funding !== 'all' && D.by_funding ? D.by_funding[state.funding] : D);
+const avg7 = a => a.map((_, i) => sum(a.slice(Math.max(0, i - 6), i + 1)) / Math.min(7, i + 1));
+const AVG_CACHE = {};
+const avgOf = k => (AVG_CACHE[`${state.funding}:${k}`] ||= avg7(AGG().series[k]));
 const selKeys = () => VAC_KEYS.filter(k => state.vac.has(k));
 const volume = (k, r, prior = false) => {
-  const s = D.series[k];
+  const s = AGG().series[k];
   return prior ? sum(s.slice(Math.max(0, N - 2 * r), N - r)) : sum(s.slice(N - r));
 };
+// Funding counts over the selected vaccines for a range (or the period before it), keyed by label.
+function fundingTotals(r = state.range, prior = false) {
+  const src = prior ? D.funding_mix_prior : D.funding_mix;
+  const out = { public: 0, self_pay: 0, both: 0, not_stated: 0, total: 0 };
+  for (const k of selKeys()) {
+    const c = (src && src[String(r)] && src[String(r)][k]) || [0, 0, 0, 0];
+    FUNDING.forEach((f, i) => { out[f] += c[i]; out.total += c[i]; });
+  }
+  return out;
+}
+// A narrative's daily series and net stance under the funding filter, re-counted from its per-item marks.
+function narrView(n) {
+  if (state.funding === 'all' || !n.marks) return { series: n.series, net: n.net, total: n.mentions };
+  const series = new Array(N).fill(0);
+  let pos = 0, neg = 0, total = 0;
+  for (const [i, f, s] of n.marks) {
+    if (!inFund(FUND_CODE[f])) continue;
+    series[i]++; total++;
+    if (s === 'a' || s === 'v') pos++;
+    else if (s === 'o' || s === 'h') neg++;
+  }
+  return { series, net: total ? Math.round(100 * (pos - neg) / total) : 0, total };
+}
 const inRange = (iso, r = state.range) => iso >= D.dates[N - r];
 const inPrior = (iso, r = state.range) => N - 2 * r >= 0 && iso >= D.dates[N - 2 * r] && iso < D.dates[N - r];
 const rangeMix = (obj, k, r = state.range) => (obj && obj[String(r)] && obj[String(r)][k]) || null;
@@ -164,19 +199,19 @@ function weekly(fn, weeks = 12) {
 }
 function computeKpis() {
   const keys = selKeys(), r = state.range;
-  const pol = D.policy.filter(p => p.vaccines.some(v => state.vac.has(v)));
+  const pol = D.policy.filter(p => p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding));
   const cur = pol.filter(p => inRange(p.date, r)), pri = pol.filter(p => inPrior(p.date, r));
   const hes = prior => {
     let num = 0, den = 0;
     for (const k of keys) {
-      const m = rangeMix(prior ? D.stance_prior : D.stance, k, r);
+      const m = rangeMix(prior ? AGG().stance_prior : AGG().stance, k, r);
       if (!m) continue;
       const vol = volume(k, r, prior);
       num += vol * (m[0] + m[1]); den += vol;
     }
     return den ? num / den : null;
   };
-  const narr = D.narratives.filter(n => n.vaccines.some(v => state.vac.has(v)));
+  const narr = D.narratives.filter(n => n.vaccines.some(v => state.vac.has(v)) && narrView(n).total > 0);
   return {
     mentions: keys.reduce((s, k) => s + volume(k, r), 0),
     mentionsPrior: keys.reduce((s, k) => s + volume(k, r, true), 0),
@@ -186,8 +221,9 @@ function computeKpis() {
     narratives: narr.length,
     rising: narr.filter(n => n.status === 'emerging' || n.status === 'rising').length,
     emerging: narr.filter(n => n.status === 'emerging').length,
-    spikes: D.spikes.filter(s => state.vac.has(s.vaccine) && inRange(s.date, r)).length,
-    mentionsWeekly: weekly((a, b) => keys.reduce((s, k) => s + sum(D.series[k].slice(a, b)), 0)),
+    spikes: AGG().spikes.filter(s => state.vac.has(s.vaccine) && inRange(s.date, r)).length,
+    mentionsWeekly: weekly((a, b) => keys.reduce((s, k) => s + sum(AGG().series[k].slice(a, b)), 0)),
+    fund: fundingTotals(r), fundPrior: fundingTotals(r, true),
   };
 }
 const vsPrior = v => tr(`${v} vs prior ${state.range} days`, `${v}（較前 ${state.range} 天）`);
@@ -269,6 +305,10 @@ const viewHead = (title, desc) => h('div', { class: 'view-head' }, h('h2', null,
 const emptyState = (title, hint) => h('div', { class: 'empty' }, h('p', { class: 'empty-title' }, title), hint ? h('p', { class: 'muted small' }, hint) : null);
 const statusLabel = s => h('span', { class: 'status' }, statusIcon(srcLevel(s.status)), srcLabel(s.status));
 const whyLine = text => h('p', { class: 'why' }, h('strong', null, tr('Why it matters: ', '為何重要：')), text);
+// Who-pays badge for an item; nothing when funding is not stated.
+const fundKey = f => h('span', { class: `fund-key fund-${f}`, 'aria-hidden': 'true' });
+const fundBadge = f => (FUND_TEXT[f] && f !== 'not_stated'
+  ? h('span', { class: 'fund', title: tr('Who pays, as discussed by the item', '此項目談到的費用來源') }, fundKey(f), FUND_TEXT[f].badge) : null);
 
 function dataTable(headers, rows, numeric = []) {
   return h('table', { class: 'data-table' },
@@ -329,6 +369,17 @@ function filterRow({ source = false, channel = false } = {}) {
     VACCINES.map(v => h('button', { type: 'button', class: 'chip', 'aria-pressed': String(state.vac.has(v.key)), 'data-fkey': `vac-${v.key}`,
       title: v.zh, onclick: () => toggleVac(v.key) }, h('span', { class: 'dot', style: `background:var(--s-${v.key})` }), v.label)));
   row.append(h('div', { class: 'filter' }, h('span', { class: 'filter-label' }, tr('Vaccines', '疫苗')), chips));
+  const FUND_TIP = {
+    public: tr('Items that discuss public funding (公費), including those that also discuss self-pay', '談到公費的項目，含同時談到自費者'),
+    self_pay: tr('Items that discuss self-pay (自費), including those that also discuss public funding', '談到自費的項目，含同時談到公費者'),
+    both: tr('Items that discuss both', '同時談到公費與自費的項目'),
+    not_stated: tr('Items that mention neither', '未提及費用來源的項目'),
+  };
+  const fseg = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': tr('Who pays', '費用來源') });
+  for (const k of ['all', ...FUNDING]) fseg.append(h('button', {
+    type: 'button', role: 'radio', 'aria-checked': String(state.funding === k), 'data-fkey': `fund-${k}`, title: FUND_TIP[k] || null,
+    onclick: () => setState({ funding: k }) }, k === 'all' ? tr('All', '全部') : FUND_TEXT[k].label));
+  row.append(h('div', { class: 'filter' }, h('span', { class: 'filter-label' }, tr('Who pays', '費用')), fseg));
   if (source) {
     const s2 = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': tr('Source', '來源') });
     for (const [k, label] of [['all', tr('All', '全部')], ['cdc', sourceName('cdc')], ['tfda', sourceName('tfda')]]) s2.append(h('button', {
@@ -617,72 +668,55 @@ function stackedBars(host, rows) {
   host.append(svg);
 }
 
-/* Stakeholder map: stance x influence, shape = stakeholder type */
-const STAKE_TYPES = loc({}, { gov: ['Government', '政府'], hcp: ['Health professionals', '醫療專業人員'], pub: ['Media & public', '媒體與民眾'] });
-const signed = v => `${v > 0 ? '+' : ''}${v.toFixed(2)}`;
-function shapeMark(type, cx, cy) {
-  if (type === 'gov') return sv('circle', { cx, cy, r: 5.5, class: 'mark' });
-  if (type === 'hcp') return sv('rect', { x: cx - 5, y: cy - 5, width: 10, height: 10, rx: 1.5, class: 'mark' });
-  return sv('path', { d: `M${cx},${cy - 6.5}L${cx + 6},${cy + 4.5}L${cx - 6},${cy + 4.5}Z`, class: 'mark' });
+/* Who pays: 100% stacked bars per vaccine. Order 公費 | both | 自費 | not stated; "both" is a two-colour stripe. */
+let patternSeq = 0;
+function fundFill(svg, f) {
+  if (f !== 'both') return `var(${FUND_TEXT[f].v})`;
+  const id = `fund-both-${++patternSeq}`;
+  svg.append(sv('defs', null, sv('pattern', { id, width: 6, height: 6, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
+    sv('rect', { width: 6, height: 6, style: 'fill:var(--f-pub)' }), sv('rect', { width: 3, height: 6, style: 'fill:var(--f-self)' }))));
+  return `url(#${id})`;
 }
-function stakeholderMap(host, pts, keyEl) {
+const MIX_ORDER = ['public', 'both', 'self_pay', 'not_stated'];
+function mixBars(host, rows) {
   host.replaceChildren();
   const W = Math.max(280, Math.floor(host.clientWidth));
-  const narrow = W < 540;
-  if (keyEl) keyEl.hidden = !narrow;
-  const H = narrow ? 340 : 440;
-  const m = { t: 26, r: 16, b: 50, l: 30 };
-  const pw = W - m.l - m.r, ph = H - m.t - m.b;
-  const x = s => m.l + ((s + 1) / 2) * pw;
-  const y = v => m.t + ph - (v / 100) * ph;
+  const labelW = Math.min(110, Math.max(48, Math.max(...rows.map(r => textWidth(r.label))) + 12));
+  const rowH = 38, barH = 18;
+  const m = { t: 2, r: 46, b: 2, l: labelW };
+  const pw = W - m.l - m.r, H = m.t + rows.length * rowH + m.b;
+  const share = (r, f) => r.counts[FUNDING.indexOf(f)] / r.total;
+  const rowText = r => (r.total < 5 ? tr(`${r.label}: not enough mentions`, `${r.label}：提及數不足`)
+    : `${r.label}: ${MIX_ORDER.map(f => `${FUND_TEXT[f].label} ${pct(share(r, f))}`).join(', ')}`);
   const svg = sv('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, class: 'chart', role: 'img',
-    'aria-label': tr('Stakeholder map: stance on vaccination against influence on the conversation.', '利害關係人地圖：對疫苗接種的立場與在討論中的影響力。') });
-  svg.append(sv('rect', { x: m.l, y: m.t, width: pw, height: ph, fill: 'none', style: 'stroke:var(--grid)' }));
-  svg.append(sv('line', { x1: x(0), x2: x(0), y1: m.t, y2: m.t + ph, class: 'axis-line' }));
-  svg.append(sv('line', { x1: m.l, x2: m.l + pw, y1: y(50), y2: y(50), class: 'axis-line' }));
-  const q = [
-    { t: tr('Influential sceptics', '具影響力的質疑者'), x: m.l + 2, y: m.t - 9, a: 'start' },
-    { t: tr('Champions', '擁護者'), x: m.l + pw - 2, y: m.t - 9, a: 'end' },
-    { t: tr('Monitor', '持續觀察'), x: m.l + 2, y: m.t + ph + 17, a: 'start' },
-    { t: tr('Allies to activate', '可動員的盟友'), x: m.l + pw - 2, y: m.t + ph + 17, a: 'end' },
-  ];
-  for (const c of q) svg.append(sv('text', { x: c.x, y: c.y, class: 'quad-label', 'text-anchor': c.a, text: c.t }));
-  svg.append(sv('text', { x: m.l + pw / 2, y: H - 6, class: 'axis-title', 'text-anchor': 'middle', text: tr('Stance: opposed ← → supportive', '立場：反對 ← → 支持') }));
-  svg.append(sv('text', { x: 12, y: m.t + ph / 2, class: 'axis-title', 'text-anchor': 'middle', transform: `rotate(-90 12 ${m.t + ph / 2})`, text: tr('Influence →', '影響力 →') }));
-  pts.forEach((p, i) => {
-    const cx = x(p.stance), cy = y(p.influence), name = L(p, 'label');
-    const g = sv('g', { class: 'pt', tabindex: 0, role: 'img',
-      'aria-label': tr(`${name} (${STAKE_TYPES[p.type]}): influence ${p.influence}, stance ${signed(p.stance)}`,
-        `${name}（${STAKE_TYPES[p.type]}）：影響力 ${p.influence}，立場 ${signed(p.stance)}`) },
-      sv('circle', { cx, cy, r: 14, class: 'hit' }), shapeMark(p.type, cx, cy));
-    const right = p.lab !== 'l';
-    g.append(sv('text', { x: cx + (right ? 10 : -10), y: cy, class: 'pt-label', 'data-cx': cx, 'text-anchor': right ? 'start' : 'end', 'dominant-baseline': 'middle', text: narrow ? String(i + 1) : name }));
-    hoverTip(g, () => [{ value: tr(`Influence ${p.influence}`, `影響力 ${p.influence}`),
-      label: tr(`stance ${signed(p.stance)}${p.mentions ? ` · ${fmt(p.mentions)} mentions` : ''}`, `立場 ${signed(p.stance)}${p.mentions ? ` · ${fmt(p.mentions)} 則提及` : ''}`) }],
-      `${name} · ${STAKE_TYPES[p.type]}`);
-    svg.append(g);
+    'aria-label': tr(`Who pays, share of mentions by vaccine. ${rows.map(rowText).join('; ')}.`, `各疫苗討論的費用來源比例。${rows.map(rowText).join('；')}。`) });
+  const both = fundFill(svg, 'both');
+  rows.forEach((r, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    svg.append(sv('text', { x: 0, y: cy, class: 'row-label', 'dominant-baseline': 'middle', text: r.label }));
+    if (r.total < 5) {
+      svg.append(sv('text', { x: m.l, y: cy, class: 'tick', 'dominant-baseline': 'middle', text: tr('Not enough mentions yet', '提及數仍不足') }));
+      return;
+    }
+    const parts = MIX_ORDER.map(f => ({ f, v: r.counts[FUNDING.indexOf(f)] })).filter(p => p.v > 0);
+    let xx = m.l;
+    parts.forEach((p, j) => {
+      let x1 = xx, x2 = xx + (p.v / r.total) * pw;
+      xx = x2;
+      if (j > 0) x1 += 1;
+      if (j < parts.length - 1) x2 -= 1;
+      const w = x2 - x1;
+      if (w <= 0.5) return;
+      const fill = p.f === 'both' ? both : `var(${FUND_TEXT[p.f].v})`;
+      const seg = sv('path', { d: roundRect(x1, cy - barH / 2, w, barH, j === 0 ? Math.min(4, w / 2) : 0, j === parts.length - 1 ? Math.min(4, w / 2) : 0),
+        class: 'seg-mark', style: `fill:${fill}`, tabindex: 0, role: 'img', 'aria-label': `${r.label}, ${FUND_TEXT[p.f].badge}: ${pct(p.v / r.total)} (${fmt(p.v)})` });
+      hoverTip(seg, () => [{ key: p.f === 'both' ? 'repeating-linear-gradient(45deg,var(--f-pub) 0 3px,var(--f-self) 3px 6px)' : `var(${FUND_TEXT[p.f].v})`,
+        value: pct(p.v / r.total), label: tr(`${FUND_TEXT[p.f].badge} · ${fmt(p.v)} mentions`, `${FUND_TEXT[p.f].badge} · ${fmt(p.v)} 則提及`) }], r.label);
+      svg.append(seg);
+    });
+    svg.append(sv('text', { x: m.l + pw + 6, y: cy, class: 'bar-val', 'dominant-baseline': 'middle', text: compact(r.total) }));
   });
   host.append(svg);
-  // Label placement: try right, left, then above/below the point; keep the first spot inside the plot that
-  // overlaps neither an earlier label nor another point. Falls back to the right-hand spot.
-  const pad = 2;
-  const marks = [...svg.querySelectorAll('.pt .mark')].map(mk => mk.getBBox());
-  const placed = [];
-  const hits = (a, b) => a.x < b.x + b.width + pad && b.x < a.x + a.width + pad && a.y < b.y + b.height + pad && b.y < a.y + a.height + pad;
-  svg.querySelectorAll('.pt-label').forEach((t, i) => {
-    const cx = +t.dataset.cx, cy = +t.getAttribute('y');
-    const spots = [[cx + 10, cy, 'start'], [cx - 10, cy, 'end'], [cx + 6, cy - 13, 'start'], [cx + 6, cy + 13, 'start'],
-      [cx - 6, cy - 13, 'end'], [cx - 6, cy + 13, 'end']];
-    let chosen = null;
-    for (const [x, y, anchor] of spots) {
-      t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
-      const b = t.getBBox();
-      const inside = b.x >= m.l + 2 && b.x + b.width <= m.l + pw - 2 && b.y >= m.t && b.y + b.height <= m.t + ph;
-      if (inside && !placed.some(p => hits(b, p)) && !marks.some((mk, j) => j !== i && hits(b, mk))) { chosen = b; break; }
-    }
-    if (!chosen) { t.setAttribute('x', cx + 10); t.setAttribute('y', cy); t.setAttribute('text-anchor', 'start'); chosen = t.getBBox(); }
-    placed.push(chosen);
-  });
 }
 
 /* =========================================================
@@ -700,11 +734,11 @@ function briefCard() {
           '首次 AI 分析完成後，這裡會顯示每日簡報；在此之前先列出最新的官方公告與新聞標題。')))),
       h('ol', { class: 'brief-list' },
         latestPolicy.map(p => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), p.vaccines.map(vacChip), h('span', null, fmtDate(asDate(p.date)))),
+          h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), p.vaccines.map(vacChip), fundBadge(p.funding), h('span', null, fmtDate(asDate(p.date)))),
           h('h3', { class: 'brief-h' }, extLink(p.url, policyTitle(p))),
           !ZH() && p.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, p.title_zh) : null)),
         heads.map(n => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge('media'), n.vaccines.map(vacChip), h('span', null, `${n.outlet} · ${fmtDate(asDate(n.date))}`)),
+          h('div', { class: 'meta-row' }, typeBadge('media'), n.vaccines.map(vacChip), fundBadge(n.funding), h('span', null, `${n.outlet} · ${fmtDate(asDate(n.date))}`)),
           h('h3', { class: 'brief-h' }, extLink(n.url, ZH() ? n.title : n.title_en || n.title)),
           !ZH() && n.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, n.title) : null))));
   }
@@ -718,7 +752,7 @@ function briefCard() {
     h('div', { class: 'brief-body' },
       h('div', null,
         h('ol', { class: 'brief-list' }, b.entries.map(e => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge(e.type), e.vaccines.map(vacChip), h('span', null, tr(`Confidence: ${e.confidence}`, `可信度：${hml(e.confidence)}`))),
+          h('div', { class: 'meta-row' }, typeBadge(e.type), e.vaccines.map(vacChip), fundBadge(e.funding), h('span', null, tr(`Confidence: ${e.confidence}`, `可信度：${hml(e.confidence)}`))),
           h('h3', { class: 'brief-h' }, L(e, 'headline')),
           !ZH() && e.zh ? h('p', { class: 'zh', lang: 'zh-TW' }, e.zh) : null,
           whyLine(L(e, 'why')),
@@ -749,14 +783,24 @@ function kpiRow() {
     hasNarr
       ? kpiTile({ label: tr('Rising narratives', '升溫中的敘事'), value: String(k.rising),
         sub: tr(`${k.emerging} emerging · ${k.narratives} tracked for these vaccines`, `${k.emerging} 則新興 · 這些疫苗共追蹤 ${k.narratives} 則`) })
-      : kpiTile({ label: tr(`Spike days, last ${r} days`, `近 ${r} 天聲量暴增日`), value: String(k.spikes), sub: tr('Days well above the 28-day baseline', '明顯高於 28 日基準的天數') }));
+      : kpiTile({ label: tr(`Spike days, last ${r} days`, `近 ${r} 天聲量暴增日`), value: String(k.spikes), sub: tr('Days well above the 28-day baseline', '明顯高於 28 日基準的天數') }),
+    selfPayTile(k.fund, k.fundPrior));
+}
+// Share of all mentions (whatever the funding filter) that discuss 自費, including those that discuss both.
+function selfPayTile(f, prior) {
+  const label = tr('Self-pay share of mentions', '自費討論占比');
+  if (!f.total) return kpiTile({ label, value: '–', sub: tr('Appears once AI funding tags exist', 'AI 費用標註完成後顯示') });
+  const share = x => (x.self_pay + x.both) / x.total;
+  return kpiTile({ label, value: pct(share(f)), delta: prior.total ? deltaPts(share(f), share(prior)) : noPrior(),
+    sub: tr(`Public-funded ${pct((f.public + f.both) / f.total)} · not stated ${pct(f.not_stated / f.total)}`,
+      `公費 ${pct((f.public + f.both) / f.total)} · 未說明 ${pct(f.not_stated / f.total)}`) });
 }
 
 function volumeCard() {
   const r = state.range, lo = N - r, dates = DATES.slice(lo);
   const sel = VACCINES.filter(v => state.vac.has(v.key));
-  const series = sel.map(v => ({ key: v.key, label: v.label, color: `var(--s-${v.key})`, values: AVG[v.key].slice(lo) }));
-  const events = D.policy.filter(p => p.marker && p.date >= D.dates[lo] && p.vaccines.some(v => state.vac.has(v)))
+  const series = sel.map(v => ({ key: v.key, label: v.label, color: `var(--s-${v.key})`, values: avgOf(v.key).slice(lo) }));
+  const events = D.policy.filter(p => p.marker && p.date >= D.dates[lo] && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding))
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((p, j) => ({ n: j + 1, i: D.dates.indexOf(p.date) - lo, date: asDate(p.date), title: shortPolicyTitle(p), source: sourceName(p.source), url: p.url }))
     .filter(e => e.i >= 0);
@@ -773,13 +817,13 @@ function volumeCard() {
     legend,
     draw: host => lineChart(host, { dates, series, events }),
     table: () => dataTable([tr('Date', '日期'), ...series.map(s => s.label), tr('Official action', '官方行動')],
-      dates.map((d, i) => [fmtDate(d), ...series.map(s => fmt(D.series[s.key][lo + i])), evAt(i)]), series.map((_, k) => k + 1)),
+      dates.map((d, i) => [fmtDate(d), ...series.map(s => fmt(AGG().series[s.key][lo + i])), evAt(i)]), series.map((_, k) => k + 1)),
     after: evList,
   });
 }
 
 function stanceCard() {
-  const rows = VACCINES.filter(v => state.vac.has(v.key)).map(v => ({ label: v.label, mix: rangeMix(D.stance, v.key) }));
+  const rows = VACCINES.filter(v => state.vac.has(v.key)).map(v => ({ label: v.label, mix: rangeMix(AGG().stance, v.key) }));
   const legend = h('div', { class: 'legend' },
     STANCE.map(s => h('span', { class: 'legend-item' }, h('span', { class: 'key-rect', style: `background:var(${s.v})` }), s.label)));
   return chartCard({
@@ -794,7 +838,7 @@ function stanceCard() {
 
 function heatCard() {
   const rows = VACCINES.filter(v => state.vac.has(v.key));
-  const values = rows.map(v => rangeMix(D.issues, v.key));
+  const values = rows.map(v => rangeMix(AGG().issues, v.key));
   return chartCard({
     title: tr('What people are talking about', '民眾在談什麼'),
     subtitle: tr(`Share of each vaccine’s AI-tagged mentions that touch an issue, last ${state.range} days. One mention can touch several issues.`,
@@ -804,12 +848,65 @@ function heatCard() {
   });
 }
 
+function fundingCards() {
+  const r = state.range, lo = N - r, dates = DATES.slice(lo), keys = selKeys();
+  const filtered = state.funding !== 'all' ? tr(' The Who pays filter does not apply to these two charts.', '「費用」篩選不適用於這兩張圖。') : '';
+  const fundLegend = order => h('div', { class: 'legend' }, order.map(f => h('span', { class: 'legend-item' },
+    h('span', { class: `key-rect fund-${f}` }), FUND_TEXT[f].badge)));
+  const rows = VACCINES.filter(v => state.vac.has(v.key)).map(v => {
+    const counts = (D.funding_mix && D.funding_mix[String(r)] && D.funding_mix[String(r)][v.key]) || [0, 0, 0, 0];
+    return { key: v.key, label: v.label, counts, total: sum(counts) };
+  });
+  const mixCard = chartCard({
+    title: tr('Who pays: 公費 vs 自費 by vaccine', '誰付費：各疫苗的公費與自費討論'),
+    subtitle: tr(`Share of each vaccine’s mentions, last ${r} days, by the funding they discuss. “Both” means an item mentions public funding and self-pay.${filtered}`,
+      `近 ${r} 天各疫苗提及中談到的費用來源比例。「公費＋自費」表示同一項目兩者都提到。${filtered}`),
+    legend: fundLegend(MIX_ORDER),
+    draw: host => mixBars(host, rows),
+    table: () => dataTable([tr('Vaccine', '疫苗'), ...MIX_ORDER.map(f => FUND_TEXT[f].badge), tr('Mentions', '提及數')],
+      rows.map(rw => [rw.label, ...MIX_ORDER.map(f => (rw.total ? `${pct(rw.counts[FUNDING.indexOf(f)] / rw.total)} (${fmt(rw.counts[FUNDING.indexOf(f)])})` : '–')), fmt(rw.total)]),
+      [1, 2, 3, 4, 5]),
+  });
+  const daily = f => D.by_funding ? DATES.map((_, i) => keys.reduce((s, k) => s + D.by_funding[f].series[k][i], 0)) : new Array(N).fill(0);
+  const pub = daily('public'), self = daily('self_pay');
+  const series = [
+    { key: 'pub', label: FUND_TEXT.public.badge, color: 'var(--f-pub)', values: avg7(pub).slice(lo) },
+    { key: 'self', label: FUND_TEXT.self_pay.badge, color: 'var(--f-self)', values: avg7(self).slice(lo) },
+  ];
+  const trendCard = chartCard({
+    title: tr('公費 and 自費 conversation over time', '公費與自費討論趨勢'),
+    subtitle: tr(`Daily mentions that discuss each, 7-day average, selected vaccines. Items that discuss both count in both lines.${filtered}`,
+      `所選疫苗中談到公費或自費的每日提及數（7 日平均）。兩者都談到的項目兩條線都計入。${filtered}`),
+    legend: h('div', { class: 'legend' }, series.map(s => h('span', { class: 'legend-item' },
+      h('span', { class: 'key-line', style: `background:${s.color}` }), s.label))),
+    draw: host => lineChart(host, { dates, series, events: [] }),
+    table: () => dataTable([tr('Date', '日期'), FUND_TEXT.public.badge, FUND_TEXT.self_pay.badge],
+      dates.map((d, i) => [fmtDate(d), fmt(pub[lo + i]), fmt(self[lo + i])]), [1, 2]),
+  });
+  return h('div', { class: 'grid-2' }, mixCard, trendCard);
+}
+
+// Links for cross-checking a narrative against its sources: up to two items in the current funding view.
+function narrExamples(n) {
+  const pool = (n.examples && (n.examples[state.funding] || (state.funding === 'all' ? n.examples.all : null))) || [];
+  const list = pool.filter(ex => inFund(ex.funding)).slice(0, 2);
+  if (!list.length) return null;
+  return h('div', { class: 'narr-ex' }, h('span', { class: 'narr-ex-label' }, tr('Read: ', '原文：')),
+    list.map((ex, i) => {
+      const title = ZH() ? ex.t_zh : ex.t_en;
+      return h('span', { class: 'narr-ex-item' }, i ? h('span', { 'aria-hidden': 'true' }, ' · ') : null,
+        h('a', { href: ex.url, target: '_blank', rel: 'noopener noreferrer', title },
+          `${citeLabel(ex.label)}: ${truncate(title, ZH() ? 28 : 52)}`), ' ', fundBadge(ex.funding));
+    }));
+}
+
 function narrativesCard({ top = 0, risingOnly = false } = {}) {
   let list = D.narratives.filter(n => n.vaccines.some(v => state.vac.has(v)));
   if (state.channel !== 'all') list = list.filter(n => (n.channels || []).includes(state.channel));
   if (risingOnly) list = list.filter(n => n.status === 'emerging' || n.status === 'rising');
   const r = state.range;
-  let rows = list.map(n => ({ n, cur: sum(n.series.slice(N - r)), prior: sum(n.series.slice(Math.max(0, N - 2 * r), N - r)) }));
+  let rows = list.map(n => ({ n, v: narrView(n) })).filter(row => row.v.total > 0)
+    .map(row => ({ ...row, cur: sum(row.v.series.slice(N - r)), prior: sum(row.v.series.slice(Math.max(0, N - 2 * r), N - r)) }));
   rows.sort(risingOnly ? (a, b) => (b.cur / Math.max(b.prior, 1)) - (a.cur / Math.max(a.prior, 1)) : (a, b) => b.cur - a.cur);
   if (top) rows = rows.slice(0, top);
   const change = row => ((row.prior < 5 || row.cur > row.prior * 8) ? tr('New', '新') : `${row.cur >= row.prior ? '+' : '−'}${Math.abs((row.cur - row.prior) / row.prior * 100).toFixed(0)}%`);
@@ -822,9 +919,10 @@ function narrativesCard({ top = 0, risingOnly = false } = {}) {
     h('div', { class: 'narr-title' }, L(row.n, 'title')),
     h('div', { class: 'narr-para' }, L(row.n, 'para')),
     h('div', { class: 'narr-foot' },
-      sparkline(row.n.series.slice(N - r), { w: 96, h: 24, label: trendLabel(row.n) }),
-      h('span', { class: 'net' }, netBar(row.n.net), tr(`Net ${netText(row.n.net)}`, `淨立場 ${netText(row.n.net)}`)),
-      h('span', { class: 'narr-ch' }, chans(row.n))))));
+      sparkline(row.v.series.slice(N - r), { w: 96, h: 24, label: trendLabel(row.n) }),
+      h('span', { class: 'net' }, netBar(row.v.net), tr(`Net ${netText(row.v.net)}`, `淨立場 ${netText(row.v.net)}`)),
+      h('span', { class: 'narr-ch' }, chans(row.n))),
+    narrExamples(row.n))));
   const body = rows.length ? h('div', null, h('div', { class: 'table-wrap narr-wide' }, h('table', { class: 'data-table narr-table' },
     h('thead', null, h('tr', null,
       h('th', { scope: 'col' }, tr('Narrative', '敘事')), h('th', { scope: 'col' }, tr('Vaccine', '疫苗')), h('th', { scope: 'col' }, tr(`Trend, ${r} days`, `近 ${r} 天趨勢`)),
@@ -832,24 +930,24 @@ function narrativesCard({ top = 0, risingOnly = false } = {}) {
       h('th', { scope: 'col' }, tr('Net stance', '淨立場')), h('th', { scope: 'col' }, tr('Status', '狀態')))),
     h('tbody', null, rows.map(row => h('tr', null,
       h('th', { scope: 'row' }, h('div', { class: 'narr-title' }, L(row.n, 'title')), h('div', { class: 'narr-para' }, L(row.n, 'para')),
-        h('div', { class: 'narr-ch' }, chans(row.n))),
+        h('div', { class: 'narr-ch' }, chans(row.n)), narrExamples(row.n)),
       h('td', null, h('span', { class: 'chips-inline' }, row.n.vaccines.map(vacChip))),
-      h('td', null, sparkline(row.n.series.slice(N - r), { w: 96, h: 26, label: trendLabel(row.n) })),
+      h('td', null, sparkline(row.v.series.slice(N - r), { w: 96, h: 26, label: trendLabel(row.n) })),
       h('td', { class: 'num' }, fmt(row.cur)),
       h('td', { class: 'num' }, change(row)),
-      h('td', null, h('span', { class: 'net' }, netBar(row.n.net), netText(row.n.net))),
+      h('td', null, h('span', { class: 'net' }, netBar(row.v.net), netText(row.v.net))),
       h('td', null, statusEl(row.n.status))))))), cards)
     : D.narratives.length
-      ? emptyState(tr('No narratives match these filters.', '沒有符合篩選條件的敘事。'), tr('Include more vaccines or choose another channel.', '請加入更多疫苗或改選其他管道。'))
+      ? emptyState(tr('No narratives match these filters.', '沒有符合篩選條件的敘事。'), tr('Include more vaccines, or choose another channel or Who pays option.', '請加入更多疫苗，或改選其他管道或費用選項。'))
       : emptyState(tr('Narratives appear after the AI analyst runs.', 'AI 分析完成後會顯示敘事。'), tr('The analyst groups tagged posts into storylines once a day.', 'AI 分析每天一次將已標註的貼文歸納為敘事主軸。'));
   return h('section', { class: 'card' },
     h('div', { class: 'card-head' }, h('div', null,
       h('h3', { class: 'card-title' }, risingOnly ? tr('Emerging and rising narratives', '新興與升溫中的敘事') : tr('Narrative explorer', '敘事總覽')),
       h('p', { class: 'card-sub' }, risingOnly
-        ? tr('Storylines gaining momentum, ranked by growth against the prior period. Paraphrased; no usernames.',
-          '正在升溫的敘事主軸，依相較前期的成長幅度排序。內容經改寫，不含使用者名稱。')
-        : tr(`All tracked storylines, ranked by mentions in the last ${r} days. Net stance = supportive share minus hesitant/opposed share.`,
-          `所有追蹤中的敘事主軸，依近 ${r} 天提及數排序。淨立場＝支持比例減去猶豫／反對比例。`)))),
+        ? tr('Storylines gaining momentum, ranked by growth against the prior period. Paraphrased; no usernames. “Read” links open one or two original articles or posts for cross-checking.',
+          '正在升溫的敘事主軸，依相較前期的成長幅度排序。內容經改寫，不含使用者名稱。「原文」連結可開啟一至兩則原始報導或貼文以供查證。')
+        : tr(`All tracked storylines, ranked by mentions in the last ${r} days. Net stance = supportive share minus hesitant/opposed share. “Read” links open original articles or posts.`,
+          `所有追蹤中的敘事主軸，依近 ${r} 天提及數排序。淨立場＝支持比例減去猶豫／反對比例。「原文」連結可開啟原始報導或貼文。`)))),
     body);
 }
 
@@ -859,13 +957,14 @@ function renderToday(root) {
     filterRow(),
     kpiRow(),
     volumeCard(),
+    fundingCards(),
     h('div', { class: 'grid-2' }, stanceCard(), heatCard()),
     narrativesCard({ top: 5, risingOnly: true }));
 }
 
 function renderPolicy(root) {
   const items = D.policy.filter(p => inRange(p.date) && p.vaccines.some(v => state.vac.has(v))
-    && (state.source === 'all' || p.source === state.source));
+    && (state.source === 'all' || p.source === state.source) && inFund(p.funding));
   const counts = {};
   items.forEach(p => { counts[p.type] = (counts[p.type] || 0) + 1; });
   const watch = (D.brief && D.brief.watch) || [];
@@ -883,13 +982,13 @@ function renderPolicy(root) {
         items.length ? h('ol', { class: 'timeline' }, items.map(p => h('li', { class: 'tl-item' },
           h('div', { class: 'tl-date' }, h('time', { datetime: p.date }, fmtDate(asDate(p.date)))),
           h('div', null,
-            h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), h('span', { class: 'tag' }, policyType(p.type)), p.vaccines.map(vacChip)),
+            h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), h('span', { class: 'tag' }, policyType(p.type)), p.vaccines.map(vacChip), fundBadge(p.funding)),
             h('h4', { class: 'tl-title' }, policyTitle(p)),
             !ZH() && p.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, p.title_zh) : null,
             L(p, 'summary') ? h('p', { class: 'why' }, L(p, 'summary')) : null,
             L(p, 'why') ? whyLine(L(p, 'why')) : null,
             h('p', { class: 'src' }, extLink(p.url, tr('Original notice', '原始公告')))))))
-          : emptyState(tr('No official actions match these filters.', '沒有符合篩選條件的官方行動。'), tr('Try a longer range, another source or more vaccines.', '請嘗試較長的期間、其他來源或更多疫苗。'))),
+          : emptyState(tr('No official actions match these filters.', '沒有符合篩選條件的官方行動。'), tr('Try a longer range, another source, more vaccines or another Who pays option.', '請嘗試較長的期間、其他來源、更多疫苗或其他費用選項。'))),
       h('div', { class: 'stack' },
         watch.length ? h('section', { class: 'card' },
           h('h3', { class: 'card-title' }, tr('Watch list', '關注清單')),
@@ -906,7 +1005,7 @@ function renderPolicy(root) {
 function channelCard() {
   const keys = selKeys(), r = state.range;
   const chans = state.channel === 'all' ? CHANNELS : CHANNELS.filter(c => c.key === state.channel);
-  const rows = chans.map(c => ({ label: c.label, parts: keys.map(k => ({ key: k, v: (rangeMix(D.channels, k, r) || {})[c.key] || 0 })) }));
+  const rows = chans.map(c => ({ label: c.label, parts: keys.map(k => ({ key: k, v: (rangeMix(AGG().channels, k, r) || {})[c.key] || 0 })) }));
   const legend = h('div', { class: 'legend' }, keys.map(k => h('span', { class: 'legend-item' },
     h('span', { class: 'key-rect', style: `background:var(--s-${k})` }), VAC[k].label)));
   const social = D.sources.filter(s => ['threads', 'facebook', 'ptt'].includes(s.id) && !['ok', 'local'].includes(s.status));
@@ -931,7 +1030,8 @@ function attentionRow() {
     h('div', { class: 'card-head', style: 'margin-bottom:10px' }, h('div', null,
       h('h3', { class: 'card-title' }, tr('Public attention: Wikipedia pageviews', '公眾關注度：維基百科瀏覽量')),
       h('p', { class: 'card-sub' }, tr(`zh and en articles, last ${r} days. A proxy for curiosity, separate from conversation volume. No dedicated articles exist for the enhanced types.`,
-        `近 ${r} 天中、英文條目。反映好奇程度的代理指標，與討論聲量分開計算。加強型各類別沒有專屬條目。`)))),
+        `近 ${r} 天中、英文條目。反映好奇程度的代理指標，與討論聲量分開計算。加強型各類別沒有專屬條目。`),
+        state.funding !== 'all' ? tr(' Pageviews cannot be split by who pays, so the Who pays filter does not apply here.', '瀏覽量無法依費用來源區分，「費用」篩選不適用於此。') : ''))),
     h('div', { class: 'attn' }, keys.map(k => {
       const a = D.attention[k];
       const cur = sum(a.slice(N - r)), pri = sum(a.slice(Math.max(0, N - 2 * r), N - r));
@@ -942,10 +1042,10 @@ function attentionRow() {
 
 function renderSocial(root) {
   const keys = selKeys();
-  const spikes = D.spikes.filter(s => state.vac.has(s.vaccine) && inRange(s.date));
-  const rebuttals = D.policy.filter(p => ['Clarification', 'Rumour rebuttal'].includes(p.type) && inRange(p.date) && p.vaccines.some(v => state.vac.has(v)));
-  const mis = D.misinfo.filter(x => state.vac.has(x.vaccine));
-  const voices = D.voices.filter(v => state.vac.has(v.vaccine) && (state.channel === 'all' || v.channel === state.channel));
+  const spikes = AGG().spikes.filter(s => state.vac.has(s.vaccine) && inRange(s.date));
+  const rebuttals = D.policy.filter(p => ['Clarification', 'Rumour rebuttal'].includes(p.type) && inRange(p.date) && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding));
+  const mis = D.misinfo.filter(x => state.vac.has(x.vaccine) && inFund(x.funding));
+  const voices = D.voices.filter(v => state.vac.has(v.vaccine) && (state.channel === 'all' || v.channel === state.channel) && inFund(v.funding));
   const LEVEL = { monitor: ['good', tr('Monitor', '持續監測')], watch: ['warning', tr('Watch', '密切關注')], respond: ['serious', tr('Respond', '需要回應')] };
   root.replaceChildren(
     viewHead(tr('Social listening', '社群輿情'), tr('Aggregated public conversation on PTT, Threads and comments on public Facebook pages, plus news coverage. Posts are paraphrased and no usernames are stored.',
@@ -968,21 +1068,23 @@ function renderSocial(root) {
         mis.length || rebuttals.length ? h('ul', { class: 'feed' },
           mis.map(x => h('li', null,
             h('strong', null, L(x, 'claim')),
-            h('div', { class: 'meta-row' }, vacChip(x.vaccine), x.mentions != null ? h('span', null, tr(`${x.mentions} mentions in 7 days`, `7 天內 ${x.mentions} 則提及`)) : null, x.trend ? h('span', null, x.trend) : null,
+            h('div', { class: 'meta-row' }, vacChip(x.vaccine), fundBadge(x.funding), x.mentions != null ? h('span', null, tr(`${x.mentions} mentions in 7 days`, `7 天內 ${x.mentions} 則提及`)) : null, x.trend ? h('span', null, x.trend) : null,
               h('span', { class: 'status' }, statusIcon((LEVEL[x.level] || LEVEL.monitor)[0]), (LEVEL[x.level] || LEVEL.monitor)[1])),
             L(x, 'note') ? h('div', { class: 'muted small' }, L(x, 'note')) : null)),
           rebuttals.map(p => h('li', null,
-            h('div', { class: 'meta-row' }, typeBadge('policy', tr(`${sourceName(p.source)} rebuttal`, `${sourceName(p.source)}澄清`)), p.vaccines.map(vacChip), h('span', null, fmtDate(asDate(p.date)))),
+            h('div', { class: 'meta-row' }, typeBadge('policy', tr(`${sourceName(p.source)} rebuttal`, `${sourceName(p.source)}澄清`)), p.vaccines.map(vacChip), fundBadge(p.funding), h('span', null, fmtDate(asDate(p.date)))),
             extLink(p.url, policyTitle(p)))))
           : emptyState(tr('No claims or rebuttals for these vaccines in this range.', '此期間這些疫苗沒有假訊息或官方澄清。')))),
     h('section', { class: 'card' },
       h('h3', { class: 'card-title' }, tr('What people are saying', '民眾怎麼說')),
       h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Representative posts, paraphrased by the AI tagger. Links open the public post.', '具代表性的貼文，由AI改寫。')),
       voices.length ? h('div', { class: 'voices' }, voices.map(v => h('article', { class: 'voice' },
-        h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, channelShort(v.channel)), vacChip(v.vaccine), stanceChip(v.stance)),
+        h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, channelShort(v.channel)), vacChip(v.vaccine), stanceChip(v.stance), fundBadge(v.funding)),
         h('p', null, L(v, 'text')),
         v.url ? h('p', { class: 'small' }, extLink(v.url, tr('View post', '查看貼文'))) : null)))
-        : emptyState(tr('Paraphrased examples appear after the AI tagger runs.', 'AI 標註完成後會顯示改寫範例。'))));
+        : D.voices.length
+          ? emptyState(tr('No posts match these filters.', '沒有符合篩選條件的貼文。'), tr('Include more vaccines, or choose another channel or Who pays option.', '請加入更多疫苗，或改選其他管道或費用選項。'))
+          : emptyState(tr('Paraphrased examples appear after the AI tagger runs.', 'AI 標註完成後會顯示改寫範例。'))));
 }
 
 function renderMethod() {
@@ -996,19 +1098,12 @@ function renderLens(root) {
     root.replaceChildren(viewHead(tr('Analyst lens', '分析視角'), tr('This page fills in after the AI analyst has run.', 'AI 分析完成後，此頁會顯示內容。')));
     return;
   }
-  const pts = LENS.stakeholders || [];
-  const legend = h('div', { class: 'legend' }, Object.entries(STAKE_TYPES).map(([k, label]) => {
-    const s = sv('svg', { width: 14, height: 14, viewBox: '0 0 14 14', 'aria-hidden': 'true', class: 'chart' }, shapeMark(k, 7, 7.5));
-    return h('span', { class: 'legend-item' }, s, label);
-  }));
-  const ptKey = h('ol', { class: 'pt-key', hidden: true, 'aria-label': tr('Stakeholder key', '利害關係人編號') },
-    pts.map((p, i) => h('li', null, h('b', null, String(i + 1)), L(p, 'label'))));
   const RISK = { low: ['good', tr('Low', '低')], medium: ['warning', tr('Medium', '中')], high: ['serious', tr('High', '高')] };
   root.replaceChildren(
     h('div', { class: 'lens-banner', role: 'note' },
       h('span', null, h('strong', null, tr('Independent analysis', '獨立分析')),
         tr(' by Hao-Kai Tseng · not affiliated with or endorsed by Sanofi · strategy notes for public-affairs planning, not promotional messaging.',
-          '・作者 Hao-Kai Tseng・與 Sanofi 無隸屬或背書關係・供公共事務規劃參考的策略筆記，非行銷宣傳。')),
+          '・作者 曾皓楷・與 Sanofi 無隸屬或背書關係・供公共事務規劃參考的策略筆記，非行銷宣傳。')),
       h('a', { href: ZH() ? '../?lang=zh' : '../' }, tr('← Public dashboard', '← 公開儀表板'))),
     viewHead(tr(LENS.title || 'Analyst lens: Sanofi vaccines in Taiwan', '分析視角：Sanofi 在台疫苗'),
       tr(`What this week’s policy and social signals could mean for three products, and the public-affairs moves they suggest. Strategy notes, not promotional messaging. Generated ${LENS.date || ''}.`,
@@ -1024,30 +1119,28 @@ function renderLens(root) {
         h('div', null, h('dt', null, tr('Suggested PA action', '建議的公共事務行動')), h('dd', null, L(p, 'action'))),
         h('div', null, h('dt', null, tr('Stakeholders to engage', '應溝通的利害關係人')), h('dd', null, h('span', { class: 'who' }, (L(p, 'who') || []).map(w => h('span', { class: 'pill' }, w)))))),
       p.sources && p.sources.length ? h('p', { class: 'basis' }, tr('Based on: ', '依據：'), citations(p.sources)) : null))),
-    h('div', { class: 'grid-lens' },
-      pts.length ? chartCard({
-        title: tr('Stakeholder map', '利害關係人地圖'),
-        subtitle: tr('Stance and influence in the last 30 days, from AI-tagged speakers (influence = share of mentions and engagement).',
-          '近 30 天的立場與影響力，依 AI 標註的發言者計算（影響力＝提及數與互動的佔比）。'),
-        legend,
-        draw: host => stakeholderMap(host, pts, ptKey),
-        table: () => dataTable(['#', tr('Stakeholder', '利害關係人'), tr('Type', '類型'), tr('Stance', '立場'), tr('Influence', '影響力'), tr('Mentions', '提及數')],
-          pts.map((p, i) => [String(i + 1), L(p, 'label'), STAKE_TYPES[p.type], signed(p.stance), String(p.influence), fmt(p.mentions || 0)]), [3, 4, 5]),
-        after: ptKey,
-      }) : h('section', { class: 'card' }, emptyState(tr('Stakeholder map needs more AI-tagged mentions.', '利害關係人地圖需要更多 AI 標註的提及。'))),
-      h('div', { class: 'stack' },
-        h('section', { class: 'card' },
-          h('h3', { class: 'card-title' }, tr('Issues to prepare for', '需預先準備的議題')),
-          h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Next 30 days.', '未來 30 天。')),
-          (LENS.issues || []).length ? h('ul', { class: 'feed' }, LENS.issues.map(x => h('li', null,
-            h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, L(x, 'when')),
-              h('span', null, tr(`Likelihood ${x.likelihood} · Impact ${x.impact}`, `可能性 ${hml(x.likelihood)} · 影響 ${hml(x.impact)}`))),
-            h('strong', null, L(x, 'title')),
-            h('div', { class: 'muted small' }, L(x, 'note'))))) : emptyState(tr('Nothing flagged.', '目前沒有需標記的議題。'))),
-        h('section', { class: 'card' },
-          h('h3', { class: 'card-title' }, tr('Compliance guardrails', '法規遵循原則')),
-          h('p', { class: 'small muted', style: 'margin-top:6px' }, tr('Strategy notes only. No product claims, comparative-efficacy statements or messages for the public. Advertising prescription medicines to the public is restricted in Taiwan, and any external use of this analysis would need medical, legal and regulatory review.',
-            '僅為策略筆記。不含產品宣稱、比較性療效陳述或對民眾的訊息。台灣限制對一般民眾刊登處方藥廣告，本分析若有任何對外使用，都需經醫學、法務與法規審查。'))))));
+    h('div', { class: 'grid-2' },
+      h('section', { class: 'card' },
+        h('h3', { class: 'card-title' }, tr('Issues to prepare for', '需預先準備的議題')),
+        h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Next 30 days.', '未來 30 天。')),
+        (LENS.issues || []).length ? h('ul', { class: 'feed' }, LENS.issues.map(x => h('li', null,
+          h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, L(x, 'when')),
+            h('span', null, tr(`Likelihood ${x.likelihood} · Impact ${x.impact}`, `可能性 ${hml(x.likelihood)} · 影響 ${hml(x.impact)}`))),
+          h('strong', null, L(x, 'title')),
+          h('div', { class: 'muted small' }, L(x, 'note'))))) : emptyState(tr('Nothing flagged.', '目前沒有需標記的議題。'))),
+      h('section', { class: 'card' },
+        h('h3', { class: 'card-title' }, tr('Self-pay market watch', '自費市場觀察')),
+        h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Clinic stock, prices and private demand outside the public programme (自費).',
+          '公費計畫以外的診所庫存、價格與自費需求。')),
+        (LENS.self_pay || []).length ? h('ul', { class: 'feed' }, LENS.self_pay.map(x => h('li', null,
+          h('strong', null, L(x, 'title')),
+          h('div', { class: 'muted small' }, L(x, 'note')),
+          x.sources && x.sources.length ? h('p', { class: 'src' }, tr('Sources: ', '來源：'), citations(x.sources)) : null)))
+          : emptyState(tr('Appears after the next analyst run.', '下次 AI 分析後顯示。')))),
+    h('section', { class: 'card' },
+      h('h3', { class: 'card-title' }, tr('Compliance guardrails', '法規遵循原則')),
+      h('p', { class: 'small muted', style: 'margin-top:6px' }, tr('Strategy notes only. No product claims, comparative-efficacy statements or messages for the public. Advertising prescription medicines to the public is restricted in Taiwan, and any external use of this analysis would need medical, legal and regulatory review.',
+        '僅為策略筆記。不含產品宣稱、比較性療效陳述或對民眾的訊息。台灣限制對一般民眾刊登處方藥廣告，本分析若有任何對外使用，都需經醫學、法務與法規審查。'))));
 }
 
 const VIEWS = { today: renderToday, policy: renderPolicy, social: renderSocial, method: renderMethod, lens: renderLens };

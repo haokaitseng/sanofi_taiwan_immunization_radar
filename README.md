@@ -10,14 +10,19 @@ Independent portfolio project. Not affiliated with or endorsed by any company or
 ```
 05:17 Taipei, daily (GitHub Actions)
   collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
-  tag       Claude Haiku 5.5: relevance, vaccine, issue, stance, speaker, storyline, English title
+  tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), issue, stance, speaker, storyline,
+            English and Traditional Chinese summaries
   scrub     verbatim social text deleted; only paraphrase, tags and link stay
   analyse   Claude Opus 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens
+  translate Claude Opus 5.5: Traditional Chinese version of the analysis (only new text is sent)
   build     data/items/*.jsonl  ->  site/data/latest.json (+ lens.json)
   publish   commit data (git history = archive) and deploy site/ to GitHub Pages
 ```
 
 - Each source runs in isolation; a broken scraper turns its status light amber and the run carries on.
+- Google News gives headlines only, but its search matches the full article. Each article records which searches
+  found it, so a vaccine type (佐劑 / 高劑量) or 公費 / 自費 named only in the body still counts. One term per
+  search: the zh-TW feed silently drops most results for `OR` queries.
 - If the AI steps fail, yesterday's analysis is reused and the site still publishes.
 - Only new items are sent to the tagger, so each item is paid for once.
 
@@ -35,6 +40,8 @@ python -m http.server 8766 --directory site           # open http://localhost:87
 ```
 
 `--only cdc,ptt` limits collection to some sources; `--dry-run` prints prompts without calling the API.
+After changing the tagging rules, `pipeline.run retag` re-tags news and official items (social posts keep their
+tags, since their text is gone by then).
 
 ## Configuration
 

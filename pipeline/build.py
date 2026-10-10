@@ -1,14 +1,15 @@
 """Aggregate stored items into site/data/latest.json (public) and site/data/lens.json (unlisted page).
 
 Everything the dashboard draws comes from these two files. Works with keyword tags only; when the LLM
-tagger and analyst have run, stance, issues, narratives, the brief and the lens are filled in too.
+tagger and analyst have run, stance, issues, funding, narratives, the brief and the lens are filled in too.
+Each aggregate also exists per funding view (by_funding), so the site's 公費 / 自費 filter can re-scope charts.
 """
 from __future__ import annotations
 
 import json
 import math
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import date, datetime, timedelta
 
 from . import config
@@ -21,11 +22,16 @@ ISSUES = ["eligibility", "cost", "safety", "effectiveness", "supply", "outbreak"
 CHANNELS = ["News", "PTT", "Threads", "Dcard", "Facebook"]
 POLICY_TYPES = {"press": "Press release", "letter": "Letter to physicians", "clarification": "Clarification",
                 "news": "News", "announcement": "Announcement", "drug_safety": "Drug safety", "rumor": "Rumour rebuttal"}
+FUNDING = ["public", "self_pay", "both", "not_stated"]
+# Views behind the site's funding filter: 公費 and 自費 each include the items that discuss both.
+FUNDING_VIEWS = {"public": ("public", "both"), "self_pay": ("self_pay", "both"), "both": ("both",), "not_stated": ("not_stated",)}
+FUND_CODE = {"public": "p", "self_pay": "s", "both": "b", "not_stated": "n"}
+STANCE_CODE = {"opposed": "o", "hesitant": "h", "neutral": "n", "accepting": "a", "advocating": "v"}
 
 SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
     "cdc": ("疾管署", "新聞稿、致醫界通函、澄清專區", "列表頁＋RSS"),
     "tfda": ("食藥署", "新聞、公告、藥品安全資訊、闢謠專區", "RSS＋列表頁"),
-    "gnews": ("Google 新聞", "符合疫苗關鍵字的台灣中文新聞", "RSS 搜尋"),
+    "gnews": ("Google 新聞", "以疫苗、類型（佐劑、高劑量）與公費／自費關鍵字搜尋的台灣中文新聞", "RSS 搜尋"),
     "ptt": ("PTT", "親子、健康與綜合看板的貼文", "公開網頁、低頻率擷取；僅限本機執行（雲端主機被封鎖）"),
     "threads": ("Threads", "符合關鍵字的公開貼文", "Apify 擷取程式"),
     "facebook": ("Facebook", "公部門公開粉專疫苗貼文下的留言", "Apify 擷取程式"),
@@ -35,7 +41,7 @@ SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
 SOURCE_INFO = [  # display metadata for the status strip and the Methodology table
     ("cdc", "Taiwan CDC", "Policy", "Press releases, letters to physicians, clarifications", "List pages + RSS"),
     ("tfda", "TFDA", "Policy", "News, announcements, drug-safety notices, rumour rebuttals", "RSS + list pages"),
-    ("gnews", "Google News", "Media", "zh-TW news matching the vaccine keyword set", "RSS search"),
+    ("gnews", "Google News", "Media", "zh-TW news from vaccine, vaccine-type (adjuvanted, high-dose) and 公費 / 自費 searches", "RSS search"),
     ("ptt", "PTT", "Social", "Posts on parenting, health and general boards", "Public pages, polite crawl; local runs only (blocks cloud servers)"),
     ("threads", "Threads", "Social", "Public posts matching the keyword set", "Apify actor"),
     ("facebook", "Facebook", "Social", "Comments on vaccine posts of public institutional pages", "Apify actors"),
@@ -73,6 +79,18 @@ def _load_items(end: date) -> list[dict]:
     return items
 
 
+def _fund(it: dict) -> str:
+    return (it.get("tags") or {}).get("funding") or "not_stated"
+
+
+def _fund_union(items: list[dict]) -> str:
+    """Funding of something written from several items (a brief entry, a claim): 'both' if both appear."""
+    said = set()
+    for it in items:
+        said |= {"public": {"public"}, "self_pay": {"self_pay"}, "both": {"public", "self_pay"}}.get(_fund(it), set())
+    return "both" if len(said) == 2 else (next(iter(said)) if said else "not_stated")
+
+
 def _pct_mix(counter: Counter, keys: list[str]) -> list[float] | None:
     total = sum(counter[k] for k in keys)
     return [round(counter[k] / total, 4) for k in keys] if total >= 5 else None
@@ -94,13 +112,42 @@ def _spikes(dates: list[str], series: dict[str, list[int]]) -> list[dict]:
     return sorted(out, key=lambda s: s["date"], reverse=True)[:12]
 
 
-STANCE_SCORE = {"opposed": -1.0, "hesitant": -0.5, "neutral": 0.0, "accepting": 0.5, "advocating": 1.0}
-SPEAKERS = {  # speaker tag -> (label, map type, Chinese label)
-    "government": ("Government agencies", "gov", "政府機關"), "health_professional": ("Doctors, pharmacists, nurses", "hcp", "醫師、藥師、護理師"),
-    "medical_society": ("Medical societies", "hcp", "醫學會"), "media": ("News media", "pub", "新聞媒體"), "kol": ("Health influencers", "pub", "健康 KOL"),
-    "parent": ("Parents", "pub", "家長"), "older_adult_or_carer": ("Older adults & carers", "pub", "長者與照顧者"),
-    "general_public": ("General public", "pub", "一般民眾"), "industry": ("Industry", "pub", "產業"),
-}
+def _aggregates(conv: list[dict], dates: list[str], index: dict) -> dict:
+    """Daily volume, channel, stance and issue mixes and spikes for one set of conversation items."""
+    series = {v: [0] * WINDOW for v in config.VACCINES}
+    for it in conv:
+        for v in it["_vaccines"]:
+            series[v][index[it["published"]]] += 1
+    channels, stance, stance_prior, issues = {}, {}, {}, {}
+    for r in RANGES:
+        lo, prior_lo = dates[-r], dates[-2 * r] if 2 * r <= WINDOW else dates[0]
+        cur = [it for it in conv if it["published"] >= lo]
+        pri = [it for it in conv if prior_lo <= it["published"] < lo]
+        channels[str(r)], stance[str(r)], stance_prior[str(r)], issues[str(r)] = {}, {}, {}, {}
+        for v in config.VACCINES:
+            mine = [it for it in cur if v in it["_vaccines"]]
+            channels[str(r)][v] = dict(Counter(it["channel"] for it in mine))
+            stance[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in mine if it.get("tags")), STANCES)
+            stance_prior[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in pri if v in it["_vaccines"] and it.get("tags")), STANCES)
+            tagged = [it for it in mine if it.get("tags", {}).get("issues") is not None]
+            issues[str(r)][v] = ([round(100 * sum(1 for it in tagged if i in it["tags"]["issues"]) / len(tagged)) for i in ISSUES]
+                                 if len(tagged) >= 5 else None)
+    return {"series": series, "channels": channels, "stance": stance, "stance_prior": stance_prior, "issues": issues,
+            "spikes": _spikes(dates, series)}
+
+
+def _funding_mix(conv: list[dict], dates: list[str]) -> tuple[dict, dict]:
+    """Counts per vaccine in FUNDING order (exclusive categories), for each range and the period before it."""
+    mix, prior = {}, {}
+    for r in RANGES:
+        lo, prior_lo = dates[-r], dates[-2 * r] if 2 * r <= WINDOW else dates[0]
+        mix[str(r)], prior[str(r)] = {}, {}
+        for v in config.VACCINES:
+            cur = Counter(_fund(it) for it in conv if it["published"] >= lo and v in it["_vaccines"])
+            pri = Counter(_fund(it) for it in conv if prior_lo <= it["published"] < lo and v in it["_vaccines"])
+            mix[str(r)][v] = [cur[f] for f in FUNDING]
+            prior[str(r)][v] = [pri[f] for f in FUNDING]
+    return mix, prior
 
 
 def _source_ref(it: dict) -> dict:
@@ -122,6 +169,34 @@ def _refs(ids: list[str], by_id: dict) -> list[dict]:
     return out
 
 
+def _example(it: dict) -> dict:
+    """A link for cross-checking a narrative: news keep their original headline, posts their paraphrase."""
+    t = it.get("tags") or {}
+    if it["kind"] == "social":
+        label, t_en = it["channel"], t.get("title_en") or t.get("summary_en") or ""
+        t_zh = t.get("title_zh") or t.get("summary_zh") or t_en
+    else:
+        label, t_en, t_zh = it.get("outlet") or "News", t.get("title_en") or it["title"], it["title"]
+    return {"label": label, "url": it["url"], "date": it["published"], "t_en": t_en, "t_zh": t_zh, "funding": _fund(it)}
+
+
+def _examples(mine: list[dict], n: int = 2) -> list[dict]:
+    """Newest news article first, then the newest post, then whatever is newest; one link per outlet."""
+    newest = sorted((it for it in mine if it.get("url")), key=lambda it: it["published"], reverse=True)
+    first = [x for x in (next((it for it in newest if it["kind"] == "media"), None),
+                         next((it for it in newest if it["kind"] == "social"), None)) if x]
+    out, labels = [], set()
+    for it in first + newest:
+        ex = _example(it)
+        if ex["label"] in labels:
+            continue
+        labels.add(ex["label"])
+        out.append(ex)
+        if len(out) == n:
+            break
+    return out
+
+
 def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
     out = []
     for n in analysis.get("narratives", []):
@@ -134,37 +209,24 @@ def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
         total = sum(stances.values()) or 1
         net = round(100 * (stances["accepting"] + stances["advocating"] - stances["hesitant"] - stances["opposed"]) / total)
         channels = [c for c, _ in Counter(it["channel"] for it in mine).most_common(2)]
+        examples = {"all": _examples(mine)}
+        for view, funds in FUNDING_VIEWS.items():
+            ex = _examples([it for it in mine if _fund(it) in funds])
+            if ex:
+                examples[view] = ex
         out.append({"id": n["id"], "title": n["title"], "title_zh": n.get("title_zh", ""), "vaccines": n["vaccines"],
                     "status": n["status"], "para": n["para"], "para_zh": n.get("para_zh", ""),
-                    "channels": channels, "net": net, "series": series, "mentions": len(mine)})
+                    "channels": channels, "net": net, "series": series, "mentions": len(mine),
+                    # one mark per item [day index, funding code, stance code]: lets the site re-count under a filter
+                    "marks": [[index[it["published"]], FUND_CODE[_fund(it)], STANCE_CODE.get(it["tags"].get("stance"), "")] for it in mine],
+                    "examples": examples})
     return [n for n in out if n["mentions"]]
-
-
-def _stakeholders(conv: list[dict], since: str) -> list[dict]:
-    agg: dict[str, dict] = {}
-    for it in conv:
-        t = it.get("tags") or {}
-        sp = t.get("speaker")
-        if it["published"] < since or sp not in SPEAKERS or t.get("stance") not in STANCE_SCORE:
-            continue
-        a = agg.setdefault(sp, {"n": 0, "eng": 0, "score": 0.0})
-        a["n"] += 1
-        a["eng"] += max(0, it.get("engagement", 0))
-        a["score"] += STANCE_SCORE[t["stance"]]
-    pts = [(sp, a) for sp, a in agg.items() if a["n"] >= 3]
-    if not pts:
-        return []
-    weight = {sp: a["n"] + a["eng"] / 10 for sp, a in pts}
-    top = max(weight.values())
-    return [{"label": SPEAKERS[sp][0], "label_zh": SPEAKERS[sp][2], "type": SPEAKERS[sp][1], "stance": round(a["score"] / a["n"], 2),
-             "influence": round(10 + 85 * math.sqrt(weight[sp] / top)), "mentions": a["n"]}
-            for sp, a in sorted(pts, key=lambda p: -weight[p[0]])]
 
 
 def _voice(it: dict) -> dict:
     t = it["tags"]
     return {"channel": it["channel"], "vaccine": (t.get("vaccines") or it["vaccines"])[0], "stance": t.get("stance"),
-            "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"]}
+            "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"], "funding": _fund(it)}
 
 
 def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
@@ -180,32 +242,18 @@ def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
     return [_voice(it) for it in picked[:n]]
 
 
+def _cited(rows: list[dict], by_id: dict) -> list[dict]:
+    """Analyst rows with source_ids resolved to links, and the funding of the items they rest on."""
+    return [{**{k: v for k, v in r.items() if k != "source_ids"}, "sources": _refs(r["source_ids"], by_id),
+             "funding": _fund_union([by_id[i] for i in r["source_ids"] if i in by_id])} for r in rows]
+
+
 def build(analysis: dict | None = None) -> dict:
     end = today()
     dates = [(end - timedelta(days=back)).isoformat() for back in range(WINDOW - 1, -1, -1)]
     index = {d: i for i, d in enumerate(dates)}
     items = _load_items(end)
     conv = [it for it in items if it["kind"] != "policy"]          # conversation = media + social
-
-    series = {v: [0] * WINDOW for v in config.VACCINES}
-    for it in conv:
-        for v in it["_vaccines"]:
-            series[v][index[it["published"]]] += 1
-
-    channels, stance, stance_prior, issues = {}, {}, {}, {}
-    for r in RANGES:
-        lo, prior_lo = dates[-r], dates[-2 * r] if 2 * r <= WINDOW else dates[0]
-        cur = [it for it in conv if it["published"] >= lo]
-        pri = [it for it in conv if prior_lo <= it["published"] < lo]
-        channels[str(r)], stance[str(r)], stance_prior[str(r)], issues[str(r)] = {}, {}, {}, {}
-        for v in config.VACCINES:
-            mine = [it for it in cur if v in it["_vaccines"]]
-            channels[str(r)][v] = dict(Counter(it["channel"] for it in mine))
-            stance[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in mine if it.get("tags")), STANCES)
-            stance_prior[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in pri if v in it["_vaccines"] and it.get("tags")), STANCES)
-            tagged = [it for it in mine if it.get("tags", {}).get("issues") is not None]
-            issues[str(r)][v] = ([round(100 * sum(1 for it in tagged if i in it["tags"]["issues"]) / len(tagged)) for i in ISSUES]
-                                 if len(tagged) >= 5 else None)
 
     analysis = analysis or {}
     notes = {n["id"]: n for n in analysis.get("policy_notes", [])}
@@ -218,7 +266,7 @@ def build(analysis: dict | None = None) -> dict:
                 "type": POLICY_TYPES.get(it["subtype"], it["subtype"]), "title_zh": it["title"],
                 "title_en": t.get("title_en", ""), "summary": t.get("summary_en", ""), "summary_zh": t.get("summary_zh", ""),
                 "why": notes.get(it["id"], {}).get("why", ""), "why_zh": notes.get(it["id"], {}).get("why_zh", ""), "url": it["url"],
-                "marker": it["id"] in notes and notes[it["id"]].get("marker", False),
+                "marker": it["id"] in notes and notes[it["id"]].get("marker", False), "funding": _fund(it),
             })
     policy.sort(key=lambda p: p["date"], reverse=True)
     if not notes:   # no analyst run yet: mark the latest press releases on the volume chart
@@ -227,7 +275,7 @@ def build(analysis: dict | None = None) -> dict:
 
     # Newest news headlines, shown on the Today view until the AI brief exists. News only: no social posts verbatim.
     headlines = [{"date": it["published"], "title": it["title"], "title_en": it.get("tags", {}).get("title_en", ""),
-                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"]}
+                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"], "funding": _fund(it)}
                  for it in sorted((i for i in conv if i["kind"] == "media"), key=lambda i: i["published"], reverse=True)[:15]]
 
     attention_raw = json.loads((config.DATA_DIR / "attention.json").read_text(encoding="utf-8")) if (config.DATA_DIR / "attention.json").exists() else {}
@@ -252,6 +300,7 @@ def build(analysis: dict | None = None) -> dict:
 
     day_files = sorted(p.stem for p in config.ITEMS_DIR.glob("*.jsonl"))
     coverage_start = max(day_files[0], (end - timedelta(days=config.BACKFILL_DAYS)).isoformat()) if day_files else end.isoformat()
+    mix, mix_prior = _funding_mix(conv, dates)
 
     latest = {
         "generated_at": datetime.now(config.TZ).isoformat(timespec="seconds"),
@@ -259,14 +308,14 @@ def build(analysis: dict | None = None) -> dict:
         "coverage_start": coverage_start,   # earlier days are zero because nothing was collected, not because nothing happened
         "dates": dates,
         "vaccines": [{"key": k, **v} for k, v in config.VACCINES.items()],
-        "series": series,
-        "channels": channels,
-        "stance": stance,
-        "stance_prior": stance_prior,
-        "issues": issues,
+        **_aggregates(conv, dates, index),  # series, channels, stance, stance_prior, issues, spikes
+        "funding": FUNDING,
+        "funding_mix": mix,
+        "funding_mix_prior": mix_prior,
+        "by_funding": {view: _aggregates([it for it in conv if _fund(it) in funds], dates, index)
+                       for view, funds in FUNDING_VIEWS.items()},
         "policy": policy,
         "headlines": headlines,
-        "spikes": _spikes(dates, series),
         "attention": attention,
         "sources": sources,
         "counts": {"items": len(items), "conversation": len(conv), "policy": len(policy),
@@ -281,27 +330,21 @@ def build(analysis: dict | None = None) -> dict:
         latest["brief"] = {
             "date": analysis.get("date", end.isoformat()), "model": "Claude Opus 5.5",
             "items": analysis.get("items_considered", 0),
-            "entries": [{**{k: v for k, v in e.items() if k != "source_ids"}, "sources": _refs(e["source_ids"], by_id)}
-                        for e in b["entries"]],
+            "entries": _cited(b["entries"], by_id),
             "watch": b.get("watch", []), "qa": b.get("qa", []),
         }
         latest["narratives"] = _narratives(analysis, conv, index)
-        latest["misinfo"] = [{**{k: v for k, v in m.items() if k != "source_ids"}, "sources": _refs(m["source_ids"], by_id)}
-                             for m in analysis.get("misinfo", [])]
-        latest["voices"] = [{"channel": it["channel"], "vaccine": (it["tags"].get("vaccines") or it["vaccines"])[0],
-                             "stance": it["tags"].get("stance"), "text": it["tags"].get("summary_en", ""),
-                             "text_zh": it["tags"].get("summary_zh", ""), "url": it["url"]}
-                            for it in (by_id[i] for i in analysis.get("voices_ids", []) if i in by_id)
+        latest["misinfo"] = _cited(analysis.get("misinfo", []), by_id)
+        latest["voices"] = [_voice(it) for it in (by_id[i] for i in analysis.get("voices_ids", []) if i in by_id)
                             if it["kind"] == "social" and it.get("tags")]
         if not latest["voices"]:
             latest["voices"] = _fallback_voices(conv, dates[-14])
         if analysis.get("lens"):
             lens = {
                 "title": "Analyst lens: Sanofi vaccines in Taiwan", "date": analysis.get("date", end.isoformat()),
-                "products": [{**{k: v for k, v in p.items() if k != "source_ids"}, "sources": _refs(p["source_ids"], by_id)}
-                             for p in analysis["lens"].get("products", [])],
+                "products": _cited(analysis["lens"].get("products", []), by_id),
                 "issues": analysis["lens"].get("issues", []),
-                "stakeholders": _stakeholders(conv, dates[-30]),
+                "self_pay": _cited(analysis["lens"].get("self_pay", []), by_id),
             }
 
     config.SITE_DATA_DIR.mkdir(parents=True, exist_ok=True)

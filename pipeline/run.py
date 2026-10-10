@@ -138,6 +138,26 @@ def zh_step() -> bool:
     return _ai_step("zh_items", run)
 
 
+def funding_step() -> bool:
+    """公費 / 自費 labels for items tagged before the field existed (catch-up; new items get them from the tagger)."""
+    from .tag import funding_backfill
+    def run():
+        stats = funding_backfill()
+        print(f"[funding] {stats}", flush=True)
+        return stats
+    return _ai_step("funding_items", run)
+
+
+def retag_step() -> bool:
+    """Re-tag news and official items under the current tagging rules (after a rule change; social posts keep theirs)."""
+    from .tag import retag
+    def run():
+        stats = retag()
+        print(f"[retag] {stats}", flush=True)
+        return stats
+    return _ai_step("tagger", run)
+
+
 def translate_step() -> bool:
     """Traditional Chinese version of the analysis; only untranslated fields are sent."""
     from .translate import translate
@@ -152,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
     from dotenv import load_dotenv
     load_dotenv(config.ROOT / ".env")   # local runs; in GitHub Actions the variables come from secrets
     p = argparse.ArgumentParser(prog="pipeline.run")
-    p.add_argument("step", choices=["collect", "tag", "zh", "analyze", "translate", "scrub", "build", "daily"])
+    p.add_argument("step", choices=["collect", "tag", "retag", "zh", "funding", "analyze", "translate", "scrub", "build", "daily"])
     p.add_argument("--backfill", action="store_true", help=f"collect the last {config.BACKFILL_DAYS} days")
     p.add_argument("--only", default="", help="comma-separated source names")
     p.add_argument("--limit", type=int, default=None, help="tag at most N items (testing)")
@@ -169,6 +189,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if analyze_step(args.dry_run) else 1
     if args.step == "zh":
         return 0 if zh_step() else 1
+    if args.step == "funding":
+        return 0 if funding_step() else 1
+    if args.step == "retag":
+        return 0 if retag_step() else 1
     if args.step == "translate":
         return 0 if translate_step() else 1
     if args.step == "scrub":
@@ -181,6 +205,7 @@ def main(argv: list[str] | None = None) -> int:
         collect(args.backfill, only)
         tag_step(None, False)
         zh_step()
+        funding_step()
         print(f"[scrub] {scrub_social()} social records reduced to paraphrase + tags", flush=True)
         analyze_step(False)
         translate_step()  # only fields without a Chinese version are sent

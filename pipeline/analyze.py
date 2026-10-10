@@ -26,6 +26,18 @@ for flu (general, enhanced-type-not-stated, adjuvanted, high-dose), RSV (incl. i
 nirsevimab/Beyfortus) and Tdap/pertussis. Readers are public-affairs and brand professionals at vaccine
 companies, plus anyone curious. You receive a digest of items already collected and tagged today.
 
+Background facts you may rely on (Taiwan CDC 2026-27 programme): publicly funded (公費) flu vaccination opened
+on 2026-10-01 for priority groups (second stage from 2026-11-02). For the first time the programme bought
+enhanced flu vaccines, 200,790 doses from two brands, offered first to people aged 65+ in long-term care and
+residential facilities: FLUAD (輔流禦, adjuvanted, TTY Biopharm, licensed 50+) and Efluelda (菲優達, high-dose,
+Sanofi, licensed 65+). Standard vaccines in the programme: Vaxigrip (菲流達, Sanofi), Fluarix (伏流感, GSK),
+Flucelvax (輔流威護, TTY Biopharm), AdimFlu-S (安定伏, Adimmune), Fluvacgen (福喜健, Medigen). People outside the
+eligible groups can pay for vaccination themselves (自費) where clinics stock it.
+
+Each item carries funding: public (公費), self_pay (自費), both, or not_stated. The public programme and the
+self-pay market are different arenas for a vaccine company (tenders and eligibility versus clinic stock,
+price and private demand), so keep them apart in your analysis.
+
 Write like a sharp public-affairs analyst: concrete, sourced, no hype.
 - Every brief entry, lens card and note must rest on the items provided; cite them by id in source_ids.
   Never invent numbers, dates, quotes, organisations or events that are not in the digest.
@@ -39,7 +51,9 @@ Write like a sharp public-affairs analyst: concrete, sourced, no hype.
 
 Sections
 1. brief: 4-6 entries ranking what changed in the last 72 hours by importance to a vaccine public-affairs lead.
-   type = policy (official notice), media (news coverage) or signal (social conversation). For policy entries
+   type = policy (official notice), media (news coverage) or signal (social conversation). In "why", say
+   whether the point concerns the public programme (公費), the self-pay market (自費) or both, when the items
+   make that clear. For policy entries
    put the original Chinese title in zh. confidence: High (official/multiple outlets), Medium, Low (thin social signal).
    watch: up to 3 dated things to watch next (dates only if stated in the digest or clearly scheduled).
    qa: exactly 3 questions a public-affairs lead would ask today, with short evidence-based answers (never empty).
@@ -57,7 +71,11 @@ Sections
    For each: what this week's signal is, the implication, a suggested public-affairs action (stakeholder
    engagement, evidence preparation, issue readiness; never promotion), stakeholders to engage, risk level.
    If the digest has little on a product, say so plainly rather than inventing a signal.
-   issues: up to 3 issues to prepare for in the next 30 days."""
+   issues: up to 3 issues to prepare for in the next 30 days.
+   self_pay: 2-4 points on the self-pay (自費) market: availability and stock at clinics, prices, clinic
+   promotion, demand from people outside the eligible groups, especially for enhanced (adjuvanted / high-dose)
+   flu vaccines, RSV infant antibodies and Tdap. Each point: a short title, a 1-2 sentence note, source_ids.
+   If the items say little about self-pay, return one point saying so plainly."""
 
 _entry = {
     "type": "object",
@@ -110,8 +128,12 @@ SCHEMA = {
             "issues": {"type": "array", "items": {"type": "object", "properties": {
                 "when": {"type": "string"}, "title": {"type": "string"}, "likelihood": {"type": "string", "enum": ["Low", "Medium", "High"]},
                 "impact": {"type": "string", "enum": ["Low", "Medium", "High"]}, "note": {"type": "string"}},
-                "required": ["when", "title", "likelihood", "impact", "note"], "additionalProperties": False}}},
-            "required": ["products", "issues"], "additionalProperties": False},
+                "required": ["when", "title", "likelihood", "impact", "note"], "additionalProperties": False}},
+            "self_pay": {"type": "array", "items": {"type": "object", "properties": {
+                "title": {"type": "string"}, "note": {"type": "string"},
+                "source_ids": {"type": "array", "items": {"type": "string"}}},
+                "required": ["title", "note", "source_ids"], "additionalProperties": False}}},
+            "required": ["products", "issues", "self_pay"], "additionalProperties": False},
     },
     "required": ["brief", "policy_notes", "narratives", "misinfo", "voices_ids", "lens"],
     "additionalProperties": False,
@@ -119,6 +141,9 @@ SCHEMA = {
 
 
 PARTS = [("brief", "policy_notes", "misinfo", "voices_ids"), ("narratives", "lens")]
+QA_SCHEMA = {"type": "object", "properties": {"qa": SCHEMA["properties"]["brief"]["properties"]["qa"]},
+             "required": ["qa"], "additionalProperties": False}
+QA_ROW = ("id", "date", "kind", "outlet", "title_en", "summary_en", "vaccines", "funding", "stance")
 
 
 def _items(days: int) -> list[dict]:
@@ -142,6 +167,7 @@ def digest() -> dict:
         return {"id": it["id"], "date": it["published"], "kind": it["kind"], "channel": it["channel"],
                 "outlet": it["outlet"] if it["kind"] != "social" else it["channel"],
                 "title_en": t.get("title_en"), "summary_en": t.get("summary_en"), "vaccines": t.get("vaccines"),
+                "funding": t.get("funding", "not_stated"),
                 "issues": t.get("issues"), "stance": t.get("stance"), "speaker": t.get("speaker"),
                 "storyline": t.get("storyline"), "misinformation": t.get("misinformation"),
                 "pa_relevance": t.get("pa_relevance"), "engagement": it.get("engagement", 0)}
@@ -157,7 +183,8 @@ def digest() -> dict:
         pri = sum(1 for it in items30 if v in it["tags"]["vaccines"] and prior_cut <= it["published"] < week_cut)
         counts[v] = {"last_7_days": cur, "previous_7_days": pri}
 
-    lines = defaultdict(lambda: {"count_30d": 0, "count_7d": 0, "count_prev_7d": 0, "vaccines": Counter(), "first_seen": None})
+    lines = defaultdict(lambda: {"count_30d": 0, "count_7d": 0, "count_prev_7d": 0, "vaccines": Counter(), "funding": Counter(),
+                                 "first_seen": None})
     for it in items30:
         s = (it["tags"].get("storyline") or "").strip().lower()
         if not s:
@@ -167,9 +194,11 @@ def digest() -> dict:
         rec["count_7d"] += it["published"] >= week_cut
         rec["count_prev_7d"] += prior_cut <= it["published"] < week_cut
         rec["vaccines"].update(it["tags"]["vaccines"])
+        rec["funding"][it["tags"].get("funding", "not_stated")] += 1
         rec["first_seen"] = min(rec["first_seen"] or it["published"], it["published"])
-    storylines = sorted(({"label": k, **{kk: vv for kk, vv in v.items() if kk != "vaccines"},
-                          "vaccines": [x for x, _ in v["vaccines"].most_common(3)]} for k, v in lines.items()),
+    storylines = sorted(({"label": k, **{kk: vv for kk, vv in v.items() if kk not in ("vaccines", "funding")},
+                          "vaccines": [x for x, _ in v["vaccines"].most_common(3)], "funding": dict(v["funding"])}
+                         for k, v in lines.items()),
                         key=lambda r: r["count_30d"], reverse=True)[:120]
 
     previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}
@@ -196,6 +225,41 @@ def _clean(result: dict) -> dict:
     return result
 
 
+def _stream(client, system: str, content: str, schema: dict, effort: str = "high"):
+    with client.beta.messages.stream(
+        model=MODEL,
+        max_tokens=32000,
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+        system=system,
+        messages=[{"role": "user", "content": content}],
+        output_config={"effort": effort, "format": {"type": "json_schema", "schema": schema}},
+    ) as stream:
+        msg = stream.get_final_message()
+    if msg.stop_reason in ("refusal", "max_tokens"):
+        raise RuntimeError(f"analyst run stopped: {msg.stop_reason}")
+    return msg, json.loads(next(b.text for b in msg.content if b.type == "text"))
+
+
+def _fill_qa(client, d: dict, result: dict, usage: dict) -> None:
+    """The brief call sometimes returns no Q&A despite the instruction. Ask for it on its own, from the finished
+    brief and the top items only (a small input, so this costs a few cents)."""
+    compact = {
+        "today": d["today"],
+        "brief": [{k: e[k] for k in ("type", "vaccines", "headline", "why", "source_ids")} for e in result["brief"]["entries"]],
+        "watch": result["brief"]["watch"],
+        "official_items_last_14_days": [{k: it.get(k) for k in QA_ROW} for it in d["official_items_last_14_days"]],
+        "top_items_last_72_hours": [{k: it.get(k) for k in QA_ROW} for it in d["top_items_last_72_hours"][:40]],
+    }
+    msg, out = _stream(client, SYSTEM, "Today's brief and items (JSON):\n" + json.dumps(compact, ensure_ascii=False)
+                       + "\n\nReturn qa only: exactly 3 questions a public-affairs lead at a vaccine company in Taiwan "
+                       "would ask today, each with a short answer (1-2 sentences) resting only on these items.",
+                       QA_SCHEMA, effort="medium")
+    result["brief"]["qa"] = out.get("qa", [])[:3]
+    usage["input_tokens"] += msg.usage.input_tokens
+    usage["output_tokens"] += msg.usage.output_tokens
+
+
 def analyze(dry_run: bool = False) -> dict:
     d = digest()
     payload = "Today's digest (JSON):\n" + json.dumps(d, ensure_ascii=False)
@@ -215,23 +279,14 @@ def analyze(dry_run: bool = False) -> dict:
     for part in PARTS:
         schema = {"type": "object", "properties": {k: SCHEMA["properties"][k] for k in part},
                   "required": list(part), "additionalProperties": False}
-        with client.beta.messages.stream(
-            model=MODEL,
-            max_tokens=32000,
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-            system=SYSTEM,
-            messages=[{"role": "user", "content": payload + f"\n\nIn this response, return only these sections, each fully filled as specified above: {', '.join(part)}."}],
-            output_config={"effort": "high", "format": {"type": "json_schema", "schema": schema}},
-        ) as stream:
-            msg = stream.get_final_message()
-        if msg.stop_reason in ("refusal", "max_tokens"):
-            raise RuntimeError(f"analyst run stopped: {msg.stop_reason}")
-        result.update(json.loads(next(b.text for b in msg.content if b.type == "text")))
+        msg, out = _stream(client, SYSTEM, payload + f"\n\nIn this response, return only these sections, each fully filled as specified above: {', '.join(part)}.", schema)
+        result.update(out)
         usage["input_tokens"] += msg.usage.input_tokens
         usage["output_tokens"] += msg.usage.output_tokens
         model = msg.model
     result = _clean(result)
+    if not result["brief"].get("qa"):
+        _fill_qa(client, d, result, usage)
 
     # Keep notes on older official items from previous runs; today's run only sees the last 14 days.
     previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}

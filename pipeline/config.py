@@ -32,13 +32,15 @@ KEYWORDS = {
     "flu": [r"流感疫苗", r"流感.{0,6}疫苗", r"公費流感", r"influenza vaccin", _A + r"flu (?:vaccin|shot|jab)"],
     "enh": [r"加強型(?:流感)?疫苗", r"enhanced (?:influenza|flu) vaccin"],
     "adj": [r"佐劑", r"adjuvant"],
-    "hd": [r"高劑量", r"high[- ]dose"],
+    "hd": [r"高劑量", r"high[- ]dose", r"(?:4|四)\s*倍(?:的)?抗原"],
     "rsv": [_A + r"rsv" + _Z, r"呼吸道融合病毒", r"呼吸道合胞病毒", r"beyfortus", r"nirsevimab", r"尼塞韋",
             r"abrysvo", r"arexvy", r"mresvia", r"clesrovimab", r"enflonsia"],
     "tdap": [_A + r"tdap" + _Z, r"百日咳", r"pertussis", r"whooping cough", r"boostrix", r"adacel"],
 }
-# Brand names that identify an enhanced type even without a flu keyword nearby.
-ENHANCED_BRANDS = {"adj": [_A + r"fluad" + _Z, _A + r"mf59"], "hd": [r"efluelda", r"fluzone high"]}
+# Brand names that identify an enhanced type even without a flu keyword nearby. Taiwan 2026 public programme:
+# FLUAD = 輔流禦流感疫苗 (TTY Biopharm, adjuvanted, 50+); Efluelda = 菲優達高劑量三價流感疫苗 (Sanofi, high-dose, 65+).
+ENHANCED_BRANDS = {"adj": [_A + r"fluad" + _Z, _A + r"mf59", r"輔流禦"],
+                   "hd": [r"efluelda", r"菲優達", r"fluzone high"]}
 FLU_CONTEXT = r"流感|influenza|" + _A + r"flu" + _Z
 # A search result whose headline names no vaccine is still kept, with the search's vaccine as a provisional tag,
 # if the headline mentions one of these broad terms; the LLM tagger then confirms or drops it.
@@ -70,14 +72,29 @@ TFDA = {
 TFDA_PREFILTER = r"疫苗|vaccin|生物藥品|檢驗封緘|單株抗體"
 
 # ---------------------------------------------------------------- media sources
-# Google News search RSS, zh-TW edition. Daily runs use when:2d; backfill uses weekly after:/before: windows.
-# (query, provisional vaccine tags for headlines that name no vaccine)
+# Google News search RSS, zh-TW edition. Daily runs use when:7d; backfill uses weekly after:/before: windows.
+# The feed carries headlines only, but Google matches the query against the full article. So each article records
+# which searches found it (Item.found_by): evidence that its text mentions that vaccine type or funding, even when
+# the headline just says 加強型. (query, key): vaccine keys also serve as the provisional tag for headlines that
+# name no vaccine; funding keys (public, self_pay) are evidence only.
+# One term per search: the zh-TW feed silently drops most results for OR queries (tested 2026-10-10:
+# "RSV 疫苗 OR 呼吸道融合病毒 OR ..." returned 9 articles in 90 days; 呼吸道融合病毒 alone returned 53).
+# Latin brand names (Beyfortus, FLUAD, Efluelda, Tdap) return nothing in this edition; headline keywords still catch them.
 GNEWS_QUERIES = [
-    ("流感疫苗", ["flu"]),
-    ("加強型流感疫苗 OR 高劑量流感疫苗 OR 佐劑流感疫苗", ["enh"]),
-    ("RSV 疫苗 OR 呼吸道融合病毒 OR Beyfortus OR RSV 單株抗體", ["rsv"]),
-    ("百日咳 OR Tdap", ["tdap"]),
+    ("流感疫苗", "flu"),
+    ("加強型流感疫苗", "enh"),
+    ("高劑量流感疫苗", "hd"),
+    ("菲優達", "hd"),
+    ("佐劑流感疫苗", "adj"),
+    ("輔流禦", "adj"),
+    ("公費 流感疫苗", "public"),
+    ("自費 流感疫苗", "self_pay"),
+    ("RSV 疫苗", "rsv"),
+    ("呼吸道融合病毒", "rsv"),
+    ("RSV 單株抗體", "rsv"),
+    ("百日咳", "tdap"),
 ]
+FUNDING_KEYS = ("public", "self_pay")
 # The zh-TW Google News edition also carries Hong Kong and mainland outlets; their local programmes are out of scope.
 NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星島|Singtao|文匯|大公|信報|RTHK|am730|頭條日報|"
                       r"巴士的報|dotdotnews|點新聞|i-CABLE|有線新聞|New Monday|HK01|HKET|"
@@ -96,7 +113,8 @@ APIFY_WEEKDAYS = (0, 3)   # Monday, Thursday (Asia/Taipei); each run looks back 
 APIFY = {
     "threads": {
         "actor": "futurizerush/meta-threads-scraper",
-        "keywords": ["流感疫苗", "高劑量流感疫苗", "佐劑流感疫苗", "加強型流感疫苗", "RSV疫苗", "RSV單株抗體", "百日咳疫苗"],
+        "keywords": ["流感疫苗", "高劑量流感疫苗", "佐劑流感疫苗", "加強型流感疫苗", "菲優達", "輔流禦", "自費流感疫苗",
+                     "RSV疫苗", "RSV單株抗體", "百日咳疫苗"],
         "max_posts": 30, "max_posts_backfill": 150,       # per keyword
         "cap_usd": 0.5, "cap_usd_backfill": 4.0,
     },

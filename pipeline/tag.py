@@ -1,9 +1,12 @@
-"""Tag new items with Claude Haiku 5.5: relevance, vaccines, issues, stance, speaker, storyline, and an English
-and a Traditional Chinese title/summary for the bilingual site.
+"""Tag new items with Claude Haiku 5.5: relevance, vaccines, funding (公費/自費), issues, stance, speaker, storyline,
+and an English and a Traditional Chinese title/summary for the bilingual site.
 
 Only items without tags are sent, in batches, so each item is paid for once. Results are written back into
 data/items/*.jsonl. Structured output (a JSON schema) guarantees parseable, enum-valid answers.
-zh_backfill() adds the Chinese fields to items tagged before the site became bilingual.
+News items arrive as headlines only; the news searches that found an article (found_by) stand in for its full
+text, and _apply_evidence() turns that evidence into vaccine-type and funding tags.
+zh_backfill() and funding_backfill() fill fields added after an item was tagged; retag() re-tags news and
+official items when the tagging rules change (social posts keep their tags: their text is gone by then).
 """
 from __future__ import annotations
 
@@ -22,6 +25,7 @@ ISSUES = ["eligibility", "cost", "safety", "effectiveness", "supply", "outbreak"
 STANCES = ["opposed", "hesitant", "neutral", "accepting", "advocating"]
 SPEAKERS = ["government", "health_professional", "medical_society", "media", "kol", "parent", "older_adult_or_carer",
             "general_public", "industry", "other"]
+FUNDING = ["public", "self_pay", "both", "not_stated"]
 
 ZH_STYLE = ("Write natural Traditional Chinese as used in Taiwan (疫苗接種, 公費, 自費, 疾管署, 食藥署, 衛福部); never "
             "Mainland vocabulary or Simplified characters. Keep product names, RSV, Tdap, ACIP and platform names "
@@ -42,11 +46,21 @@ Fields
 - vaccines: any of {VACCINE_KEYS}.
   flu = influenza vaccination in general or standard-dose vaccines.
   enh = enhanced influenza vaccines (加強型) when the type is NOT stated.
-  adj = adjuvanted influenza vaccine (佐劑, e.g. Fluad). hd = high-dose influenza vaccine (高劑量, e.g. Efluelda).
+  adj = adjuvanted influenza vaccine (佐劑, 含佐劑, MF59; brand FLUAD = 輔流禦流感疫苗).
+  hd = high-dose influenza vaccine (高劑量, "4 倍抗原"; brand Efluelda = 菲優達高劑量三價流感疫苗, Fluzone High-Dose).
   If an item names both adjuvanted and high-dose, tag both adj and hd (not enh).
+  Standard-dose brands are flu only, never enhanced: Vaxigrip (菲流達), Fluarix (伏流感), Flucelvax (輔流威護,
+  cell-based), AdimFlu-S (安定伏), Fluvacgen (福喜健).
   rsv = RSV infant antibodies (e.g. nirsevimab/Beyfortus, clesrovimab), maternal or older-adult RSV vaccines, RSV disease.
   tdap = Tdap / pertussis (百日咳) vaccines or pertussis disease.
   Use [] when relevant is false.
+- funding: who pays for the vaccination the item discusses. public = 公費 (the government-funded programme,
+  free for eligible groups); self_pay = 自費 (paid out of pocket, e.g. clinics' own stock, private prices);
+  both = the item mentions both, even in passing (e.g. "公費之外也可自費接種"); not_stated = neither is mentioned.
+- search_matches (news items only): you see only the headline, but the full article matched these searches,
+  so treat them as said in the article: hd = mentions high-dose (高劑量 / 菲優達 / Efluelda); adj = mentions an
+  adjuvanted vaccine (佐劑 / 輔流禦 / FLUAD); enh = mentions 加強型流感疫苗; public = mentions 公費;
+  self_pay = mentions 自費. They do not change relevance on their own.
 - issues: any of {ISSUES} (eligibility and access; cost and self-pay; safety and side effects; effectiveness
   and evidence; supply and availability; disease risk and outbreaks).
 - stance toward vaccination expressed by the item: opposed (rejects / anti-vaccine claims), hesitant (delays,
@@ -79,6 +93,7 @@ SCHEMA = {
                     "id": {"type": "string"},
                     "relevant": {"type": "boolean"},
                     "vaccines": {"type": "array", "items": {"type": "string", "enum": VACCINE_KEYS}},
+                    "funding": {"type": "string", "enum": FUNDING},
                     "issues": {"type": "array", "items": {"type": "string", "enum": ISSUES}},
                     "stance": {"type": "string", "enum": STANCES},
                     "speaker": {"type": "string", "enum": SPEAKERS},
@@ -90,7 +105,7 @@ SCHEMA = {
                     "summary_zh": {"type": "string"},
                     "pa_relevance": {"type": "integer", "enum": [1, 2, 3, 4, 5]},
                 },
-                "required": ["id", "relevant", "vaccines", "issues", "stance", "speaker", "misinformation",
+                "required": ["id", "relevant", "vaccines", "funding", "issues", "stance", "speaker", "misinformation",
                              "storyline", "title_en", "summary_en", "title_zh", "summary_zh", "pa_relevance"],
                 "additionalProperties": False,
             },
@@ -118,10 +133,55 @@ ZH_SCHEMA = {
 }
 
 
+FUNDING_SYSTEM = """For each item from a Taiwanese vaccine-monitoring dashboard, say who pays for the vaccination
+it discusses, judged from its English summary: public = 公費 (government-funded programme, free for eligible
+groups); self_pay = 自費 (out of pocket, clinics' own stock, private prices); both = mentions both, even in
+passing; not_stated = neither is mentioned. Be literal."""
+
+FUNDING_SCHEMA = {
+    "type": "object",
+    "properties": {"items": {"type": "array", "items": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "funding": {"type": "string", "enum": FUNDING}},
+        "required": ["id", "funding"], "additionalProperties": False}}},
+    "required": ["items"],
+    "additionalProperties": False,
+}
+
+
 def _payload(batch: list[dict]) -> str:
-    rows = [{"id": it["id"], "channel": it["channel"], "outlet": it["outlet"], "date": it["published"],
-             "title": it["title"], "text": it["text"][:600], "keyword_vaccines": it["vaccines"]} for it in batch]
+    rows = []
+    for it in batch:
+        row = {"id": it["id"], "channel": it["channel"], "outlet": it["outlet"], "date": it["published"],
+               "title": it["title"], "text": it["text"][:3000 if it["kind"] == "policy" else 600],
+               "keyword_vaccines": it["vaccines"]}
+        if it.get("found_by"):
+            row["search_matches"] = it["found_by"]
+        rows.append(row)
     return "Tag these items. Return exactly one record per id.\n\n" + json.dumps(rows, ensure_ascii=False)
+
+
+def _funding_payload(batch: list[dict]) -> str:
+    rows = [{"id": it["id"], "summary_en": it["tags"].get("summary_en", ""), "title_en": it["tags"].get("title_en", "")}
+            for it in batch]
+    return "Label these items. Return exactly one record per id.\n\n" + json.dumps(rows, ensure_ascii=False)
+
+
+def _apply_evidence(record: dict, found_by: list[str]) -> dict:
+    """Search evidence wins over a headline-only reading: a type search hit means the article names that type,
+    and a funding search hit means it mentions that funding. Enhanced stays only when no type is named."""
+    hits = set(found_by)
+    if record.get("relevant"):
+        vac = set(record.get("vaccines", [])) | (hits & {"adj", "hd"})
+        if "enh" in hits and not vac & {"adj", "hd"}:
+            vac.add("enh")
+        if vac & {"adj", "hd"}:
+            vac.discard("enh")
+        record["vaccines"] = [v for v in VACCINE_KEYS if v in vac]
+    said = {"public": {"public"}, "self_pay": {"self_pay"}, "both": {"public", "self_pay"}}.get(record.get("funding"), set())
+    said |= hits & {"public", "self_pay"}
+    record["funding"] = "both" if len(said) == 2 else (next(iter(said)) if said else "not_stated")
+    return record
 
 
 def _zh_payload(batch: list[dict]) -> str:
@@ -201,6 +261,30 @@ def tag_pending(days: int = config.BACKFILL_DAYS, limit: int | None = None, dry_
     return _run_batches(pending, SYSTEM, SCHEMA, _payload, merge=False, batch_size=BATCH, label="tag")
 
 
+def retag(days: int = config.BACKFILL_DAYS) -> dict:
+    """Re-tag news and official items under the current rules. Social posts keep their tags (their text is gone)."""
+    cleared = 0
+    for back in range(days, -1, -1):
+        day = days_ago(back).isoformat()
+        records = load_day(day)
+        hit = [d for d in records.values() if d["kind"] != "social" and d.get("tags")]
+        if not hit:
+            continue
+        for d in hit:
+            d["tags"] = {}
+        cleared += len(hit)
+        with (config.ITEMS_DIR / f"{day}.jsonl").open("w", encoding="utf-8", newline="\n") as f:
+            for d in sorted(records.values(), key=lambda x: (x["source"], x["id"])):
+                f.write(json.dumps(d, ensure_ascii=False) + "\n")
+    return {"cleared": cleared, **tag_pending(days)}
+
+
+def funding_backfill(days: int = config.BACKFILL_DAYS) -> dict:
+    """Funding labels for items tagged before the field existed (social posts: judged from their paraphrase)."""
+    pending = _scan(days, lambda it: (it.get("tags") or {}).get("relevant") and "funding" not in it["tags"])
+    return _run_batches(pending, FUNDING_SYSTEM, FUNDING_SCHEMA, _funding_payload, merge=True, batch_size=60, label="funding")
+
+
 def zh_backfill(days: int = config.BACKFILL_DAYS) -> dict:
     """Add title_zh / summary_zh to relevant items that were tagged before the site became bilingual."""
     pending = _scan(days, lambda it: (it.get("tags") or {}).get("relevant") and not it["tags"].get("summary_zh"))
@@ -216,8 +300,8 @@ def _write_back(results: dict[str, dict], day_of: dict[str, str], merge: bool = 
         records = load_day(day)
         for i in ids:
             if i in records:
-                records[i]["tags"] = ({**records[i].get("tags", {}), **results[i]} if merge
-                                      else {**results[i], "model": MODEL})
+                rec = results[i] if merge else _apply_evidence(results[i], records[i].get("found_by", []))
+                records[i]["tags"] = ({**records[i].get("tags", {}), **rec} if merge else {**rec, "model": MODEL})
         with (config.ITEMS_DIR / f"{day}.jsonl").open("w", encoding="utf-8", newline="\n") as f:
             for d in sorted(records.values(), key=lambda x: (x["source"], x["id"])):
                 f.write(json.dumps(d, ensure_ascii=False) + "\n")

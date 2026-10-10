@@ -39,6 +39,8 @@
   --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
   --good-text: #006300; --bad-text: #d03b3b;
   --tip-shadow: 0 8px 28px rgba(11, 11, 11, 0.14);
+  /* who pays: hues outside the vaccine palette; "both" is a stripe of the two */
+  --f-pub: #7c5cd6; --f-self: #b0662a; --f-ns: #c3c2b7;
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -55,6 +57,7 @@
     --seq-ink-4: #0b0b0b; --seq-ink-5: #0b0b0b; --seq-ink-6: #0b0b0b;
     --good-text: #0ca30c; --bad-text: #e66767;
     --tip-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+    --f-pub: #a491f0; --f-self: #d98a4a; --f-ns: #52514e;
   }
 }
 :root[data-theme="dark"] {
@@ -71,6 +74,7 @@
   --seq-ink-4: #0b0b0b; --seq-ink-5: #0b0b0b; --seq-ink-6: #0b0b0b;
   --good-text: #0ca30c; --bad-text: #e66767;
   --tip-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --f-pub: #a491f0; --f-self: #d98a4a; --f-ns: #52514e;
 }
 
 /* ---------- base ---------- */
@@ -216,11 +220,12 @@ details p { margin-top: 6px; }
 }
 
 /* ---------- KPI tiles ---------- */
-.kpis { display: grid; gap: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kpis { display: grid; gap: 16px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1060px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .attn { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-@media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpis > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
 @media (max-width: 480px) { .kpis, .attn { gap: 10px; } .attn { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi { padding: 12px 12px; } .kpi-value { font-size: 26px; } }
-@media (max-width: 330px) { .kpis, .attn { grid-template-columns: 1fr; } }
+@media (max-width: 330px) { .kpis, .attn { grid-template-columns: 1fr; } .kpis > :last-child:nth-child(odd) { grid-column: auto; } }
 .chips-inline { display: inline-flex; flex-wrap: wrap; gap: 2px 10px; }
 .kpi { padding: 14px 16px; }
 .kpi-label { font-size: 13px; color: var(--text-2); }
@@ -264,13 +269,6 @@ details p { margin-top: 6px; }
 .chart .seg-mark:hover, .chart .seg-mark:focus { filter: brightness(1.1); }
 .chart .seg-mark:focus-visible { stroke: var(--text-1); stroke-width: 2; }
 .chart:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
-.chart .quad-label { fill: var(--text-2); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-.chart .axis-title { fill: var(--text-2); font-size: 12px; }
-.chart .mark { fill: var(--text-2); stroke: var(--surface); stroke-width: 2; paint-order: stroke; }
-.chart .pt { outline: none; cursor: default; }
-.chart .pt:hover .mark, .chart .pt:focus .mark { fill: var(--accent); }
-.chart .hit { fill: transparent; }
-.chart .pt-label { fill: var(--text-1); font-size: 11.5px; }
 .event-list {
   list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid var(--grid);
   display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 6px 20px;
@@ -318,8 +316,6 @@ details p { margin-top: 6px; }
 .narr-cards > li:first-child { border-top: 0; padding-top: 0; }
 .narr-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 4px; }
 @media (max-width: 700px) { .narr-wide { display: none; } .narr-cards { display: grid; } }
-.pt-key { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid var(--grid); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; font-size: 12.5px; color: var(--text-2); }
-.pt-key b { color: var(--text-1); font-variant-numeric: tabular-nums; margin-right: 4px; }
 
 /* tooltip */
 #tip {
@@ -380,8 +376,6 @@ details p { margin-top: 6px; }
 .product dd { margin: 3px 0 0; font-size: 13.5px; }
 .who { display: flex; flex-wrap: wrap; gap: 6px; }
 .basis { font-size: 12px; color: var(--text-2); margin-top: 12px; border-top: 1px solid var(--grid); padding-top: 10px; }
-.grid-lens { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; }
-@media (max-width: 900px) { .grid-lens { grid-template-columns: 1fr; } }
 body.is-lens .tabs, body.is-lens #status-strip { display: none; }
 
 /* ---------- footer ---------- */
@@ -419,3 +413,16 @@ body.is-lens .tabs, body.is-lens #status-strip { display: none; }
 .lang-switch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
 /* Static markup holds both languages; the one that does not match <html lang> is hidden. */
 html:not([lang|="zh"]) [data-lang="zh"], html[lang|="zh"] [data-lang="en"] { display: none !important; }
+
+/* ---------- who pays (公費 / 自費) ---------- */
+.fund-public { background: var(--f-pub); }
+.fund-self_pay { background: var(--f-self); }
+.fund-both { background: repeating-linear-gradient(45deg, var(--f-pub) 0 3px, var(--f-self) 3px 6px); }
+.fund-not_stated { background: var(--f-ns); }
+.fund {
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 12px; line-height: 1.6;
+  color: var(--text-1); border: 1px solid var(--border); border-radius: 999px; padding: 0 8px 0 6px;
+}
+.fund-key { display: inline-block; width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.narr-ex { font-size: 12.5px; font-weight: 400; line-height: 1.7; margin-top: 6px; }
+.narr-ex-label { color: var(--text-2); }

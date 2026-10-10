@@ -24,6 +24,7 @@ FIELDS = {
     ("misinfo",): ["claim", "note"],
     ("lens", "products"): ["name", "sub", "signal", "implication", "action", "who"],
     ("lens", "issues"): ["when", "title", "note"],
+    ("lens", "self_pay"): ["title", "note"],
 }
 
 SYSTEM = """You translate a vaccine public-affairs dashboard from English into Traditional Chinese for readers in

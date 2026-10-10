@@ -1,16 +1,16 @@
 {
  "analyst": {
-  "input_tokens": 66358,
-  "last_success": "2026-10-10T18:42:17+08:00",
-  "output_tokens": 9973,
-  "seconds": 96.1,
+  "input_tokens": 74278,
+  "last_success": "2026-10-10T23:41:22+08:00",
+  "output_tokens": 12477,
+  "seconds": 135.6,
   "status": "ok"
  },
  "cdc": {
-  "items": 1,
-  "last_success": "2026-10-10T18:39:39+08:00",
+  "items": 17,
+  "last_success": "2026-10-10T23:06:54+08:00",
   "new": 0,
-  "seconds": 20.9,
+  "seconds": 52.7,
   "status": "ok"
  },
  "facebook": {
@@ -20,14 +20,23 @@
   "seconds": 46.3,
   "status": "ok"
  },
+ "funding_items": {
+  "batches": 1,
+  "errors": 0,
+  "input_tokens": 6464,
+  "last_success": "2026-10-10T23:38:52+08:00",
+  "output_tokens": 3279,
+  "pending": 60,
+  "seconds": 13.7,
+  "status": "ok",
+  "tagged": 60
+ },
  "gnews": {
-  "failed_at": "2026-10-10T18:40:26+08:00",
-  "items": 109,
-  "last_error": "RetryError: HTTPSConnectionPool(host='news.google.com', port=443): Max retries exceeded with url: /rss/search?q=%E6%B5%81%E6%84%9F%E7%96%AB%E8%8B%97+when%3A7d&hl=zh-TW&gl=TW&ceid=TW%3Azh-Hant (Caused by ResponseError('too many 503 error responses'))",
-  "last_success": "2026-10-10T18:31:57+08:00",
-  "new": 1,
-  "seconds": 5.7,
-  "status": "failed"
+  "items": 987,
+  "last_success": "2026-10-10T23:30:00+08:00",
+  "new": 75,
+  "seconds": 668.0,
+  "status": "ok"
  },
  "ptt": {
   "items": 14,
@@ -40,13 +49,13 @@
  "tagger": {
   "batches": 1,
   "errors": 0,
-  "input_tokens": 778,
-  "last_success": "2026-10-10T18:40:41+08:00",
-  "output_tokens": 2424,
-  "pending": 7,
-  "seconds": 12.6,
+  "input_tokens": 3491,
+  "last_success": "2026-10-10T23:38:37+08:00",
+  "output_tokens": 2378,
+  "pending": 5,
+  "seconds": 13.0,
   "status": "ok",
-  "tagged": 7
+  "tagged": 5
  },
  "tfda": {
   "items": 0,
@@ -63,13 +72,13 @@
   "status": "ok"
  },
  "translator": {
-  "input_tokens": 4685,
-  "last_success": "2026-10-10T20:40:33+08:00",
-  "output_tokens": 4148,
-  "seconds": 39.8,
+  "input_tokens": 1254,
+  "last_success": "2026-10-10T23:43:53+08:00",
+  "output_tokens": 613,
+  "seconds": 11.5,
   "status": "ok",
-  "strings": 78,
-  "translated": 78
+  "strings": 6,
+  "translated": 6
  },
  "wiki": {
   "items": 90,
@@ -77,14 +86,14 @@
   "status": "ok"
  },
  "zh_items": {
-  "batches": 17,
+  "batches": 0,
   "errors": 0,
-  "input_tokens": 54771,
-  "last_success": "2026-10-10T20:39:53+08:00",
-  "output_tokens": 69543,
-  "pending": 650,
-  "seconds": 86.2,
+  "input_tokens": 0,
+  "last_success": "2026-10-10T23:38:53+08:00",
+  "output_tokens": 0,
+  "pending": 0,
+  "seconds": 0.4,
   "status": "ok",
-  "tagged": 650
+  "tagged": 0
  }
 }

@@ -39,6 +39,7 @@ class Item:
     engagement: int = 0      # PTT pushes, reactions, comments where available
     vaccines: list[str] = field(default_factory=list)
     vaccine_basis: str = "keyword"           # keyword | query (provisional: the search's vaccine; LLM confirms)
+    found_by: list[str] = field(default_factory=list)   # keys of the news searches that returned it (config.GNEWS_QUERIES)
     tags: dict = field(default_factory=dict)  # filled by the LLM tagger
     id: str = ""
 
@@ -47,7 +48,8 @@ class Item:
         if not self.id:
             self.id = hashlib.sha1(self.url.encode("utf-8")).hexdigest()[:16]
         self.title = clean(self.title)
-        self.text = clean(self.text)[:1200]
+        # Official notices are long and name vaccine types late in the text; posts are deleted after tagging anyway.
+        self.text = clean(self.text)[:4000 if self.kind == "policy" else 1200]
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -210,6 +212,9 @@ def scrub_social() -> int:
     return changed
 
 
+EVIDENCE_KEYS = {"enh", "adj", "hd", *config.FUNDING_KEYS}
+
+
 def load_day(day: str) -> dict[str, dict]:
     path = config.ITEMS_DIR / f"{day}.jsonl"
     if not path.exists():
@@ -234,6 +239,11 @@ def save_items(items: list[Item]) -> dict[str, int]:
                 old = existing[it.id]
                 d["tags"] = old.get("tags") or d["tags"]
                 d["engagement"] = max(old.get("engagement", 0), d["engagement"])
+                before = set(old.get("found_by", []))
+                d["found_by"] = sorted(before | set(d["found_by"]))
+                # A type or funding search found an already-tagged article: tag it again with the new evidence.
+                if d["tags"] and (set(d["found_by"]) - before) & EVIDENCE_KEYS:
+                    d["tags"] = {}
             else:
                 n_new += 1
             existing[it.id] = d
