@@ -974,10 +974,10 @@ function renderSocial(root) {
           rebuttals.map(p => h('li', null,
             h('div', { class: 'meta-row' }, typeBadge('policy', tr(`${sourceName(p.source)} rebuttal`, `${sourceName(p.source)}澄清`)), p.vaccines.map(vacChip), h('span', null, fmtDate(asDate(p.date)))),
             extLink(p.url, policyTitle(p)))))
-          : emptyState(tr('No claims or rebuttals for these vaccines in this range.', '此期間這些疫苗沒有錯假訊息或官方澄清。')))),
+          : emptyState(tr('No claims or rebuttals for these vaccines in this range.', '此期間這些疫苗沒有假訊息或官方澄清。')))),
     h('section', { class: 'card' },
       h('h3', { class: 'card-title' }, tr('What people are saying', '民眾怎麼說')),
-      h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Representative posts, paraphrased by the AI tagger. Links open the public post.', '具代表性的貼文，由 AI 改寫。連結可開啟公開原文。')),
+      h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Representative posts, paraphrased by the AI tagger. Links open the public post.', '具代表性的貼文，由AI改寫。')),
       voices.length ? h('div', { class: 'voices' }, voices.map(v => h('article', { class: 'voice' },
         h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, channelShort(v.channel)), vacChip(v.vaccine), stanceChip(v.stance)),
         h('p', null, L(v, 'text')),

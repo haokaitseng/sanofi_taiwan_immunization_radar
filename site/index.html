@@ -12,9 +12,9 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
 <body data-page="main" data-title-zh="台灣疫苗接種雷達 · Taiwan Immunization Radar">
 <div class="top-banner" role="note">
   <div class="wrap">
-    <span data-lang="en"><strong>Sanofi lens</strong> · What do these signals mean for Sanofi.</span>
+    <span data-lang="en"><strong>Sanofi lens</strong> · What do these signals mean for Sanofi?</span>
     <span data-lang="zh"><strong>Sanofi 洞見</strong>・這些訊號對Sanofi疫苗策略的意涵。</span>
-    <a href="lens/" data-keep-lang><span data-lang="en">Open the Sanofi lens →</span><span data-lang="zh">開啟 Sanofi 視角 →</span></a>
+    <a href="lens/" data-keep-lang><span data-lang="en">Open the Sanofi lens →</span><span data-lang="zh">開啟 Sanofi 洞見 →</span></a>
   </div>
 </div>
 <header class="site-header">
@@ -51,7 +51,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
       <button type="button" role="tab" id="tab-today" data-view="today" aria-controls="view-today"><span data-lang="en">Today</span><span data-lang="zh">今日</span></button>
       <button type="button" role="tab" id="tab-policy" data-view="policy" aria-controls="view-policy"><span data-lang="en">Policy</span><span data-lang="zh">政策</span></button>
       <button type="button" role="tab" id="tab-social" data-view="social" aria-controls="view-social"><span data-lang="en">Social listening</span><span data-lang="zh">社群輿情</span></button>
-      <button type="button" role="tab" id="tab-method" data-view="method" aria-controls="view-method"><span data-lang="en">Methodology</span><span data-lang="zh">方法說明</span></button>
+      <button type="button" role="tab" id="tab-method" data-view="method" aria-controls="view-method"><span data-lang="en">Methodology</span><span data-lang="zh">方法</span></button>
     </nav>
     <a class="btn-ghost gh-link gh-desktop" href="https://github.com/haokaitseng/sanofi_taiwan_immunization_radar" target="_blank" rel="noopener noreferrer" aria-label="Source code on GitHub (opens in a new tab)" data-aria-zh="GitHub 原始碼（另開新分頁）">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -71,7 +71,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
 
   <section id="view-method" role="tabpanel" aria-labelledby="tab-method" hidden>
     <div class="view-head">
-      <h2><span data-lang="en">Methodology</span><span data-lang="zh">方法說明</span></h2>
+      <h2><span data-lang="en">Methodology</span><span data-lang="zh">方法</span></h2>
       <p class="muted"><span data-lang="en">How the radar is built, what it can and cannot tell you, and the rules it follows.</span><span data-lang="zh">雷達如何建置、能與不能告訴你什麼，以及所遵循的規則。</span></p>
     </div>
     <section class="card">
@@ -89,7 +89,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
       </div>
       <div data-lang="zh">
         <h3 class="card-title">每日資料流程</h3>
-        <p class="card-sub">每天台北時間 05:17 在 GitHub Actions 上自動執行。網站是 GitHub Pages 上的靜態頁面，不需要伺服器，也不會休眠。</p>
+        <p class="card-sub">每天台灣時間05:17在GitHub Actions 上自動執行。網站是GitHub Pages靜態頁面，不需伺服器。</p>
         <ol class="pipeline">
           <li><span class="step-n">1</span><strong>收集</strong><span>疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言、維基百科瀏覽量</span></li>
           <li><span class="step-n">2</span><strong>清理</strong><span>依網址與近似標題去除重複，剔除禽流感等離題內容</span></li>
@@ -138,23 +138,21 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
         <div data-lang="en">
           <h3 class="card-title">Limitations</h3>
           <ul class="plain" style="margin-top:12px">
-            <li>Closed spaces such as LINE groups and private Facebook groups are invisible. Facebook coverage is limited to public pages.</li>
-            <li>Threads and Facebook arrive through third-party scrapers that break when platforms change. Each source has its own status light.</li>
-            <li>Dcard is not covered: no reliable, permitted collector is available for it.</li>
+            <li>Facebook coverage is limited to public pages.</li>
+            <li>Threads and Facebook arrive through third-party scrapers that break when platforms change.</li>
             <li>Keyword-based collection misses posts that never name the vaccine or disease. News headlines that name no vaccine are kept only when they came from a vaccine-specific search, and the AI tagger confirms or drops them.</li>
-            <li>Stance and issue tags are AI-generated. A hand-checked sample is re-scored monthly, and agreement will be reported here.</li>
-            <li>Volumes count mentions, not people. One active account can post many times.</li>
+            <li>Stance and issue tags are AI-generated.</li>
+            <li>Volumes count mentions, not people.</li>
           </ul>
         </div>
         <div data-lang="zh">
           <h3 class="card-title">限制</h3>
           <ul class="plain" style="margin-top:12px">
-            <li>LINE 群組與私人 Facebook 社團等封閉空間無法觀察。Facebook 僅涵蓋公開粉專。</li>
-            <li>Threads 與 Facebook 透過第三方爬蟲取得，平台改版時可能失效。每個來源都有各自的狀態燈號。</li>
-            <li>未涵蓋 Dcard：目前沒有可靠且獲許可的收集工具。</li>
+            <li>Facebook 僅涵蓋公開粉專。</li>
+            <li>Threads 與 Facebook 透過第三方爬蟲取得，平台改版時可能失效。</li>
             <li>以關鍵字收集會漏掉從未提及疫苗或疾病名稱的貼文。未提及疫苗的新聞標題，只有來自特定疫苗搜尋時才會保留，並由 AI 標註確認或剔除。</li>
-            <li>立場與議題標註由 AI 產生。每月會重新評分一批人工檢核樣本，並在此公布一致性。</li>
-            <li>聲量計算的是提及次數而非人數，一個活躍帳號可能多次發文。</li>
+            <li>立場與議題標註由 AI 產生。</li>
+            <li>聲量計算的是提及次數而非人數。</li>
           </ul>
         </div>
       </section>
