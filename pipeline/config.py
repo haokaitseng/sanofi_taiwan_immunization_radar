@@ -94,7 +94,9 @@ PTT_BOARDS = ["BabyMother", "Preschooler", "Gossiping", "WomenTalk", "Health", "
 # PTT search matches titles only. "疫苗" is the catch-all; the tagger then reads title + body to keep relevant posts.
 PTT_KEYWORDS = ["疫苗", "流感", "高劑量", "佐劑", "RSV", "呼吸道融合", "百日咳", "Tdap"]
 
-# Apify actors (pay per result). Each run has a hard USD cap; daily caps keep the month under ~US$30.
+# Apify actors (pay per result). Each run has a hard USD cap. One run of both costs about US$0.46, so on the
+# free plan (US$5/month) they run twice a week; with a paid plan, set APIFY_WEEKDAYS = range(7).
+APIFY_WEEKDAYS = (0, 3)   # Monday, Thursday (Asia/Taipei); each run looks back 7 days
 APIFY = {
     "threads": {
         "actor": "futurizerush/meta-threads-scraper",

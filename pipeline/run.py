@@ -17,7 +17,7 @@ from datetime import datetime
 
 from . import config
 from .collect import SOURCES, wiki
-from .common import NotConfigured, days_ago, save_items, scrub_social
+from .common import NotConfigured, days_ago, save_items, scrub_social, today
 
 STATUS_FILE = config.DATA_DIR / "status.json"
 ATTENTION_FILE = config.DATA_DIR / "attention.json"
@@ -42,6 +42,9 @@ def collect(backfill: bool, only: set[str] | None) -> int:
     failures = 0
     for name, module in SOURCES.items():
         if only and name not in only:
+            continue
+        if name in ("threads", "facebook") and not only and not backfill and today().weekday() not in config.APIFY_WEEKDAYS:
+            print(f"[{name}] skipped today (paid source; runs on weekdays {config.APIFY_WEEKDAYS})", flush=True)
             continue
         t0 = time.monotonic()
         print(f"[{name}] collecting since {since} ...", flush=True)
