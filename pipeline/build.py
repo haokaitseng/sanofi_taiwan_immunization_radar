@@ -26,8 +26,7 @@ SOURCE_INFO = [  # display metadata for the status strip and the Methodology tab
     ("cdc", "Taiwan CDC", "Policy", "Press releases, letters to physicians, clarifications", "List pages + RSS"),
     ("tfda", "TFDA", "Policy", "News, announcements, drug-safety notices, rumour rebuttals", "RSS + list pages"),
     ("gnews", "Google News", "Media", "zh-TW news matching the vaccine keyword set", "RSS search"),
-    ("gdelt", "GDELT", "Media", "Taiwanese outlets in the GDELT index", "DOC 2.0 API"),
-    ("ptt", "PTT", "Social", "Posts on parenting, health and general boards", "Public pages, polite crawl"),
+    ("ptt", "PTT", "Social", "Posts on parenting, health and general boards", "Public pages, polite crawl; local runs only (blocks cloud servers)"),
     ("threads", "Threads", "Social", "Public posts matching the keyword set", "Apify actor"),
     ("facebook", "Facebook", "Social", "Comments on vaccine posts of public institutional pages", "Apify actors"),
     ("wiki", "Wikipedia", "Attention", "Daily pageviews of zh and en vaccine articles", "Pageviews API"),
@@ -210,6 +209,8 @@ def build(analysis: dict | None = None) -> dict:
         st = status.get(sid)
         if st is None or st.get("status") == "pending":
             state = "pending"
+        elif sid in config.LOCAL_ONLY_SOURCES and st.get("last_success"):
+            state = "local"
         elif st.get("status") == "ok":
             state = "ok"
         else:

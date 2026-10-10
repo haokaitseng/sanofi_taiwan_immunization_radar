@@ -76,7 +76,7 @@ const TYPES = {
   media: { glyph: '■', label: 'Media', title: 'News reporting' },
   signal: { glyph: '◆', label: 'Signal', title: 'Social-media signal: volume and narrative, not validated evidence' },
 };
-const SOURCE_STATUS = { ok: ['good', 'OK'], stale: ['warning', 'Stale'], failed: ['critical', 'Failed'], pending: ['pending', 'Not connected yet'] };
+const SOURCE_STATUS = { ok: ['good', 'OK'], stale: ['warning', 'Stale'], failed: ['critical', 'Failed'], pending: ['pending', 'Not connected yet'], local: ['good', 'Local runs only'] };
 
 /* =========================================================
    Data
@@ -813,7 +813,7 @@ function channelCard() {
   const rows = chans.map(c => ({ label: c.label, parts: keys.map(k => ({ key: k, v: (rangeMix(D.channels, k, r) || {})[c.key] || 0 })) }));
   const legend = h('div', { class: 'legend' }, keys.map(k => h('span', { class: 'legend-item' },
     h('span', { class: 'key-rect', style: `background:var(--s-${k})` }), VAC[k].label)));
-  const social = D.sources.filter(s => ['threads', 'facebook', 'ptt'].includes(s.id) && s.status !== 'ok');
+  const social = D.sources.filter(s => ['threads', 'facebook', 'ptt'].includes(s.id) && !['ok', 'local'].includes(s.status));
   return chartCard({
     title: 'Where the conversation happens',
     subtitle: `Mentions by channel and vaccine, last ${r} days.`,

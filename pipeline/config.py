@@ -82,15 +82,10 @@ GNEWS_QUERIES = [
 NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星島|Singtao|文匯|大公|信報|RTHK|am730|頭條日報|"
                       r"巴士的報|dotdotnews|點新聞|i-CABLE|有線新聞|New Monday|HK01|HKET|"
                       r"世界新聞網|World Journal|澳門|新華|人民網|央視|中新網|環球網|新浪新闻|网易|搜狐")
-# GDELT DOC 2.0: Taiwanese outlets (machine-translated by GDELT, so English terms match).
-GDELT_QUERIES = [
-    '("flu vaccine" OR "influenza vaccine") sourcecountry:TW',
-    '("high-dose" OR adjuvanted) (influenza OR flu) sourcecountry:TW',
-    '(RSV OR nirsevimab OR "respiratory syncytial") sourcecountry:TW',
-    '(pertussis OR "whooping cough" OR Tdap) sourcecountry:TW',
-]
 
 # ---------------------------------------------------------------- social sources
+# PTT refuses requests from cloud (GitHub Actions) IP ranges, so it only refreshes on local runs.
+LOCAL_ONLY_SOURCES = {"ptt"}
 PTT_BOARDS = ["BabyMother", "Preschooler", "Gossiping", "WomenTalk", "Health", "Doctor-Info", "nurse"]
 # PTT search matches titles only. "疫苗" is the catch-all; the tagger then reads title + body to keep relevant posts.
 PTT_KEYWORDS = ["疫苗", "流感", "高劑量", "佐劑", "RSV", "呼吸道融合", "百日咳", "Tdap"]

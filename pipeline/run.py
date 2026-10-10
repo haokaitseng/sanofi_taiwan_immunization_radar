@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import traceback
@@ -42,6 +43,10 @@ def collect(backfill: bool, only: set[str] | None) -> int:
     failures = 0
     for name, module in SOURCES.items():
         if only and name not in only:
+            continue
+        if name in config.LOCAL_ONLY_SOURCES and os.environ.get("GITHUB_ACTIONS") == "true":
+            status[name] = {**status.get(name, {}), "local_only": True}
+            print(f"[{name}] skipped on cloud runners (local runs only)", flush=True)
             continue
         if name in ("threads", "facebook") and not only and not backfill and today().weekday() not in config.APIFY_WEEKDAYS:
             print(f"[{name}] skipped today (paid source; runs on weekdays {config.APIFY_WEEKDAYS})", flush=True)

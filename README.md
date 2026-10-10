@@ -9,7 +9,7 @@ Independent portfolio project. Not affiliated with or endorsed by any company or
 
 ```
 05:17 Taipei, daily (GitHub Actions)
-  collect   Taiwan CDC · TFDA · Google News · GDELT · PTT · Threads + Facebook page comments (Apify) · Wikipedia
+  collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
   tag       Claude Haiku 5.5: relevance, vaccine, issue, stance, speaker, storyline, English title
   scrub     verbatim social text deleted; only paraphrase, tags and link stay
   analyse   Claude Opus 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens

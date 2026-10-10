@@ -1,18 +1,9 @@
 {
- "analyst": {
-  "failed_at": "2026-10-10T18:29:17+08:00",
-  "input_tokens": 65236,
-  "last_error": "RuntimeError: ANTHROPIC_API_KEY is not set (put it in .env locally or in GitHub secrets)",
-  "last_success": "2026-10-10T18:24:39+08:00",
-  "output_tokens": 10375,
-  "seconds": 128.0,
-  "status": "failed"
- },
  "cdc": {
-  "items": 1,
-  "last_success": "2026-10-10T18:26:37+08:00",
-  "new": 0,
-  "seconds": 20.8,
+  "items": 17,
+  "last_success": "2026-10-10T14:30:52+08:00",
+  "new": 16,
+  "seconds": 49.0,
   "status": "ok"
  },
  "facebook": {
@@ -22,45 +13,36 @@
   "seconds": 46.3,
   "status": "ok"
  },
- "gdelt": {
-  "failed_at": "2026-10-10T18:29:14+08:00",
-  "last_error": "HTTPError: 429 Client Error: Too Many Requests for url: https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22flu+vaccine%22+OR+%22influenza+vaccine%22%29+sourcecountry%3ATW&mode=ArtList&format=json&maxrecords=250&sort=DateDesc&startdatetime=20261003000000&enddatetime=20261010235959",
-  "status": "failed"
- },
  "gnews": {
-  "items": 109,
-  "last_success": "2026-10-10T18:26:47+08:00",
-  "new": 6,
-  "seconds": 5.8,
+  "items": 949,
+  "last_success": "2026-10-10T14:32:33+08:00",
+  "new": 859,
+  "seconds": 93.1,
   "status": "ok"
  },
  "ptt": {
-  "failed_at": "2026-10-10T18:29:15+08:00",
   "items": 14,
-  "last_error": "HTTPError: 403 Client Error: Forbidden for url: https://www.ptt.cc/bbs/BabyMother/search?q=%E7%96%AB%E8%8B%97&page=1",
   "last_success": "2026-10-10T14:36:10+08:00",
   "new": 11,
   "seconds": 217.1,
-  "status": "failed"
+  "status": "ok"
  },
  "tagger": {
   "batches": 38,
   "errors": 0,
-  "failed_at": "2026-10-10T18:29:17+08:00",
-  "input_tokens": 187467,
-  "last_error": "RuntimeError: ANTHROPIC_API_KEY is not set (put it in .env locally or in GitHub secrets)",
-  "last_success": "2026-10-10T18:21:10+08:00",
-  "output_tokens": 214643,
+  "input_tokens": 185411,
+  "last_success": "2026-10-10T18:30:09+08:00",
+  "output_tokens": 221043,
   "pending": 753,
-  "seconds": 222.3,
-  "status": "failed",
+  "seconds": 874.3,
+  "status": "ok",
   "tagged": 753
  },
  "tfda": {
   "items": 0,
-  "last_success": "2026-10-10T18:26:42+08:00",
+  "last_success": "2026-10-10T14:31:00+08:00",
   "new": 0,
-  "seconds": 4.3,
+  "seconds": 8.4,
   "status": "ok"
  },
  "threads": {
@@ -72,7 +54,7 @@
  },
  "wiki": {
   "items": 90,
-  "last_success": "2026-10-10T18:29:17+08:00",
+  "last_success": "2026-10-10T14:36:17+08:00",
   "status": "ok"
  }
 }
