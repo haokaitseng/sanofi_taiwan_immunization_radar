@@ -79,8 +79,9 @@ GNEWS_QUERIES = [
     ("百日咳 OR Tdap", ["tdap"]),
 ]
 # The zh-TW Google News edition also carries Hong Kong and mainland outlets; their local programmes are out of scope.
-NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星島|文匯|大公|信報|RTHK|am730|頭條日報|"
-                      r"澳門|新華|人民網|央視|中新網|環球網|新浪新闻|网易|搜狐")
+NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星島|Singtao|文匯|大公|信報|RTHK|am730|頭條日報|"
+                      r"巴士的報|dotdotnews|點新聞|i-CABLE|有線新聞|New Monday|HK01|HKET|"
+                      r"世界新聞網|World Journal|澳門|新華|人民網|央視|中新網|環球網|新浪新闻|网易|搜狐")
 # GDELT DOC 2.0: Taiwanese outlets (machine-translated by GDELT, so English terms match).
 GDELT_QUERIES = [
     '("flu vaccine" OR "influenza vaccine") sourcecountry:TW',

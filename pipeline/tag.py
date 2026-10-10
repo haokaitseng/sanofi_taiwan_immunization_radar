@@ -14,6 +14,7 @@ from .common import load_day, days_ago
 
 MODEL = "claude-haiku-5-5"
 BATCH = 20
+WORKERS = 4
 VACCINE_KEYS = list(config.VACCINES)
 ISSUES = ["eligibility", "cost", "safety", "effectiveness", "supply", "outbreak"]
 STANCES = ["opposed", "hesitant", "neutral", "accepting", "advocating"]
@@ -29,6 +30,9 @@ Fields
   risk, public sentiment). False for animal vaccines, unrelated business news, market-research spam, items
   that only mention a keyword in passing, and local news from Hong Kong, Macau or mainland China that is not
   written for a Taiwanese audience (international developments reported by Taiwanese outlets ARE relevant).
+  Hong Kong cues: 甲型流感/乙型流感 (Taiwan says A型/B型流感), 衞生防護中心, 醫管局, 港元, "BB" meaning baby.
+  Also false for items whose only vaccines are outside the list below (COVID-19, pneumococcal, shingles, HPV):
+  if relevant is true, vaccines must not be empty.
 - vaccines: any of {VACCINE_KEYS}.
   flu = influenza vaccination in general or standard-dose vaccines.
   enh = enhanced influenza vaccines (加強型) when the type is NOT stated.
@@ -110,46 +114,60 @@ def tag_pending(days: int = config.BACKFILL_DAYS, limit: int | None = None, dry_
         raise RuntimeError("ANTHROPIC_API_KEY is not set (put it in .env locally or in GitHub secrets)")
 
     import anthropic
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     client = anthropic.Anthropic()
-    results: dict[str, dict] = {}
-    for start in range(0, len(pending), BATCH):
-        batch = [it for _, it in pending[start:start + BATCH]]
-        try:
-            resp = client.messages.create(
-                model=MODEL,
-                max_tokens=12000,
-                system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
-                messages=[{"role": "user", "content": _payload(batch)}],
-                output_config={"effort": "low", "format": {"type": "json_schema", "schema": SCHEMA}},
-            )
-        except anthropic.APIStatusError as e:
-            stats["errors"] += 1
-            print(f"[tag] batch {start // BATCH} failed: {e.status_code} {e.message}", flush=True)
-            continue
-        stats["batches"] += 1
-        stats["input_tokens"] += resp.usage.input_tokens + (resp.usage.cache_read_input_tokens or 0)
-        stats["output_tokens"] += resp.usage.output_tokens
-        if resp.stop_reason in ("refusal", "max_tokens"):
-            stats["errors"] += 1
-            print(f"[tag] batch {start // BATCH} stopped: {resp.stop_reason}", flush=True)
-            continue
-        text = next((b.text for b in resp.content if b.type == "text"), "")
-        for rec in json.loads(text).get("items", []):
-            results[rec.pop("id")] = rec
-        print(f"[tag] batch {start // BATCH + 1}/{-(-len(pending) // BATCH)} done", flush=True)
+    day_of = {it["id"]: day for day, it in pending}
+    batches = [[it for _, it in pending[s:s + BATCH]] for s in range(0, len(pending), BATCH)]
 
-    # write back, day by day
+    def call(batch):
+        return client.messages.create(
+            model=MODEL,
+            max_tokens=12000,
+            system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+            messages=[{"role": "user", "content": _payload(batch)}],
+            output_config={"effort": "low", "format": {"type": "json_schema", "schema": SCHEMA}},
+        )
+
+    # A few batches in flight at once; each finished batch is written straight to disk, so a timeout loses little.
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        futures = {pool.submit(call, b): n for n, b in enumerate(batches)}
+        for fut in as_completed(futures):
+            n = futures[fut]
+            try:
+                resp = fut.result()
+            except anthropic.APIStatusError as e:
+                stats["errors"] += 1
+                print(f"[tag] batch {n + 1} failed: {e.status_code} {e.message}", flush=True)
+                continue
+            except anthropic.APIConnectionError as e:
+                stats["errors"] += 1
+                print(f"[tag] batch {n + 1} connection error: {e}", flush=True)
+                continue
+            stats["batches"] += 1
+            stats["input_tokens"] += resp.usage.input_tokens + (resp.usage.cache_read_input_tokens or 0)
+            stats["output_tokens"] += resp.usage.output_tokens
+            if resp.stop_reason in ("refusal", "max_tokens"):
+                stats["errors"] += 1
+                print(f"[tag] batch {n + 1} stopped: {resp.stop_reason}", flush=True)
+                continue
+            text = next((b.text for b in resp.content if b.type == "text"), "")
+            results = {rec.pop("id"): rec for rec in json.loads(text).get("items", [])}
+            stats["tagged"] += _write_back(results, day_of)
+            print(f"[tag] batch {n + 1}/{len(batches)} done", flush=True)
+    return stats
+
+
+def _write_back(results: dict[str, dict], day_of: dict[str, str]) -> int:
     by_day: dict[str, list[str]] = {}
-    for day, it in pending:
-        if it["id"] in results:
-            by_day.setdefault(day, []).append(it["id"])
+    for i in results:
+        if i in day_of:
+            by_day.setdefault(day_of[i], []).append(i)
     for day, ids in by_day.items():
         records = load_day(day)
         for i in ids:
-            records[i]["tags"] = {**results[i], "model": MODEL}
-        path = config.ITEMS_DIR / f"{day}.jsonl"
-        with path.open("w", encoding="utf-8") as f:
+            if i in records:
+                records[i]["tags"] = {**results[i], "model": MODEL}
+        with (config.ITEMS_DIR / f"{day}.jsonl").open("w", encoding="utf-8", newline="\n") as f:
             for d in sorted(records.values(), key=lambda x: (x["source"], x["id"])):
                 f.write(json.dumps(d, ensure_ascii=False) + "\n")
-        stats["tagged"] += len(ids)
-    return stats
+    return sum(len(v) for v in by_day.values())

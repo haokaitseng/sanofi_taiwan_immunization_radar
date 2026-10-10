@@ -51,7 +51,8 @@ def _load_items(end: date) -> list[dict]:
                 continue
             if it["kind"] == "media" and _NON_TW.search(it.get("outlet", "")):
                 continue
-            vaccines = it.get("tags", {}).get("vaccines") or it["vaccines"]
+            # Once the AI tagger has seen an item, its vaccine list wins (keyword tags can be provisional).
+            vaccines = it["tags"].get("vaccines", []) if it.get("tags") else it["vaccines"]
             if not vaccines:
                 continue
             key = _title_key(it["title"])

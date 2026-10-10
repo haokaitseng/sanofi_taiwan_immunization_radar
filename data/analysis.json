@@ -1,0 +1,476 @@
+{
+ "brief": {
+  "entries": [
+   {
+    "type": "media",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Weekly flu toll hits five-year high: 219 severe cases, 44 deaths",
+    "zh": "",
+    "why": "Multiple outlets carried the record severity figures over three days, and doctors tied them to vaccination appeals for older and chronically ill people. This is now the dominant frame for all flu coverage.",
+    "source_ids": [
+     "0198c390823e087e",
+     "1f863807fa9e8e0f",
+     "5b43c84498d84de3",
+     "292ed431eea25b0e",
+     "9f10a33da031b6fa",
+     "e376d56d9dcf9703",
+     "3c50d25acbc0d20d"
+    ],
+    "confidence": "High"
+   },
+   {
+    "type": "media",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Public flu uptake reaches 1.91 million in eight days; official voices supply worry",
+    "zh": "",
+    "why": "Reports quote Lo Yi-chun worrying that supply may not be enough, against 7.05 million doses procured. Supply adequacy is likely to become a political and media question if demand holds.",
+    "source_ids": [
+     "01e330c1cc59a5cb",
+     "6d6164495083ba93",
+     "e8b9076b8f33b731",
+     "7fc50e00519cfd63",
+     "9d7586e562a1a9e4",
+     "c3005fbfcb64f9f3",
+     "1b5b0864f5157eaa"
+    ],
+    "confidence": "High"
+   },
+   {
+    "type": "policy",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Taiwan CDC: uptake strong, severe cases mostly unvaccinated older adults",
+    "zh": "公費流感及新冠疫苗接種踴躍 請符合資格民眾儘速接種 及早獲得保護力",
+    "why": "The CDC's latest notice frames severity around unvaccinated older adults and urges vaccination before holiday travel. This sets the official message that local bureaus and doctors are amplifying.",
+    "source_ids": [
+     "adfe2abf07813c56",
+     "da0cd7d841f9c0fa",
+     "2bceea60801b3b56"
+    ],
+    "confidence": "High"
+   },
+   {
+    "type": "signal",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Posts report self-pay flu stock delays to November and NT$1,950 prices",
+    "zh": "",
+    "why": "Users report Kaohsiung clinics without self-pay stock until November and complain about cost, while others report limited brand choice for public doses. Thin but high-engagement signal of access friction outside the public programme.",
+    "source_ids": [
+     "518a82dbe192d5f6",
+     "fff657168bde0aef",
+     "d1ba3db7060af840",
+     "4ff3fdca67d28434"
+    ],
+    "confidence": "Medium"
+   },
+   {
+    "type": "signal",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Paediatric flu dosing rule change and nasal-spray fever posts confuse parents",
+    "zh": "",
+    "why": "Media report children 6 months to 3 years now need two doses this year, and parents post conflicting clinic answers and fever worries about nasal spray. Clarity on paediatric schedules is an emerging issue.",
+    "source_ids": [
+     "16a4bc44f15e9848",
+     "ff998c209700bda8",
+     "1366b518beb95f45",
+     "8efa24060217a31a"
+    ],
+    "confidence": "Medium"
+   },
+   {
+    "type": "signal",
+    "vaccines": [
+     "adj",
+     "enh"
+    ],
+    "headline": "Clinic post promotes adjuvanted flu vaccine with unverified comparative protection claims",
+    "zh": "",
+    "why": "A clinic's Threads post claims 20-30% better protection and 12-month duration and invites bookings; it is flagged as misleading. Comparative claims around enhanced vaccines are a compliance and reputational sensitivity.",
+    "source_ids": [
+     "3b39dfe939b73f54",
+     "ea6eca5155353258"
+    ],
+    "confidence": "Low"
+   }
+  ],
+  "watch": [
+   {
+    "when": "Late October",
+    "text": "Planned start of 150,000 Novavax COVID doses alongside the joint flu and COVID programme."
+   },
+   {
+    "when": "November",
+    "text": "Whether self-pay flu stock arrives at clinics as posts report, and whether flu activity eases as media forecast."
+   },
+   {
+    "when": "Next CDC weekly update",
+    "text": "Whether severe-case and death counts stay at five-year highs and whether officials repeat supply concerns."
+   }
+  ],
+  "qa": [
+   {
+    "q": "Is there an official flu vaccine shortage?",
+    "a": "No official shortage notice in the digest. CDC procured 7.05 million doses (about 6.449 million standard and 170,000 enhanced); 1.91 million were given in eight days and an official said supply may not suffice. Social posts report self-pay stock delays in Kaohsiung."
+   },
+   {
+    "q": "Is a safety narrative building?",
+    "a": "Low-level only. A side-effect diary post and parents' nasal-spray fever posts drew engagement, PTS reported a first vaccine relief award for leg paralysis, and two low-engagement posts making misleading safety claims were flagged. Mainstream media coverage remains pro-vaccination."
+   },
+   {
+    "q": "Anything on RSV, Tdap or high-dose flu?",
+    "a": "Very little. RSV volume rose from 0 to 7 items, led by a Threads post summarising a European maternal RSV vaccine study; Tdap had 5 items, mainly via chronic lung disease recommendations; high-dose flu had zero items. Enhanced-type coverage fell from 18 to 12."
+   }
+  ]
+ },
+ "policy_notes": [
+  {
+   "id": "54d66e3a431d782f",
+   "why": "Sets the 2026 programme baseline: phase 1 for 11 groups from October 1 with about 6.449 million standard and 170,000 enhanced doses plus health-coin incentives.",
+   "marker": true
+  },
+  {
+   "id": "1b5b0864f5157eaa",
+   "why": "Launch event confirmed 7.05 million flu doses procured including enhanced vaccine, the figure now used to judge supply adequacy.",
+   "marker": false
+  },
+  {
+   "id": "adfe2abf07813c56",
+   "why": "CDC links ongoing severe flu activity to unvaccinated older adults and urges pre-holiday vaccination, framing the current severity narrative.",
+   "marker": true
+  }
+ ],
+ "misinfo": [
+  {
+   "claim": "Adjuvanted Japanese flu vaccine gives 20-30% more protection than standard vaccines and lasts 12 months",
+   "vaccine": "adj",
+   "level": "watch",
+   "note": "Clinic promotional claim for a prescription vaccine; track spread and advertising-compliance angle, keep any company comment to approved label information, no amplification.",
+   "source_ids": [
+    "3b39dfe939b73f54"
+   ]
+  },
+  {
+   "claim": "Vaccines contain viral particles and community calls to vaccinate over-65s endanger elders",
+   "vaccine": "flu",
+   "level": "monitor",
+   "note": "Single low-engagement post; monitor only, existing CDC and medical myth-busting content is sufficient.",
+   "source_ids": [
+    "4f77b68c83b93acc"
+   ]
+  },
+  {
+   "claim": "Receiving flu and COVID shots together is untested and the campaign is electioneering",
+   "vaccine": "flu",
+   "level": "monitor",
+   "note": "Zero-engagement comment; monitor for co-administration safety and liability questions recurring as uptake grows.",
+   "source_ids": [
+    "9b2921169f62f87d"
+   ]
+  }
+ ],
+ "voices_ids": [
+  "07db659216836573",
+  "cd78d2dfe4e9e25d",
+  "1366b518beb95f45",
+  "fff657168bde0aef",
+  "4f77b68c83b93acc",
+  "3b39dfe939b73f54"
+ ],
+ "narratives": [
+  {
+   "id": "n-uptake-surge",
+   "title": "Public flu and COVID programme uptake surge",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "rising",
+   "para": "Media and officials report record early uptake of the 1 October public flu and COVID programme, with cumulative figures passing 1.9 million flu doses in eight days and local bureaus adding holiday sites.",
+   "storylines": [
+    "public flu vaccine uptake surge and supply concerns",
+    "public flu vaccine programme launch crowds",
+    "record single-day public flu vaccinations",
+    "public flu vaccine uptake in early days",
+    "public flu vaccine cumulative uptake figures",
+    "holiday weekend flu and covid vaccination sites",
+    "local health bureaus urge subsidised flu vaccination",
+    "joint flu and covid vaccination programme launch",
+    "public flu and covid vaccine programme launch 2026",
+    "public flu vaccine program launch",
+    "public flu vaccine 2026 programme details"
+   ]
+  },
+  {
+   "id": "n-launch",
+   "title": "Autumn public flu and COVID vaccine launch",
+   "vaccines": [
+    "flu",
+    "enh"
+   ],
+   "status": "fading",
+   "para": "Pre-launch and launch-day coverage of the 2026 phased public flu and COVID programme has given way to uptake reporting.",
+   "storylines": [
+    "autumn publicly funded flu and covid vaccine rollout",
+    "taiwan 2026 public flu and covid vaccine launch",
+    "public flu and covid vaccine launch guide",
+    "public flu and covid vaccine launch 2026",
+    "taiwan subsidized flu vaccine launch oct 1",
+    "free 2026 flu vaccine launch oct 1",
+    "autumn dual flu and covid vaccine rollout",
+    "combined flu and covid vaccine launch",
+    "record first-day flu and covid vaccine uptake",
+    "publicly funded flu vaccine rollout from october 1"
+   ]
+  },
+  {
+   "id": "n-severity",
+   "title": "Record flu severe cases and deaths",
+   "vaccines": [
+    "flu",
+    "enh"
+   ],
+   "status": "rising",
+   "para": "Multiple outlets report five-year-high weekly flu severe cases and deaths, with doctors stressing that ICU patients were unvaccinated and the season may run into November.",
+   "storylines": [
+    "record flu severe cases and deaths 2026",
+    "flu severe cases and deaths hit five-year high",
+    "record weekly flu cases and deaths",
+    "icu flu patients unvaccinated",
+    "flu season extension to november",
+    "flu deaths and mid-autumn peak forecast",
+    "flu season peak and rising death toll"
+   ]
+  },
+  {
+   "id": "n-health-coins",
+   "title": "Health coin incentives and local rewards",
+   "vaccines": [
+    "flu",
+    "enh"
+   ],
+   "status": "rising",
+   "para": "Coverage credits the health coin reward and local prize schemes with boosting uptake, while some note older adults struggle with the digital access needed to claim them.",
+   "storylines": [
+    "health coin incentive boosts vaccination uptake",
+    "health coin incentive for flu vaccination",
+    "health bucks linked to public flu vaccination",
+    "local government flu and covid vaccine incentive points",
+    "health coin incentive for vaccination",
+    "health coin access for elderly users",
+    "elderly vaccination incentive lottery campaigns"
+   ]
+  },
+  {
+   "id": "n-supply-selfpay",
+   "title": "Supply strain, stock-outs and self-pay access",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "emerging",
+   "para": "An official's worry about sufficiency is echoed by posts reporting limited brands at clinics, self-pay stock not arriving until November and price complaints.",
+   "storylines": [
+    "public flu vaccine stock-outs at clinics",
+    "flu surge drives self-pay vaccine demand",
+    "self-pay flu vaccine launch 2026",
+    "yunlin flu vaccine supply"
+   ]
+  },
+  {
+   "id": "n-enhanced-older",
+   "title": "Enhanced and adjuvanted vaccines for older adults",
+   "vaccines": [
+    "enh",
+    "adj"
+   ],
+   "status": "fading",
+   "para": "Enhanced-vaccine conversation dipped week on week, though doctors still urge high-risk older adults toward it and some media and clinic posts circulate comparative protection figures.",
+   "storylines": [
+    "upgraded enhanced flu vaccine protection claim",
+    "enhanced flu vaccine first offered in local areas",
+    "enhanced flu vaccine for older adults push",
+    "enhanced flu vaccine rollout 2026",
+    "enhanced flu vaccine first rollout",
+    "enhanced flu vaccine public rollout october"
+   ]
+  },
+  {
+   "id": "n-older-access",
+   "title": "Older adult priority access and uptake pace",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "emerging",
+   "para": "Local governments add priority lanes for people over 85 and nursing-home drives as reports track the pace of uptake among those 65 and over.",
+   "storylines": [
+    "hsinchu elderly priority flu vaccine access",
+    "nursing home residents flu vaccination uptake",
+    "health coin access for elderly users"
+   ]
+  },
+  {
+   "id": "n-pediatric",
+   "title": "Child dosing rules and nasal spray questions",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "emerging",
+   "para": "A two-dose rule for young children prompts parent questions about dose counts, while posts about fever after nasal spray vaccine sit alongside doctors presenting it as an option.",
+   "storylines": [
+    "children flu vaccine two-dose rule 2026",
+    "parents ask about child flu vaccination"
+   ]
+  },
+  {
+   "id": "n-chronic-risk",
+   "title": "Chronic disease and cardiovascular risk framing",
+   "vaccines": [
+    "flu",
+    "rsv",
+    "tdap"
+   ],
+   "status": "emerging",
+   "para": "Doctors and media link vaccination to protection for people with kidney disease, diabetes, lung disease and cardiovascular risk, with some coverage naming RSV and pertussis vaccines for COPD and asthma patients.",
+   "storylines": [
+    "chronic lung disease vaccine recommendations",
+    "copd and asthma patients urged to get vaccines",
+    "flu vaccine cardiovascular benefit evidence"
+   ]
+  },
+  {
+   "id": "n-safety-doubts",
+   "title": "Side-effect experiences and safety doubts",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "emerging",
+   "para": "High-engagement posts describe post-shot symptoms, a first vaccine injury relief payout drew coverage, and a few posts question co-administration and liability or claim vaccines harm elders.",
+   "storylines": [
+    "public perception of vaccine side effects",
+    "flu vaccine side-effect myths",
+    "covid vaccine safety and flu co-vaccination questions"
+   ]
+  },
+  {
+   "id": "n-japan-regional",
+   "title": "Japan's early season and regional demand",
+   "vaccines": [
+    "flu"
+   ],
+   "status": "emerging",
+   "para": "Coverage of Japan's unusually early flu season and vaccine supply feeds Taiwanese interest in Japanese-made vaccines and demand at home.",
+   "storylines": [
+    "japan flu surge and taiwan vaccine demand",
+    "early flu season in japan"
+   ]
+  },
+  {
+   "id": "n-rsv-maternal",
+   "title": "Maternal RSV vaccination and infant protection",
+   "vaccines": [
+    "rsv"
+   ],
+   "status": "emerging",
+   "para": "A single Threads post summarising a European study on maternal RSV vaccination and infant hospitalisation marks the start of thin RSV conversation.",
+   "storylines": [
+    "maternal rsv vaccine infant protection evidence"
+   ]
+  }
+ ],
+ "lens": {
+  "products": [
+   {
+    "name": "Beyfortus",
+    "sub": "nirsevimab, infant RSV antibody",
+    "vaccine": "rsv",
+    "risk": "low",
+    "signal": "Nothing in the digest mentions nirsevimab or infant antibodies. RSV volume rose from 0 to 7, driven by one Threads post summarising a European maternal RSV vaccination study, plus COPD/asthma coverage that names RSV vaccines.",
+    "implication": "Infant RSV prevention is entering public conversation through the maternal-vaccine route, and parents are being directed to obstetricians. No policy or media signal on infant antibodies yet.",
+    "action": "Monitor. Prepare a neutral, evidence-based briefing on the infant RSV burden and the prevention options available in Taiwan, for use only in stakeholder dialogue. Map obstetric and paediatric society contacts ahead of any season-planning discussions.",
+    "who": [
+     "Paediatric and neonatal clinicians",
+     "Obstetricians",
+     "Taiwan CDC"
+    ],
+    "source_ids": [
+     "07db659216836573"
+    ]
+   },
+   {
+    "name": "High-dose influenza vaccine",
+    "sub": "older adults; no high-dose-specific items this week",
+    "vaccine": "hd",
+    "risk": "medium",
+    "signal": "Zero high-dose items this week. The adjacent 'enhanced' category is active: the CDC procured about 170,000 enhanced doses within about 7.05 million total, and doctors urge high-risk older adults toward enhanced vaccine. Some media and clinic posts cite comparative protection figures, and one clinic adjuvanted claim is flagged as misleading.",
+    "implication": "Record severe cases concentrated in unvaccinated older adults are strengthening the older-adult policy case. However, limited enhanced supply, combined with comparative claims circulating outside official channels, raises access-equity and advertising-compliance sensitivities for any product in this space.",
+    "action": "Issue readiness: prepare factual supply and access lines for questions from officials and clinicians. Compile older-adult burden evidence from this season for next-season policy dialogue with the CDC. Remind partners and clinics of advertising restrictions on prescription vaccines.",
+    "who": [
+     "Taiwan CDC",
+     "TFDA",
+     "Geriatric and infectious disease clinicians",
+     "Local health bureaus"
+    ],
+    "source_ids": [
+     "54d66e3a431d782f",
+     "1b5b0864f5157eaa",
+     "adfe2abf07813c56",
+     "5043e24d7b87869d",
+     "ea6eca5155353258",
+     "3b39dfe939b73f54",
+     "0198c390823e087e"
+    ]
+   },
+   {
+    "name": "Tdap booster",
+    "sub": "pertussis; adult and chronic-disease framing",
+    "vaccine": "tdap",
+    "risk": "low",
+    "signal": "Tdap volume rose from 0 to 5, but none of these items appears in the top items provided. The only visible context is storyline labels on vaccine recommendations for chronic lung disease and COPD/asthma patients.",
+    "implication": "Signal is too thin to characterise. Pertussis appears only as part of a broader respiratory-vaccine bundle for chronic lung patients.",
+    "action": "Monitor and pull the underlying items before drawing conclusions. Note respiratory and chest physicians as a possible venue for future evidence-sharing on adult immunisation.",
+    "who": [
+     "Pulmonology and respiratory clinicians",
+     "Taiwan CDC"
+    ],
+    "source_ids": []
+   }
+  ],
+  "issues": [
+   {
+    "when": "Next 2 weeks",
+    "title": "Public flu vaccine supply strain and clinic stock-outs",
+    "likelihood": "High",
+    "impact": "High",
+    "note": "An official has voiced concern about sufficiency amid 1.9 million+ doses in eight days, and posts report limited brands and self-pay stock delayed to November (01e330c1cc59a5cb, 9d7586e562a1a9e4, d1ba3db7060af840, 518a82dbe192d5f6). Have factual supply and allocation lines ready."
+   },
+   {
+    "when": "Through November",
+    "title": "Comparative protection claims by clinics and media",
+    "likelihood": "Medium",
+    "impact": "Medium",
+    "note": "A clinic post with booking invitations cites 20-30% better protection for an adjuvanted vaccine, and media cite an enhanced-type 25% figure (3b39dfe939b73f54, ea6eca5155353258). This could draw scrutiny under prescription-medicine advertising rules, so keep company channels claim-free."
+   },
+   {
+    "when": "Late October",
+    "title": "Safety and co-administration narratives as programme widens",
+    "likelihood": "Medium",
+    "impact": "Medium",
+    "note": "Side-effect diaries draw high engagement, a first injury relief payout made the news, and posts question two-shot co-administration and liability (cd78d2dfe4e9e25d, d9b85a48502dc447, 9b2921169f62f87d). Novavax doses are planned for late October (4639c45b02b3796c); prepare to engage clinicians on co-administration questions."
+   }
+  ]
+ },
+ "date": "2026-10-10",
+ "model": "claude-opus-5-5",
+ "usage": {
+  "input_tokens": 65236,
+  "output_tokens": 10375
+ },
+ "items_considered": 83
+}

@@ -17,6 +17,9 @@ from .common import days_ago, load_day, today
 MODEL = "claude-opus-5-5"
 VACCINE_KEYS = list(config.VACCINES)
 ANALYSIS_FILE = config.DATA_DIR / "analysis.json"
+# Plain string arrays (not enums): the full schema with enums exceeds the structured-output grammar limit.
+# Values are checked in _clean() instead.
+VAC_ARRAY = {"type": "array", "items": {"type": "string"}}
 
 SYSTEM = """You are the analyst behind a public dashboard that tracks Taiwan's vaccine policy and public conversation
 for flu (general, enhanced-type-not-stated, adjuvanted, high-dose), RSV (incl. infant antibodies such as
@@ -31,6 +34,7 @@ Write like a sharp public-affairs analyst: concrete, sourced, no hype.
 - No medical advice and no product claims (no efficacy comparisons in your own voice). Taiwan restricts
   advertising prescription medicines to the public; keep all lens content to strategy and stakeholder
   engagement, never consumer messaging.
+- Write for the dashboard reader: never mention "the digest", item ids or how the data was assembled.
 - Use English. Keep headlines under 16 words and "why" text to 1-2 sentences.
 
 Sections
@@ -58,7 +62,7 @@ _entry = {
     "type": "object",
     "properties": {
         "type": {"type": "string", "enum": ["policy", "media", "signal"]},
-        "vaccines": {"type": "array", "items": {"type": "string", "enum": VACCINE_KEYS}},
+        "vaccines": VAC_ARRAY,
         "headline": {"type": "string"}, "zh": {"type": "string"}, "why": {"type": "string"},
         "source_ids": {"type": "array", "items": {"type": "string"}},
         "confidence": {"type": "string", "enum": ["High", "Medium", "Low"]},
@@ -84,19 +88,19 @@ SCHEMA = {
             "required": ["id", "why", "marker"], "additionalProperties": False}},
         "narratives": {"type": "array", "items": {"type": "object", "properties": {
             "id": {"type": "string"}, "title": {"type": "string"},
-            "vaccines": {"type": "array", "items": {"type": "string", "enum": VACCINE_KEYS}},
+            "vaccines": VAC_ARRAY,
             "status": {"type": "string", "enum": ["emerging", "rising", "steady", "fading"]},
             "para": {"type": "string"}, "storylines": {"type": "array", "items": {"type": "string"}}},
             "required": ["id", "title", "vaccines", "status", "para", "storylines"], "additionalProperties": False}},
         "misinfo": {"type": "array", "items": {"type": "object", "properties": {
-            "claim": {"type": "string"}, "vaccine": {"type": "string", "enum": VACCINE_KEYS},
+            "claim": {"type": "string"}, "vaccine": {"type": "string"},
             "level": {"type": "string", "enum": ["monitor", "watch", "respond"]}, "note": {"type": "string"},
             "source_ids": {"type": "array", "items": {"type": "string"}}},
             "required": ["claim", "vaccine", "level", "note", "source_ids"], "additionalProperties": False}},
         "voices_ids": {"type": "array", "items": {"type": "string"}},
         "lens": {"type": "object", "properties": {
             "products": {"type": "array", "items": {"type": "object", "properties": {
-                "name": {"type": "string"}, "sub": {"type": "string"}, "vaccine": {"type": "string", "enum": VACCINE_KEYS},
+                "name": {"type": "string"}, "sub": {"type": "string"}, "vaccine": {"type": "string"},
                 "risk": {"type": "string", "enum": ["low", "medium", "high"]},
                 "signal": {"type": "string"}, "implication": {"type": "string"}, "action": {"type": "string"},
                 "who": {"type": "array", "items": {"type": "string"}}, "source_ids": {"type": "array", "items": {"type": "string"}}},
@@ -111,6 +115,9 @@ SCHEMA = {
     "required": ["brief", "policy_notes", "narratives", "misinfo", "voices_ids", "lens"],
     "additionalProperties": False,
 }
+
+
+PARTS = [("brief", "policy_notes", "misinfo", "voices_ids"), ("narratives", "lens")]
 
 
 def _items(days: int) -> list[dict]:
@@ -175,6 +182,19 @@ def digest() -> dict:
     }
 
 
+def _clean(result: dict) -> dict:
+    """Keep only known vaccine keys (the schema can't enforce them without exceeding the grammar limit)."""
+    ok = lambda vs: [v for v in vs if v in VACCINE_KEYS]
+    for e in result["brief"]["entries"]:
+        e["vaccines"] = ok(e["vaccines"])
+    for n in result["narratives"]:
+        n["vaccines"] = ok(n["vaccines"])
+    result["narratives"] = [n for n in result["narratives"] if n["vaccines"]]
+    result["misinfo"] = [m for m in result["misinfo"] if m["vaccine"] in VACCINE_KEYS]
+    result["lens"]["products"] = [p for p in result["lens"]["products"] if p["vaccine"] in VACCINE_KEYS]
+    return result
+
+
 def analyze(dry_run: bool = False) -> dict:
     d = digest()
     payload = "Today's digest (JSON):\n" + json.dumps(d, ensure_ascii=False)
@@ -189,19 +209,28 @@ def analyze(dry_run: bool = False) -> dict:
     client = anthropic.Anthropic()
     # Server-side fallback: if Opus declines on a safety classifier, the API reruns the request on the
     # recommended fallback model inside the same call.
-    with client.beta.messages.stream(
-        model=MODEL,
-        max_tokens=32000,
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
-        system=SYSTEM,
-        messages=[{"role": "user", "content": payload}],
-        output_config={"effort": "high", "format": {"type": "json_schema", "schema": SCHEMA}},
-    ) as stream:
-        msg = stream.get_final_message()
-    if msg.stop_reason in ("refusal", "max_tokens"):
-        raise RuntimeError(f"analyst run stopped: {msg.stop_reason}")
-    result = json.loads(next(b.text for b in msg.content if b.type == "text"))
+    # Two calls: the whole schema in one request exceeds the structured-output grammar limit.
+    result, usage, model = {}, {"input_tokens": 0, "output_tokens": 0}, MODEL
+    for part in PARTS:
+        schema = {"type": "object", "properties": {k: SCHEMA["properties"][k] for k in part},
+                  "required": list(part), "additionalProperties": False}
+        with client.beta.messages.stream(
+            model=MODEL,
+            max_tokens=32000,
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            system=SYSTEM,
+            messages=[{"role": "user", "content": payload + f"\n\nIn this response, return only these sections: {', '.join(part)}."}],
+            output_config={"effort": "high", "format": {"type": "json_schema", "schema": schema}},
+        ) as stream:
+            msg = stream.get_final_message()
+        if msg.stop_reason in ("refusal", "max_tokens"):
+            raise RuntimeError(f"analyst run stopped: {msg.stop_reason}")
+        result.update(json.loads(next(b.text for b in msg.content if b.type == "text")))
+        usage["input_tokens"] += msg.usage.input_tokens
+        usage["output_tokens"] += msg.usage.output_tokens
+        model = msg.model
+    result = _clean(result)
 
     # Keep notes on older official items from previous runs; today's run only sees the last 14 days.
     previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}
@@ -209,8 +238,8 @@ def analyze(dry_run: bool = False) -> dict:
     notes.update({n["id"]: n for n in result["policy_notes"]})
     result["policy_notes"] = list(notes.values())
     result["date"] = d["today"]
-    result["model"] = msg.model
-    result["usage"] = {"input_tokens": msg.usage.input_tokens, "output_tokens": msg.usage.output_tokens}
+    result["model"] = model
+    result["usage"] = usage
     result["items_considered"] = len(d["top_items_last_72_hours"]) + len(d["official_items_last_14_days"])
     ANALYSIS_FILE.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result
