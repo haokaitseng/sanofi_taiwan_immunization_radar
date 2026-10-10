@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import re
+import time
 from datetime import date, timedelta
+
+import requests
 
 from .. import config
 from ..common import Item, get, keyword_vaccines, rfc822_to_date, rss_items, today
@@ -11,8 +14,16 @@ FEED = "https://news.google.com/rss/search"
 
 
 def _search(q: str) -> list[dict]:
+    """Google throttles cloud IP ranges now and then (503); back off 30 s, 60 s, 90 s before giving up."""
     params = {"q": q, "hl": "zh-TW", "gl": "TW", "ceid": "TW:zh-Hant"}
-    return rss_items(get(FEED, params=params, min_interval=1.5).content)
+    for attempt in range(4):
+        try:
+            return rss_items(get(FEED, params=params, min_interval=4.0).content)
+        except requests.RequestException:
+            if attempt == 3:
+                raise
+            time.sleep(30 * (attempt + 1))
+    return []
 
 
 def _windows(since: date, backfill: bool) -> list[str]:
