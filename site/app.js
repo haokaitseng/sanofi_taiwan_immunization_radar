@@ -599,10 +599,25 @@ function stakeholderMap(host, pts, keyEl) {
     svg.append(g);
   });
   host.append(svg);
-  svg.querySelectorAll('.pt-label').forEach(t => {
-    const b = t.getBBox(), cx = +t.dataset.cx;
-    if (t.getAttribute('text-anchor') === 'start' && b.x + b.width > m.l + pw - 2) { t.setAttribute('x', cx - 10); t.setAttribute('text-anchor', 'end'); }
-    else if (t.getAttribute('text-anchor') === 'end' && b.x < m.l + 2) { t.setAttribute('x', cx + 10); t.setAttribute('text-anchor', 'start'); }
+  // Label placement: try right, left, then above/below the point; keep the first spot inside the plot that
+  // overlaps neither an earlier label nor another point. Falls back to the right-hand spot.
+  const pad = 2;
+  const marks = [...svg.querySelectorAll('.pt .mark')].map(mk => mk.getBBox());
+  const placed = [];
+  const hits = (a, b) => a.x < b.x + b.width + pad && b.x < a.x + a.width + pad && a.y < b.y + b.height + pad && b.y < a.y + a.height + pad;
+  svg.querySelectorAll('.pt-label').forEach((t, i) => {
+    const cx = +t.dataset.cx, cy = +t.getAttribute('y');
+    const spots = [[cx + 10, cy, 'start'], [cx - 10, cy, 'end'], [cx + 6, cy - 13, 'start'], [cx + 6, cy + 13, 'start'],
+      [cx - 6, cy - 13, 'end'], [cx - 6, cy + 13, 'end']];
+    let chosen = null;
+    for (const [x, y, anchor] of spots) {
+      t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
+      const b = t.getBBox();
+      const inside = b.x >= m.l + 2 && b.x + b.width <= m.l + pw - 2 && b.y >= m.t && b.y + b.height <= m.t + ph;
+      if (inside && !placed.some(p => hits(b, p)) && !marks.some((mk, j) => j !== i && hits(b, mk))) { chosen = b; break; }
+    }
+    if (!chosen) { t.setAttribute('x', cx + 10); t.setAttribute('y', cy); t.setAttribute('text-anchor', 'start'); chosen = t.getBBox(); }
+    placed.push(chosen);
   });
 }
 
@@ -906,7 +921,7 @@ function renderLens(root) {
   const RISK = { low: ['good', 'Low'], medium: ['warning', 'Medium'], high: ['serious', 'High'] };
   root.replaceChildren(
     h('div', { class: 'lens-banner', role: 'note' },
-      h('span', null, h('strong', null, 'Unlisted page'), ' · not linked from the public dashboard and hidden from search engines (noindex). Independent analysis, not affiliated with or endorsed by Sanofi.'),
+      h('span', null, h('strong', null, 'Independent analysis'), ' by Hao-Kai Tseng · not affiliated with or endorsed by Sanofi · strategy notes for public-affairs planning, not promotional messaging.'),
       h('a', { href: '../' }, '← Public dashboard')),
     viewHead(LENS.title || 'Analyst lens: Sanofi vaccines in Taiwan', `What this week’s policy and social signals could mean for three products, and the public-affairs moves they suggest. Strategy notes, not promotional messaging. Generated ${LENS.date || ''}.`),
     h('div', { class: 'grid-3' }, (LENS.products || []).map(p => h('section', { class: 'card product' },

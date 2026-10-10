@@ -388,3 +388,23 @@ body.is-lens .tabs, body.is-lens #status-strip { display: none; }
 .site-footer { border-top: 1px solid var(--border); background: var(--surface); padding: 20px 0 28px; font-size: 13px; color: var(--text-2); }
 .site-footer p + p { margin-top: 6px; }
 .heat-empty { background: var(--surface-2); color: var(--text-3); }
+
+/* ---------- top banner: link to the Sanofi lens ---------- */
+.top-banner { background: #7A00E6; color: #ffffff; font-size: 13px; }   /* Sanofi purple; white text 7.1:1 */
+.top-banner .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; padding-top: 7px; padding-bottom: 7px; }
+.top-banner a { color: inherit; font-weight: 600; text-underline-offset: 2px; }
+.top-banner a:focus-visible { outline-color: #ffffff; }
+
+/* ---------- tab row + GitHub link ---------- */
+.nav-row { display: flex; align-items: center; gap: 12px; }
+.nav-row .tabs { flex: 1 1 auto; min-width: 0; }
+.gh-link { display: inline-flex; align-items: center; gap: 6px; flex: none; text-decoration: none; }
+.gh-link svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
+/* Desktop: GitHub at the right of the tab row. Phones: next to the theme button, so all four tabs fit. */
+.gh-mobile { display: none; }
+@media (max-width: 700px) {
+  .gh-desktop { display: none; }
+  .gh-mobile { display: inline-flex; margin-left: auto; }
+  .gh-mobile + #theme-btn { flex: none; }
+}
+@media (max-width: 700px) { .tabs button { padding-left: 10px; padding-right: 10px; } }

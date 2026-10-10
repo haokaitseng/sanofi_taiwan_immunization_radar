@@ -52,8 +52,8 @@ Keywords, sources and the vaccine taxonomy are in `pipeline/config.py`.
   (`pipeline.run scrub`), and usernames or profile data are never stored, so nothing personal lands in this repo.
 - Dcard is not covered: no reliable, permitted collector is available.
 - Only public pages and permitted APIs are collected, politely rate-limited.
-- The analyst lens (`site/lens/`) is unlisted and marked `noindex`. It is not private: anyone who browses this
-  repository can find it.
+- The Sanofi lens (`site/lens/`) is linked from the dashboard's top banner. It is independent analysis, not
+  affiliated with Sanofi, and marked `noindex` so search engines don't list it.
 
 ## Layout
 

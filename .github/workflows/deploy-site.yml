@@ -1,0 +1,36 @@
+name: Deploy site
+
+# Publishes site/ when its code changes, without re-running collection or the paid AI steps.
+# The daily workflow deploys fresh data on its own schedule.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "!site/data/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-update   # same group as the daily run, so two Pages deployments never overlap
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v5
