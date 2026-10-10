@@ -887,16 +887,17 @@ function fundingCards() {
 }
 
 // Links for cross-checking a narrative against its sources: up to two items in the current funding view.
+// The link shows the source name only; the headline (or post paraphrase) is the hover text.
 function narrExamples(n) {
   const pool = (n.examples && (n.examples[state.funding] || (state.funding === 'all' ? n.examples.all : null))) || [];
   const list = pool.filter(ex => inFund(ex.funding)).slice(0, 2);
   if (!list.length) return null;
   return h('div', { class: 'narr-ex' }, h('span', { class: 'narr-ex-label' }, tr('Read: ', '原文：')),
     list.map((ex, i) => {
-      const title = ZH() ? ex.t_zh : ex.t_en;
+      const badge = fundBadge(ex.funding);
       return h('span', { class: 'narr-ex-item' }, i ? h('span', { 'aria-hidden': 'true' }, ' · ') : null,
-        h('a', { href: ex.url, target: '_blank', rel: 'noopener noreferrer', title },
-          `${citeLabel(ex.label)}: ${truncate(title, ZH() ? 28 : 52)}`), ' ', fundBadge(ex.funding));
+        h('a', { href: ex.url, target: '_blank', rel: 'noopener noreferrer', title: ZH() ? ex.t_zh : ex.t_en }, citeLabel(ex.label)),
+        badge ? [' ', badge] : null);
     }));
 }
 
