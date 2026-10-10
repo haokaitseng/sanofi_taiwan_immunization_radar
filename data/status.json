@@ -1,0 +1,60 @@
+{
+ "cdc": {
+  "items": 17,
+  "last_success": "2026-10-10T14:30:52+08:00",
+  "new": 16,
+  "seconds": 49.0,
+  "status": "ok"
+ },
+ "facebook": {
+  "items": 36,
+  "last_success": "2026-10-10T15:22:55+08:00",
+  "new": 36,
+  "seconds": 46.3,
+  "status": "ok"
+ },
+ "gnews": {
+  "items": 949,
+  "last_success": "2026-10-10T14:32:33+08:00",
+  "new": 859,
+  "seconds": 93.1,
+  "status": "ok"
+ },
+ "ptt": {
+  "items": 14,
+  "last_success": "2026-10-10T14:36:10+08:00",
+  "new": 11,
+  "seconds": 217.1,
+  "status": "ok"
+ },
+ "tagger": {
+  "batches": 0,
+  "errors": 1,
+  "input_tokens": 0,
+  "last_success": "2026-10-10T15:19:03+08:00",
+  "output_tokens": 0,
+  "pending": 20,
+  "seconds": 3.8,
+  "status": "ok",
+  "tagged": 0
+ },
+ "tfda": {
+  "items": 0,
+  "last_success": "2026-10-10T14:31:00+08:00",
+  "new": 0,
+  "seconds": 8.4,
+  "status": "ok"
+ },
+ "threads": {
+  "items": 0,
+  "last_success": "2026-10-10T15:22:08+08:00",
+  "new": 0,
+  "seconds": 122.1,
+  "status": "ok"
+ },
+ "wiki": {
+  "items": 90,
+  "last_success": "2026-10-10T14:36:17+08:00",
+  "status": "ok"
+ }
+}

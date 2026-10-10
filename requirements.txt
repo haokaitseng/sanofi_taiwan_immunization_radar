@@ -1,0 +1,8 @@
+requests>=2.32
+beautifulsoup4>=4.12
+lxml>=5.2
+python-dotenv>=1.0
+jsonschema>=4.22
+anthropic>=0.69
+apify-client>=1.8
+tzdata>=2024.1
