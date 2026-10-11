@@ -104,7 +104,7 @@ button { font: inherit; }
 .brand-mark { width: 32px; height: 32px; flex: none; color: var(--accent); }
 .brand-name { display: block; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
 .brand-sub { display: block; font-size: 12.5px; color: var(--text-2); }
-.header-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 12.5px; color: var(--text-2); }
+.header-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-left: auto; font-size: 12.5px; color: var(--text-2); }   /* stays right when it wraps under the title */
 .updated { display: inline-flex; align-items: center; gap: 6px; }
 .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
@@ -395,12 +395,6 @@ body.is-lens .tabs, body.is-lens #status-strip { display: none; }
 .nav-row .tabs { flex: 1 1 auto; min-width: 0; }
 .gh-link { display: inline-flex; align-items: center; gap: 6px; flex: none; text-decoration: none; }
 .gh-link svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
-/* Desktop: GitHub at the right of the tab row. Phones: next to the theme button, so all four tabs fit. */
-.gh-mobile { display: none; }
-@media (max-width: 700px) {
-  .gh-desktop { display: none; }
-  .gh-mobile { display: inline-flex; }
-}
 @media (max-width: 700px) { .tabs button { padding-left: 10px; padding-right: 10px; } }
 
 /* ---------- language switch (top right) ---------- */
