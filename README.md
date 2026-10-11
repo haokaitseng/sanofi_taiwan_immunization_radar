@@ -8,7 +8,7 @@ Independent portfolio project. Not affiliated with or endorsed by any company or
 ## How it works
 
 ```
-05:17 Taipei, daily (GitHub Actions)
+04:00 Taipei, daily (GitHub Actions; scheduled runs can start late)
   collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
   tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), issue, stance, speaker, storyline,
             English and Traditional Chinese summaries

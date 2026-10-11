@@ -1166,8 +1166,8 @@ function renderShell() {
   const anyFailed = D.sources.some(s => s.status === 'failed' || s.status === 'stale');
   const time = h('time', { datetime: D.generated_at }, when);
   $('#updated').replaceChildren(statusIcon(anyFailed ? 'warning' : 'good'), ZH()
-    ? h('span', null, time, ' 更新', h('span', { class: 'hide-sm' }, '（台北時間）· 每天 05:17 自動執行'))
-    : h('span', null, 'Updated ', time, ' Taipei', h('span', { class: 'hide-sm' }, ' · runs daily at 05:17')));
+    ? h('span', null, time, ' 更新', h('span', { class: 'hide-sm' }, '（台北時間）· 每日自動更新'))
+    : h('span', null, 'Updated ', time, ' Taipei', h('span', { class: 'hide-sm' }, ' · updates daily')));
   const strip = $('#status-strip');
   if (strip) {
     strip.replaceChildren(h('span', { class: 'strip-label' }, tr('Sources', '資料來源')),

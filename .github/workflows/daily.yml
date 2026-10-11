@@ -2,7 +2,7 @@ name: Daily update
 
 on:
   schedule:
-    - cron: "17 21 * * *"   # 05:17 Asia/Taipei (UTC+8); an odd minute avoids the top-of-hour queue
+    - cron: "0 20 * * *"   # 04:00 Asia/Taipei (UTC+8). Cron is UTC; GitHub may start scheduled runs late
   workflow_dispatch:
     inputs:
       backfill:

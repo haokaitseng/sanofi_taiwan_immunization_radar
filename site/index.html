@@ -77,7 +77,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
     <section class="card">
       <div data-lang="en">
         <h3 class="card-title">Daily pipeline</h3>
-        <p class="card-sub">Runs by itself every day at 05:17 Taipei time on GitHub Actions. The site is a static page on GitHub Pages, so it never sleeps and needs no server.</p>
+        <p class="card-sub">Runs by itself once a day, early morning Taipei time, on GitHub Actions. The site is a static page on GitHub Pages, so it never sleeps and needs no server.</p>
         <ol class="pipeline">
           <li><span class="step-n">1</span><strong>Collect</strong><span>Taiwan CDC, TFDA, Google News, PTT, Threads, comments on public Facebook pages, Wikipedia pageviews</span></li>
           <li><span class="step-n">2</span><strong>Clean</strong><span>Remove duplicates by URL and near-identical headlines, drop off-topic items such as animal influenza</span></li>
@@ -89,7 +89,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
       </div>
       <div data-lang="zh">
         <h3 class="card-title">每日資料流程</h3>
-        <p class="card-sub">每天台灣時間05:17在GitHub Actions 上自動執行。網站是GitHub Pages靜態頁面，不需伺服器。</p>
+        <p class="card-sub">每天台灣時間清晨在GitHub Actions 上自動執行。網站是GitHub Pages靜態頁面，不需伺服器。</p>
         <ol class="pipeline">
           <li><span class="step-n">1</span><strong>收集</strong><span>疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言、維基百科瀏覽量</span></li>
           <li><span class="step-n">2</span><strong>清理</strong><span>依網址與近似標題去除重複，剔除禽流感等離題內容</span></li>
