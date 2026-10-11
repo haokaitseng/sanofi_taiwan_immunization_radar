@@ -21,7 +21,11 @@ VACCINES = {
     "hd": {"label": "High-dose", "zh": "高劑量流感疫苗"},
     "rsv": {"label": "RSV", "zh": "呼吸道融合病毒"},
     "tdap": {"label": "Tdap", "zh": "百日咳（Tdap）"},
+    "covid": {"label": "COVID-19", "zh": "COVID-19疫苗（Moderna、Novavax XFG）"},
 }
+# COVID-19 vaccine brands in Taiwan, 2026-27 season (XFG strain): Moderna (mRNA) and Novavax (Nuvaxovid,
+# protein-based, distributed in Taiwan by Sanofi). Each COVID-19 mention is labelled with the brands it names.
+BRANDS = ["moderna", "novavax", "both", "not_stated"]
 
 # Keyword rules for the deterministic tagger. Case-insensitive regular expressions.
 # The LLM tagger refines these; the rules are the fallback and the collection pre-filter.
@@ -36,6 +40,9 @@ KEYWORDS = {
     "rsv": [_A + r"rsv" + _Z, r"呼吸道融合病毒", r"呼吸道合胞病毒", r"beyfortus", r"nirsevimab", r"尼塞韋",
             r"abrysvo", r"arexvy", r"mresvia", r"clesrovimab", r"enflonsia"],
     "tdap": [_A + r"tdap" + _Z, r"百日咳", r"pertussis", r"whooping cough", r"boostrix", r"adacel"],
+    # Any mention counts (user decision 2026-10-11), including the joint flu + COVID-19 campaign 左流右新.
+    # "Moderna" alone is not enough: most Moderna headlines are about its mRNA flu vaccine.
+    "covid": [r"新冠", _A + r"covid", r"左流右新", r"sars-cov-2", r"武漢肺炎", r"novavax", r"nuvaxovid", r"諾瓦瓦克斯"],
 }
 # Brand names that identify an enhanced type even without a flu keyword nearby. Taiwan 2026 public programme:
 # FLUAD = 輔流禦流感疫苗 (TTY Biopharm, adjuvanted, 50+); Efluelda = 菲優達高劑量三價流感疫苗 (Sanofi, high-dose, 65+).
@@ -80,21 +87,29 @@ TFDA_PREFILTER = r"疫苗|vaccin|生物藥品|檢驗封緘|單株抗體"
 # One term per search: the zh-TW feed silently drops most results for OR queries (tested 2026-10-10:
 # "RSV 疫苗 OR 呼吸道融合病毒 OR ..." returned 9 articles in 90 days; 呼吸道融合病毒 alone returned 53).
 # Latin brand names (Beyfortus, FLUAD, Efluelda, Tdap) return nothing in this edition; headline keywords still catch them.
-GNEWS_QUERIES = [
-    ("流感疫苗", "flu"),
-    ("加強型流感疫苗", "enh"),
-    ("高劑量流感疫苗", "hd"),
-    ("菲優達", "hd"),
-    ("佐劑流感疫苗", "adj"),
-    ("輔流禦", "adj"),
-    ("公費 流感疫苗", "public"),
-    ("自費 流感疫苗", "self_pay"),
-    ("RSV 疫苗", "rsv"),
-    ("呼吸道融合病毒", "rsv"),
-    ("RSV 單株抗體", "rsv"),
-    ("百日咳", "tdap"),
+GNEWS_QUERIES = [   # (query, key recorded in found_by, provisional vaccine for headlines that name none)
+    ("流感疫苗", "flu", "flu"),
+    ("加強型流感疫苗", "enh", "enh"),
+    ("高劑量流感疫苗", "hd", "hd"),
+    ("菲優達", "hd", "hd"),
+    ("佐劑流感疫苗", "adj", "adj"),
+    ("輔流禦", "adj", "adj"),
+    ("公費 流感疫苗", "public", "flu"),
+    ("自費 流感疫苗", "self_pay", "flu"),
+    ("RSV 疫苗", "rsv", "rsv"),
+    ("呼吸道融合病毒", "rsv", "rsv"),
+    ("RSV 單株抗體", "rsv", "rsv"),
+    ("百日咳", "tdap", "tdap"),
+    ("新冠疫苗", "covid", "covid"),
+    ("COVID-19疫苗", "covid", "covid"),
+    ("莫德納 新冠疫苗", "moderna", "covid"),
+    ("Novavax", "novavax", "covid"),
+    ("諾瓦瓦克斯", "novavax", "covid"),
+    ("公費 新冠疫苗", "public", "covid"),
+    ("自費 新冠疫苗", "self_pay", "covid"),
 ]
 FUNDING_KEYS = ("public", "self_pay")
+BRAND_KEYS = ("moderna", "novavax")
 # The zh-TW Google News edition also carries Hong Kong and mainland outlets; their local programmes are out of scope.
 NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星島|Singtao|文匯|大公|信報|RTHK|am730|頭條日報|"
                       r"巴士的報|dotdotnews|點新聞|i-CABLE|有線新聞|New Monday|HK01|HKET|"
@@ -105,7 +120,7 @@ NON_TAIWAN_OUTLETS = (r"TVB|Now ?新聞|now\.com|香港|明報|東網|on\.cc|星
 LOCAL_ONLY_SOURCES = {"ptt"}
 PTT_BOARDS = ["BabyMother", "Preschooler", "Gossiping", "WomenTalk", "Health", "Doctor-Info", "nurse"]
 # PTT search matches titles only. "疫苗" is the catch-all; the tagger then reads title + body to keep relevant posts.
-PTT_KEYWORDS = ["疫苗", "流感", "高劑量", "佐劑", "RSV", "呼吸道融合", "百日咳", "Tdap"]
+PTT_KEYWORDS = ["疫苗", "流感", "高劑量", "佐劑", "RSV", "呼吸道融合", "百日咳", "Tdap", "新冠", "Novavax", "莫德納"]
 
 # Apify actors (pay per result). Each run has a hard USD cap. One run of both costs about US$0.46, so on the
 # free plan (US$5/month) they run twice a week; with a paid plan, set APIFY_WEEKDAYS = range(7).
@@ -114,7 +129,7 @@ APIFY = {
     "threads": {
         "actor": "futurizerush/meta-threads-scraper",
         "keywords": ["流感疫苗", "高劑量流感疫苗", "佐劑流感疫苗", "加強型流感疫苗", "菲優達", "輔流禦", "自費流感疫苗",
-                     "RSV疫苗", "RSV單株抗體", "百日咳疫苗"],
+                     "RSV疫苗", "RSV單株抗體", "百日咳疫苗", "新冠疫苗", "Novavax", "莫德納疫苗"],
         "max_posts": 30, "max_posts_backfill": 150,       # per keyword
         "cap_usd": 0.5, "cap_usd_backfill": 4.0,
     },
@@ -133,4 +148,6 @@ WIKI_ARTICLES = {
             ("en.wikipedia", "Nirsevimab"), ("en.wikipedia", "Respiratory_syncytial_virus_vaccine")],
     "tdap": [("zh.wikipedia", "百日咳"), ("zh.wikipedia", "百日咳疫苗"),
              ("en.wikipedia", "DPT_vaccine"), ("en.wikipedia", "Whooping_cough")],
+    "covid": [("zh.wikipedia", "2019冠状病毒病疫苗"), ("en.wikipedia", "COVID-19_vaccine"),
+              ("en.wikipedia", "Moderna_COVID-19_vaccine"), ("en.wikipedia", "Novavax_COVID-19_vaccine")],
 }

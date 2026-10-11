@@ -23,7 +23,7 @@ VAC_ARRAY = {"type": "array", "items": {"type": "string"}}
 
 SYSTEM = """You are the analyst behind a public dashboard that tracks Taiwan's vaccine policy and public conversation
 for flu (general, enhanced-type-not-stated, adjuvanted, high-dose), RSV (incl. infant antibodies such as
-nirsevimab/Beyfortus) and Tdap/pertussis. Readers are public-affairs and brand professionals at vaccine
+nirsevimab/Beyfortus), Tdap/pertussis and COVID-19 vaccines. Readers are public-affairs and brand professionals at vaccine
 companies, plus anyone curious. You receive a digest of items already collected and tagged today.
 
 Background facts you may rely on (Taiwan CDC 2026-27 programme): publicly funded (公費) flu vaccination opened
@@ -33,6 +33,10 @@ residential facilities: FLUAD (輔流禦, adjuvanted, TTY Biopharm, licensed 50+
 Sanofi, licensed 65+). Standard vaccines in the programme: Vaxigrip (菲流達, Sanofi), Fluarix (伏流感, GSK),
 Flucelvax (輔流威護, TTY Biopharm), AdimFlu-S (安定伏, Adimmune), Fluvacgen (福喜健, Medigen). People outside the
 eligible groups can pay for vaccination themselves (自費) where clinics stock it.
+The 2026-27 COVID-19 vaccines in Taiwan are XFG-strain vaccines from two brands: Moderna (mRNA) and Novavax
+(Nuvaxovid, protein-based, distributed in Taiwan by Sanofi). Publicly funded COVID-19 and flu vaccination opened
+together on 2026-10-01 under the joint campaign 左流右新. Each COVID-19 item carries covid_brand: moderna, novavax,
+both or not_stated; name the brand when the items do. Call it COVID-19, never "new crown".
 
 Each item carries funding: public (公費), self_pay (自費), both, or not_stated. The public programme and the
 self-pay market are different arenas for a vaccine company (tenders and eligibility versus clinic stock,
@@ -66,8 +70,10 @@ Sections
    level monitor / watch / respond and a one-line note on the suggested response. Empty list if none.
 5. voices_ids: 4-6 ids of items whose kind is "social", chosen to show different stances and vaccines
    (never empty when the digest has social items).
-6. lens: an unlisted analyst lens for Sanofi's portfolio in Taiwan: exactly three products in this order:
-   Beyfortus (nirsevimab; vaccine rsv), high-dose influenza vaccine (vaccine hd), Tdap booster (vaccine tdap).
+6. lens: an unlisted analyst lens for Sanofi's portfolio in Taiwan: exactly four products in this order:
+   Beyfortus (nirsevimab; vaccine rsv), high-dose influenza vaccine (vaccine hd), Tdap booster (vaccine tdap),
+   Novavax (Nuvaxovid) XFG COVID-19 vaccine (vaccine covid). For Novavax, discuss only Novavax's own signals:
+   do not comment on or compare with other COVID-19 vaccine brands.
    For each: what this week's signal is, the implication, a suggested public-affairs action (stakeholder
    engagement, evidence preparation, issue readiness; never promotion), stakeholders to engage, risk level.
    If the digest has little on a product, say so plainly rather than inventing a signal.
@@ -167,7 +173,7 @@ def digest() -> dict:
         return {"id": it["id"], "date": it["published"], "kind": it["kind"], "channel": it["channel"],
                 "outlet": it["outlet"] if it["kind"] != "social" else it["channel"],
                 "title_en": t.get("title_en"), "summary_en": t.get("summary_en"), "vaccines": t.get("vaccines"),
-                "funding": t.get("funding", "not_stated"),
+                "funding": t.get("funding", "not_stated"), "covid_brand": t.get("covid_brand", "not_stated"),
                 "issues": t.get("issues"), "stance": t.get("stance"), "speaker": t.get("speaker"),
                 "storyline": t.get("storyline"), "misinformation": t.get("misinformation"),
                 "pa_relevance": t.get("pa_relevance"), "engagement": it.get("engagement", 0)}

@@ -10,6 +10,7 @@ import json
 import os
 
 from . import config
+from .common import zh_terms
 
 MODEL = "claude-opus-5-5"
 ANALYSIS_FILE = config.DATA_DIR / "analysis.json"
@@ -31,7 +32,9 @@ SYSTEM = """You translate a vaccine public-affairs dashboard from English into T
 Taiwan (public-affairs, medical and brand professionals).
 - Natural, concise, professional Taiwanese usage: 疫苗接種, 公費, 自費, 衛福部, 疾管署 (for Taiwan CDC),
   食藥署 (for TFDA), 預防接種諮詢委員會 or ACIP. Never Mainland vocabulary or Simplified characters.
-- Keep these in English: product and brand names (Beyfortus, nirsevimab, Efluelda, Fluad...), RSV, Tdap, ACIP,
+- Write COVID-19 as COVID-19 and COVID-19 vaccines as COVID-19疫苗; never 新冠 or 新冠疫苗.
+- Keep these in English: product and brand names (Beyfortus, nirsevimab, Efluelda, Fluad, Moderna, Novavax,
+  Nuvaxovid...), RSV, Tdap, ACIP,
   platform names (PTT, Threads, Facebook, LINE), model names, and any acronym commonly used in English in Taiwan.
 - Translate meaning faithfully: do not add, drop or soften facts, hedges, numbers or dates. Keep numbers and
   dates as written (e.g. 2026-11-02, NT$1,950, 1.91 million -> 191萬).
@@ -101,6 +104,7 @@ def translate(force: bool = False) -> dict:
     for sid, zh in done.items():
         if sid not in targets or not zh.strip():
             continue
+        zh = zh_terms(zh)
         obj, key, i = targets[sid]
         if i is None:
             obj[f"{key}_zh"] = zh

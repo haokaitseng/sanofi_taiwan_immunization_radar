@@ -1,7 +1,8 @@
 # Taiwan Immunization Radar
 
 A public, self-updating dashboard of vaccine **policy** and **public conversation** in Taiwan for flu (general,
-enhanced, adjuvanted, high-dose), RSV (including infant antibodies such as nirsevimab) and Tdap/pertussis.
+enhanced, adjuvanted, high-dose), RSV (including infant antibodies such as nirsevimab), Tdap/pertussis and
+COVID-19 vaccines (Moderna and Novavax XFG).
 
 Independent portfolio project. Not affiliated with or endorsed by any company or agency named. Not medical advice.
 
@@ -10,7 +11,7 @@ Independent portfolio project. Not affiliated with or endorsed by any company or
 ```
 04:00 Taipei, daily (GitHub Actions; scheduled runs can start late)
   collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
-  tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), issue, stance, speaker, storyline,
+  tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), COVID-19 brand, issue, stance, speaker, storyline,
             English and Traditional Chinese summaries
   scrub     verbatim social text deleted; only paraphrase, tags and link stay
   analyse   Claude Opus 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens
@@ -21,7 +22,7 @@ Independent portfolio project. Not affiliated with or endorsed by any company or
 
 - Each source runs in isolation; a broken scraper turns its status light amber and the run carries on.
 - Google News gives headlines only, but its search matches the full article. Each article records which searches
-  found it, so a vaccine type (佐劑 / 高劑量) or 公費 / 自費 named only in the body still counts. One term per
+  found it, so a vaccine type (佐劑 / 高劑量), a COVID-19 brand or 公費 / 自費 named only in the body still counts. One term per
   search: the zh-TW feed silently drops most results for `OR` queries.
 - If the AI steps fail, yesterday's analysis is reused and the site still publishes.
 - Only new items are sent to the tagger, so each item is paid for once.

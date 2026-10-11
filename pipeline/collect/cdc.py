@@ -14,7 +14,7 @@ _ROW = re.compile(
     r'<p class="icon-year">\s*(\d{4})\s*-\s*(\d{1,2})\s*</p>\s*<p class="icon-date">\s*(\d{1,2})\s*</p>', re.S)
 _PUBLISHED = re.compile(r"發佈日期[:：]\s*(\d{4}-\d{2}-\d{2})")
 # Titles worth opening during backfill (daily runs open every new release).
-_BROAD = re.compile(r"疫苗|接種|流感|呼吸道|百日咳|RSV|長者|嬰|孕", re.I)
+_BROAD = re.compile(r"疫苗|接種|流感|呼吸道|百日咳|RSV|長者|嬰|孕|新冠|COVID", re.I)
 
 
 def _detail(path_or_url: str) -> tuple[str | None, str]:

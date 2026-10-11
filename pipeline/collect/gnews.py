@@ -44,7 +44,7 @@ _BROAD = re.compile(config.BROAD_HEALTH)
 _NON_TW = re.compile(config.NON_TAIWAN_OUTLETS, re.I)
 
 
-def _add(items: dict[str, Item], row: dict, key: str, since: date) -> None:
+def _add(items: dict[str, Item], row: dict, key: str, hint: str, since: date) -> None:
     """One search result into the per-run collection; repeat hits only add their search key to found_by."""
     outlet = row["source"]
     # Google appends " - Outlet" to every headline.
@@ -54,7 +54,7 @@ def _add(items: dict[str, Item], row: dict, key: str, since: date) -> None:
         return
     vac, basis = keyword_vaccines(title), "keyword"
     if not vac and _BROAD.search(title):
-        vac, basis = ([key] if key in config.VACCINES else ["flu"]), "query"   # funding searches are about flu
+        vac, basis = [hint], "query"
     if not vac:
         return
     it = Item(source="gnews", kind="media", channel="News", url=row["link"], title=title, published=day,
@@ -71,7 +71,7 @@ def _add(items: dict[str, Item], row: dict, key: str, since: date) -> None:
 def collect(since: date, backfill: bool = False) -> list[Item]:
     items: dict[str, Item] = {}
     done, failures, in_a_row = 0, 0, 0
-    for query, key in config.GNEWS_QUERIES:
+    for query, key, hint in config.GNEWS_QUERIES:
         for window in _windows(since, backfill):
             if in_a_row >= 3:      # throttled for good: keep what the earlier searches found
                 break
@@ -85,7 +85,7 @@ def collect(since: date, backfill: bool = False) -> list[Item]:
                 continue
             in_a_row = 0
             for row in rows:
-                _add(items, row, key, since)
+                _add(items, row, key, hint, since)
     if in_a_row >= 3:
         print(f"[gnews] stopped early after {in_a_row} failed searches in a row", flush=True)
     if failures and failures == done:

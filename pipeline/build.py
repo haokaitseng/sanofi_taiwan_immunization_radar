@@ -1,13 +1,13 @@
 """Aggregate stored items into site/data/latest.json (public) and site/data/lens.json (unlisted page).
 
 Everything the dashboard draws comes from these two files. Works with keyword tags only; when the LLM
-tagger and analyst have run, stance, issues, funding, narratives, the brief and the lens are filled in too.
-Each aggregate also exists per funding view (by_funding), so the site's 公費 / 自費 filter can re-scope charts.
+tagger and analyst have run, stance, issues, funding, COVID-19 brand, narratives, the brief and the lens are
+filled in too. Conversation items are published as compact coded rows (no text), so the site computes its
+charts in the browser and its filters (who pays, COVID-19 brand) combine freely.
 """
 from __future__ import annotations
 
 import json
-import math
 import re
 from collections import Counter
 from datetime import date, datetime, timedelta
@@ -23,15 +23,16 @@ CHANNELS = ["News", "PTT", "Threads", "Dcard", "Facebook"]
 POLICY_TYPES = {"press": "Press release", "letter": "Letter to physicians", "clarification": "Clarification",
                 "news": "News", "announcement": "Announcement", "drug_safety": "Drug safety", "rumor": "Rumour rebuttal"}
 FUNDING = ["public", "self_pay", "both", "not_stated"]
-# Views behind the site's funding filter: 公費 and 自費 each include the items that discuss both.
-FUNDING_VIEWS = {"public": ("public", "both"), "self_pay": ("self_pay", "both"), "both": ("both",), "not_stated": ("not_stated",)}
 FUND_CODE = {"public": "p", "self_pay": "s", "both": "b", "not_stated": "n"}
+BRANDS = config.BRANDS
+BRAND_CODE = {"moderna": "m", "novavax": "v", "both": "b", "not_stated": "n"}
+VAC_ORDER = list(config.VACCINES)
 STANCE_CODE = {"opposed": "o", "hesitant": "h", "neutral": "n", "accepting": "a", "advocating": "v"}
 
 SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
     "cdc": ("疾管署", "新聞稿、致醫界通函、澄清專區", "列表頁＋RSS"),
     "tfda": ("食藥署", "新聞、公告、藥品安全資訊、闢謠專區", "RSS＋列表頁"),
-    "gnews": ("Google 新聞", "以疫苗、類型（佐劑、高劑量）與公費／自費關鍵字搜尋的台灣中文新聞", "RSS 搜尋"),
+    "gnews": ("Google 新聞", "以疫苗、類型（佐劑、高劑量）、COVID-19 廠牌與公費／自費關鍵字搜尋的台灣中文新聞", "RSS 搜尋"),
     "ptt": ("PTT", "親子、健康與綜合看板的貼文", "公開網頁、低頻率擷取；僅限本機執行（雲端主機被封鎖）"),
     "threads": ("Threads", "符合關鍵字的公開貼文", "Apify 擷取程式"),
     "facebook": ("Facebook", "公部門公開粉專疫苗貼文下的留言", "Apify 擷取程式"),
@@ -41,7 +42,7 @@ SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
 SOURCE_INFO = [  # display metadata for the status strip and the Methodology table
     ("cdc", "Taiwan CDC", "Policy", "Press releases, letters to physicians, clarifications", "List pages + RSS"),
     ("tfda", "TFDA", "Policy", "News, announcements, drug-safety notices, rumour rebuttals", "RSS + list pages"),
-    ("gnews", "Google News", "Media", "zh-TW news from vaccine, vaccine-type (adjuvanted, high-dose) and 公費 / 自費 searches", "RSS search"),
+    ("gnews", "Google News", "Media", "zh-TW news from vaccine, vaccine-type (adjuvanted, high-dose), COVID-19 brand and public / self-pay searches", "RSS search"),
     ("ptt", "PTT", "Social", "Posts on parenting, health and general boards", "Public pages, polite crawl; local runs only (blocks cloud servers)"),
     ("threads", "Threads", "Social", "Public posts matching the keyword set", "Apify actor"),
     ("facebook", "Facebook", "Social", "Comments on vaccine posts of public institutional pages", "Apify actors"),
@@ -83,71 +84,45 @@ def _fund(it: dict) -> str:
     return (it.get("tags") or {}).get("funding") or "not_stated"
 
 
+def _brand(it: dict) -> str:
+    """COVID-19 brand named by a COVID-19 item; "" for items that are not about COVID-19."""
+    if "covid" not in it.get("_vaccines", (it.get("tags") or {}).get("vaccines", [])):
+        return ""
+    return (it.get("tags") or {}).get("covid_brand") or "not_stated"
+
+
+def _brand_union(items: list[dict]) -> str:
+    """Brand of something written from several items: "" when none of them is about COVID-19."""
+    named, covid = set(), False
+    for it in items:
+        b = _brand(it)
+        covid |= bool(b)
+        named |= {"moderna": {"moderna"}, "novavax": {"novavax"}, "both": {"moderna", "novavax"}}.get(b, set())
+    if not covid:
+        return ""
+    return "both" if len(named) == 2 else (next(iter(named)) if named else "not_stated")
+
+
+def _row(it: dict, index: dict) -> list[int]:
+    """One conversation item as codes: [day, vaccine bits, channel, stance, issue bits, funding, brand]; -1 = none."""
+    t = it.get("tags") or {}
+    issues = t.get("issues") if t else None
+    brand = _brand(it)
+    return [index[it["published"]],
+            sum(1 << VAC_ORDER.index(v) for v in it["_vaccines"] if v in VAC_ORDER),
+            CHANNELS.index(it["channel"]) if it["channel"] in CHANNELS else -1,
+            STANCES.index(t["stance"]) if t.get("stance") in STANCES else -1,
+            sum(1 << ISSUES.index(i) for i in issues if i in ISSUES) if issues is not None else -1,
+            FUNDING.index(_fund(it)),
+            BRANDS.index(brand) if brand else -1]
+
+
 def _fund_union(items: list[dict]) -> str:
     """Funding of something written from several items (a brief entry, a claim): 'both' if both appear."""
     said = set()
     for it in items:
         said |= {"public": {"public"}, "self_pay": {"self_pay"}, "both": {"public", "self_pay"}}.get(_fund(it), set())
     return "both" if len(said) == 2 else (next(iter(said)) if said else "not_stated")
-
-
-def _pct_mix(counter: Counter, keys: list[str]) -> list[float] | None:
-    total = sum(counter[k] for k in keys)
-    return [round(counter[k] / total, 4) for k in keys] if total >= 5 else None
-
-
-def _spikes(dates: list[str], series: dict[str, list[int]]) -> list[dict]:
-    """Days in the last 30 where a vaccine's volume ran well above its trailing 28-day baseline."""
-    out = []
-    for vac, vals in series.items():
-        for i in range(len(vals) - 30, len(vals)):
-            base = vals[max(0, i - 28):i]
-            if len(base) < 14:
-                continue
-            mean = sum(base) / len(base)
-            sd = math.sqrt(sum((v - mean) ** 2 for v in base) / len(base)) or 1.0
-            z = (vals[i] - mean) / sd
-            if z >= 2.5 and vals[i] >= 5 and vals[i] >= 2 * max(mean, 1):
-                out.append({"date": dates[i], "vaccine": vac, "z": round(z, 1), "mult": round(vals[i] / max(mean, 1), 1), "count": vals[i]})
-    return sorted(out, key=lambda s: s["date"], reverse=True)[:12]
-
-
-def _aggregates(conv: list[dict], dates: list[str], index: dict) -> dict:
-    """Daily volume, channel, stance and issue mixes and spikes for one set of conversation items."""
-    series = {v: [0] * WINDOW for v in config.VACCINES}
-    for it in conv:
-        for v in it["_vaccines"]:
-            series[v][index[it["published"]]] += 1
-    channels, stance, stance_prior, issues = {}, {}, {}, {}
-    for r in RANGES:
-        lo, prior_lo = dates[-r], dates[-2 * r] if 2 * r <= WINDOW else dates[0]
-        cur = [it for it in conv if it["published"] >= lo]
-        pri = [it for it in conv if prior_lo <= it["published"] < lo]
-        channels[str(r)], stance[str(r)], stance_prior[str(r)], issues[str(r)] = {}, {}, {}, {}
-        for v in config.VACCINES:
-            mine = [it for it in cur if v in it["_vaccines"]]
-            channels[str(r)][v] = dict(Counter(it["channel"] for it in mine))
-            stance[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in mine if it.get("tags")), STANCES)
-            stance_prior[str(r)][v] = _pct_mix(Counter(it["tags"].get("stance") for it in pri if v in it["_vaccines"] and it.get("tags")), STANCES)
-            tagged = [it for it in mine if it.get("tags", {}).get("issues") is not None]
-            issues[str(r)][v] = ([round(100 * sum(1 for it in tagged if i in it["tags"]["issues"]) / len(tagged)) for i in ISSUES]
-                                 if len(tagged) >= 5 else None)
-    return {"series": series, "channels": channels, "stance": stance, "stance_prior": stance_prior, "issues": issues,
-            "spikes": _spikes(dates, series)}
-
-
-def _funding_mix(conv: list[dict], dates: list[str]) -> tuple[dict, dict]:
-    """Counts per vaccine in FUNDING order (exclusive categories), for each range and the period before it."""
-    mix, prior = {}, {}
-    for r in RANGES:
-        lo, prior_lo = dates[-r], dates[-2 * r] if 2 * r <= WINDOW else dates[0]
-        mix[str(r)], prior[str(r)] = {}, {}
-        for v in config.VACCINES:
-            cur = Counter(_fund(it) for it in conv if it["published"] >= lo and v in it["_vaccines"])
-            pri = Counter(_fund(it) for it in conv if prior_lo <= it["published"] < lo and v in it["_vaccines"])
-            mix[str(r)][v] = [cur[f] for f in FUNDING]
-            prior[str(r)][v] = [pri[f] for f in FUNDING]
-    return mix, prior
 
 
 def _source_ref(it: dict) -> dict:
@@ -177,24 +152,8 @@ def _example(it: dict) -> dict:
         t_zh = t.get("title_zh") or t.get("summary_zh") or t_en
     else:
         label, t_en, t_zh = it.get("outlet") or "News", t.get("title_en") or it["title"], it["title"]
-    return {"label": label, "url": it["url"], "date": it["published"], "t_en": t_en, "t_zh": t_zh, "funding": _fund(it)}
-
-
-def _examples(mine: list[dict], n: int = 2) -> list[dict]:
-    """Newest news article first, then the newest post, then whatever is newest; one link per outlet."""
-    newest = sorted((it for it in mine if it.get("url")), key=lambda it: it["published"], reverse=True)
-    first = [x for x in (next((it for it in newest if it["kind"] == "media"), None),
-                         next((it for it in newest if it["kind"] == "social"), None)) if x]
-    out, labels = [], set()
-    for it in first + newest:
-        ex = _example(it)
-        if ex["label"] in labels:
-            continue
-        labels.add(ex["label"])
-        out.append(ex)
-        if len(out) == n:
-            break
-    return out
+    return {"label": label, "url": it["url"], "date": it["published"], "t_en": t_en, "t_zh": t_zh, "funding": _fund(it),
+            "brand": _brand(it), "kind": it["kind"]}
 
 
 def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
@@ -209,16 +168,22 @@ def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
         total = sum(stances.values()) or 1
         net = round(100 * (stances["accepting"] + stances["advocating"] - stances["hesitant"] - stances["opposed"]) / total)
         channels = [c for c, _ in Counter(it["channel"] for it in mine).most_common(2)]
-        examples = {"all": _examples(mine)}
-        for view, funds in FUNDING_VIEWS.items():
-            ex = _examples([it for it in mine if _fund(it) in funds])
-            if ex:
-                examples[view] = ex
+        # A pool of candidate links, newest first, covering each funding x brand combination present; the site
+        # shows the first one or two that match its filters.
+        newest = sorted((it for it in mine if it.get("url")), key=lambda it: it["published"], reverse=True)
+        pool, seen = [], set()
+        for it in [next((x for x in newest if (_fund(x), _brand(x)) == combo), None)
+                   for combo in sorted({(_fund(x), _brand(x)) for x in newest})] + newest:
+            if it is not None and it["id"] not in seen and len(pool) < 8:
+                seen.add(it["id"])
+                pool.append(it)
+        examples = [_example(it) for it in sorted(pool, key=lambda it: it["published"], reverse=True)]
         out.append({"id": n["id"], "title": n["title"], "title_zh": n.get("title_zh", ""), "vaccines": n["vaccines"],
                     "status": n["status"], "para": n["para"], "para_zh": n.get("para_zh", ""),
                     "channels": channels, "net": net, "series": series, "mentions": len(mine),
-                    # one mark per item [day index, funding code, stance code]: lets the site re-count under a filter
-                    "marks": [[index[it["published"]], FUND_CODE[_fund(it)], STANCE_CODE.get(it["tags"].get("stance"), "")] for it in mine],
+                    # one mark per item [day, funding, stance, brand]: lets the site re-count under its filters
+                    "marks": [[index[it["published"]], FUND_CODE[_fund(it)], STANCE_CODE.get(it["tags"].get("stance"), ""),
+                               BRAND_CODE.get(_brand(it), "")] for it in mine],
                     "examples": examples})
     return [n for n in out if n["mentions"]]
 
@@ -226,7 +191,8 @@ def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
 def _voice(it: dict) -> dict:
     t = it["tags"]
     return {"channel": it["channel"], "vaccine": (t.get("vaccines") or it["vaccines"])[0], "stance": t.get("stance"),
-            "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"], "funding": _fund(it)}
+            "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"], "funding": _fund(it),
+            "brand": _brand(it)}
 
 
 def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
@@ -244,8 +210,12 @@ def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
 
 def _cited(rows: list[dict], by_id: dict) -> list[dict]:
     """Analyst rows with source_ids resolved to links, and the funding of the items they rest on."""
-    return [{**{k: v for k, v in r.items() if k != "source_ids"}, "sources": _refs(r["source_ids"], by_id),
-             "funding": _fund_union([by_id[i] for i in r["source_ids"] if i in by_id])} for r in rows]
+    out = []
+    for r in rows:
+        cited = [by_id[i] for i in r["source_ids"] if i in by_id]
+        out.append({**{k: v for k, v in r.items() if k != "source_ids"}, "sources": _refs(r["source_ids"], by_id),
+                    "funding": _fund_union(cited), "brand": _brand_union(cited)})
+    return out
 
 
 def build(analysis: dict | None = None) -> dict:
@@ -266,7 +236,7 @@ def build(analysis: dict | None = None) -> dict:
                 "type": POLICY_TYPES.get(it["subtype"], it["subtype"]), "title_zh": it["title"],
                 "title_en": t.get("title_en", ""), "summary": t.get("summary_en", ""), "summary_zh": t.get("summary_zh", ""),
                 "why": notes.get(it["id"], {}).get("why", ""), "why_zh": notes.get(it["id"], {}).get("why_zh", ""), "url": it["url"],
-                "marker": it["id"] in notes and notes[it["id"]].get("marker", False), "funding": _fund(it),
+                "marker": it["id"] in notes and notes[it["id"]].get("marker", False), "funding": _fund(it), "brand": _brand(it),
             })
     policy.sort(key=lambda p: p["date"], reverse=True)
     if not notes:   # no analyst run yet: mark the latest press releases on the volume chart
@@ -275,7 +245,7 @@ def build(analysis: dict | None = None) -> dict:
 
     # Newest news headlines, shown on the Today view until the AI brief exists. News only: no social posts verbatim.
     headlines = [{"date": it["published"], "title": it["title"], "title_en": it.get("tags", {}).get("title_en", ""),
-                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"], "funding": _fund(it)}
+                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"], "funding": _fund(it), "brand": _brand(it)}
                  for it in sorted((i for i in conv if i["kind"] == "media"), key=lambda i: i["published"], reverse=True)[:15]]
 
     attention_raw = json.loads((config.DATA_DIR / "attention.json").read_text(encoding="utf-8")) if (config.DATA_DIR / "attention.json").exists() else {}
@@ -300,7 +270,6 @@ def build(analysis: dict | None = None) -> dict:
 
     day_files = sorted(p.stem for p in config.ITEMS_DIR.glob("*.jsonl"))
     coverage_start = max(day_files[0], (end - timedelta(days=config.BACKFILL_DAYS)).isoformat()) if day_files else end.isoformat()
-    mix, mix_prior = _funding_mix(conv, dates)
 
     latest = {
         "generated_at": datetime.now(config.TZ).isoformat(timespec="seconds"),
@@ -308,12 +277,10 @@ def build(analysis: dict | None = None) -> dict:
         "coverage_start": coverage_start,   # earlier days are zero because nothing was collected, not because nothing happened
         "dates": dates,
         "vaccines": [{"key": k, **v} for k, v in config.VACCINES.items()],
-        **_aggregates(conv, dates, index),  # series, channels, stance, stance_prior, issues, spikes
-        "funding": FUNDING,
-        "funding_mix": mix,
-        "funding_mix_prior": mix_prior,
-        "by_funding": {view: _aggregates([it for it in conv if _fund(it) in funds], dates, index)
-                       for view, funds in FUNDING_VIEWS.items()},
+        # The conversation as coded rows; the site computes volume, stance, issue, channel, funding and brand views.
+        "keys": {"vaccines": VAC_ORDER, "channels": CHANNELS, "stance": STANCES, "issues": ISSUES,
+                 "funding": FUNDING, "brands": BRANDS},
+        "rows": [_row(it, index) for it in conv],
         "policy": policy,
         "headlines": headlines,
         "attention": attention,

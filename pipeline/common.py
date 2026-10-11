@@ -163,12 +163,25 @@ def keyword_vaccines(text: str) -> list[str]:
     general = _ENHANCED_PHRASE.sub(" ", text)
     if any(p.search(general) for p in _RULES["flu"]):
         found.add("flu")
-    for key in ("rsv", "tdap"):
+    for key in ("rsv", "tdap", "covid"):
         if any(p.search(text) for p in _RULES[key]):
             found.add(key)
     if _EXCLUDE.search(text):      # animal influenza (e.g. 禽流感疫苗) is out of scope; the LLM tagger refines edge cases
         found.discard("flu")
     return [k for k in config.VACCINES if k in found]
+
+
+# ------------------------------------------------------------------ Chinese wording
+# The site writes COVID-19 / COVID-19疫苗, never 新冠, and keeps brand names in English (user decision 2026-10-11).
+# Applied to AI-written Chinese only; original headlines and official titles are never changed.
+_ZH_TERMS = [(re.compile(r"新冠疫苗"), "COVID-19疫苗"), (re.compile(r"新冠肺炎|新冠病毒感染症"), "COVID-19"),
+             (re.compile(r"新冠"), "COVID-19"), (re.compile(r"莫德納"), "Moderna"), (re.compile(r"諾瓦瓦克斯"), "Novavax")]
+
+
+def zh_terms(text: str) -> str:
+    for pattern, repl in _ZH_TERMS:
+        text = pattern.sub(repl, text)
+    return text
 
 
 # ------------------------------------------------------------------ storage
@@ -212,7 +225,7 @@ def scrub_social() -> int:
     return changed
 
 
-EVIDENCE_KEYS = {"enh", "adj", "hd", *config.FUNDING_KEYS}
+EVIDENCE_KEYS = {"enh", "adj", "hd", "covid", *config.FUNDING_KEYS, *config.BRAND_KEYS}
 
 
 def load_day(day: str) -> dict[str, dict]:

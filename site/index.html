@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taiwan Immunization Radar</title>
-<meta name="description" content="Daily policy and social-listening dashboard for flu (including enhanced, adjuvanted and high-dose vaccines), RSV and Tdap in Taiwan. Independent portfolio project.">
+<meta name="description" content="Daily policy and social-listening dashboard for flu (including enhanced, adjuvanted and high-dose vaccines), RSV, Tdap and COVID-19 vaccines in Taiwan. Independent portfolio project.">
 <script>/* set the language and theme before first paint, so the page never flashes the wrong language or theme */
 try { var l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('radar-lang'); if (l === 'zh') document.documentElement.lang = 'zh-Hant-TW';
   var t = localStorage.getItem('radar-theme') || 'light'; if (t !== 'auto') document.documentElement.dataset.theme = t; } catch (e) {}</script>
@@ -30,7 +30,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
       </svg>
       <span>
         <span class="brand-name"><span data-lang="en">Taiwan Immunization Radar</span><span data-lang="zh">台灣疫苗接種雷達</span></span>
-        <span class="brand-sub"><span data-lang="en">Policy &amp; social listening · Flu · Enhanced flu · RSV · Tdap</span><span data-lang="zh">政策追蹤與社群輿情 · 流感 · 加強型流感 · RSV · Tdap</span></span>
+        <span class="brand-sub"><span data-lang="en">Policy &amp; social listening · Flu · Enhanced flu · RSV · Tdap · COVID-19</span><span data-lang="zh">政策追蹤與社群輿情 · 流感 · 加強型流感 · RSV · Tdap · COVID-19</span></span>
       </span>
     </a>
     <div class="header-meta">
@@ -112,7 +112,9 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
           <h3 class="card-title">Definitions</h3>
           <dl class="defs" style="margin-top:12px">
             <dt>Vaccine groups</dt>
-            <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑, e.g. FLUAD 輔流禦); and <strong>High-dose</strong> (高劑量, e.g. Efluelda 菲優達). A mention that names both types counts under both. News articles count under a type when a search for that type or brand matched the article’s text, even if the headline only says 加強型. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself.</dd>
+            <dd><strong>Flu</strong>: influenza vaccination in general (流感疫苗). <strong>Enhanced flu</strong> is tracked as three categories: <strong>Enhanced</strong> (加強型), when a mention covers adjuvanted or high-dose vaccines without saying which; <strong>Adjuvanted</strong> (佐劑, e.g. FLUAD 輔流禦); and <strong>High-dose</strong> (高劑量, e.g. Efluelda 菲優達). A mention that names both types counts under both. News articles count under a type when a search for that type or brand matched the article’s text, even if the headline only says 加強型. <strong>RSV</strong>: long-acting infant antibodies including nirsevimab (Beyfortus), plus maternal and older-adult RSV vaccines. <strong>Tdap</strong>: tetanus, diphtheria and acellular pertussis boosters, including in pregnancy, and pertussis itself. <strong>COVID-19</strong>: COVID-19 vaccines, including the 2026-27 XFG vaccines from Moderna (mRNA) and Novavax (Nuvaxovid, protein-based; distributed in Taiwan by Sanofi), the joint flu and COVID-19 campaign (左流右新) and COVID-19 disease news. Any mention counts, even in passing.</dd>
+            <dt>COVID-19 brand</dt>
+            <dd>Each COVID-19 mention is labelled <strong>Moderna</strong>, <strong>Novavax</strong>, <strong>Moderna + Novavax</strong> (both named, even in passing) or <strong>Brand not stated</strong>. Brands named only inside an article are found through brand-specific news searches, as for vaccine types. In the brand filter, Moderna and Novavax each include items that name both; items that are not about COVID-19 show only when the filter is off.</dd>
             <dt>Who pays</dt>
             <dd><strong>Public-funded</strong> (公費): the government programme, free for eligible groups. <strong>Self-pay</strong> (自費): paid out of pocket, for example clinics’ own stock. <strong>Both</strong>: the item mentions both, even in passing. <strong>Not stated</strong>: it mentions neither. In the Who pays filter, 公費 and 自費 each include the items that discuss both.</dd>
             <dt>Stance scale</dt>
@@ -127,7 +129,9 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
           <h3 class="card-title">名詞定義</h3>
           <dl class="defs" style="margin-top:12px">
             <dt>疫苗分類</dt>
-            <dd><strong>流感</strong>：一般的流感疫苗接種。<strong>加強型流感</strong>分為三類追蹤：<strong>加強型</strong>，指提及佐劑或高劑量疫苗但未說明是哪一種；<strong>佐劑</strong>（如輔流禦 FLUAD）；以及<strong>高劑量</strong>（如菲優達 Efluelda）。同時提到兩種類型的提及會分別計入。若某類型或品牌的搜尋比對到新聞內文，即使標題只寫「加強型」，也計入該類型。<strong>RSV</strong>：包括 nirsevimab（Beyfortus）在內的長效嬰兒抗體，以及孕婦與長者 RSV 疫苗。<strong>Tdap</strong>：破傷風、白喉、非細胞性百日咳追加劑（包括孕期接種），以及百日咳本身。</dd>
+            <dd><strong>流感</strong>：一般的流感疫苗接種。<strong>加強型流感</strong>分為三類追蹤：<strong>加強型</strong>，指提及佐劑或高劑量疫苗但未說明是哪一種；<strong>佐劑</strong>（如輔流禦 FLUAD）；以及<strong>高劑量</strong>（如菲優達 Efluelda）。同時提到兩種類型的提及會分別計入。若某類型或品牌的搜尋比對到新聞內文，即使標題只寫「加強型」，也計入該類型。<strong>RSV</strong>：包括 nirsevimab（Beyfortus）在內的長效嬰兒抗體，以及孕婦與長者 RSV 疫苗。<strong>Tdap</strong>：破傷風、白喉、非細胞性百日咳追加劑（包括孕期接種），以及百日咳本身。<strong>COVID-19</strong>：COVID-19疫苗，包括 2026-27 年度 Moderna（mRNA）與 Novavax（Nuvaxovid，蛋白質疫苗；在台由 Sanofi 代理）的 XFG 疫苗、流感與 COVID-19疫苗同時接種的「左流右新」，以及 COVID-19 疫情新聞。任何提及都計入，即使只是順帶一提。</dd>
+            <dt>COVID-19 廠牌</dt>
+            <dd>每則 COVID-19 提及會標為 <strong>Moderna</strong>、<strong>Novavax</strong>、<strong>Moderna＋Novavax</strong>（兩者皆被提及，即使只是順帶一提）或<strong>未說明廠牌</strong>。只出現在文章內文的廠牌，與疫苗類型一樣透過廠牌專屬的新聞搜尋找出。廠牌篩選中的 Moderna 與 Novavax 都包含兩者皆提及的項目；非 COVID-19 的項目只在篩選關閉時顯示。</dd>
             <dt>費用來源</dt>
             <dd><strong>公費</strong>：政府計畫，符合資格者免費接種。<strong>自費</strong>：自行付費，例如診所自備的疫苗。<strong>公費＋自費</strong>：項目兩者都提到，即使只是順帶一提。<strong>未說明</strong>：兩者皆未提及。「費用」篩選中的公費與自費，都包含兩者皆談到的項目。</dd>
             <dt>立場量表</dt>
@@ -146,7 +150,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
             <li>Facebook coverage is limited to public pages.</li>
             <li>Threads and Facebook arrive through third-party scrapers that break when platforms change.</li>
             <li>Keyword-based collection misses posts that never name the vaccine or disease. News headlines that name no vaccine are kept only when they came from a vaccine-specific search, and the AI tagger confirms or drops them.</li>
-            <li>News arrives as headlines only. Vaccine types and who pays inside an article are inferred from separate type, brand and 公費 / 自費 searches, which Google matches against the full text.</li>
+            <li>News arrives as headlines only. Vaccine types, COVID-19 brands and who pays inside an article are inferred from separate type, brand and public / self-pay searches, which Google matches against the full text.</li>
             <li>Stance, issue and who-pays tags are AI-generated. Posts collected before 2026-10-11 were labelled for who pays from their paraphrase.</li>
             <li>Volumes count mentions, not people.</li>
           </ul>
@@ -157,7 +161,7 @@ try { var l = new URLSearchParams(location.search).get('lang') || localStorage.g
             <li>Facebook 僅涵蓋公開粉專。</li>
             <li>Threads 與 Facebook 透過第三方爬蟲取得，平台改版時可能失效。</li>
             <li>以關鍵字收集會漏掉從未提及疫苗或疾病名稱的貼文。未提及疫苗的新聞標題，只有來自特定疫苗搜尋時才會保留，並由 AI 標註確認或剔除。</li>
-            <li>新聞僅取得標題。文章內提到的疫苗類型與費用來源，是由另外的類型、品牌與公費／自費搜尋推得（Google 以全文比對）。</li>
+            <li>新聞僅取得標題。文章內提到的疫苗類型、COVID-19 廠牌與費用來源，是由另外的類型、品牌與公費／自費搜尋推得（Google 以全文比對）。</li>
             <li>立場、議題與費用來源標註由 AI 產生。2026-10-11 前收集的貼文，費用來源依其改寫內容判斷。</li>
             <li>聲量計算的是提及次數而非人數。</li>
           </ul>
