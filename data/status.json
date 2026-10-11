@@ -1,16 +1,16 @@
 {
  "analyst": {
-  "input_tokens": 74278,
-  "last_success": "2026-10-10T23:41:22+08:00",
-  "output_tokens": 12477,
-  "seconds": 135.6,
+  "input_tokens": 73944,
+  "last_success": "2026-10-11T08:19:22+08:00",
+  "output_tokens": 12494,
+  "seconds": 118.8,
   "status": "ok"
  },
  "cdc": {
-  "items": 17,
-  "last_success": "2026-10-10T23:06:54+08:00",
+  "items": 1,
+  "last_success": "2026-10-11T08:15:58+08:00",
   "new": 0,
-  "seconds": 52.7,
+  "seconds": 19.4,
   "status": "ok"
  },
  "facebook": {
@@ -21,21 +21,21 @@
   "status": "ok"
  },
  "funding_items": {
-  "batches": 1,
+  "batches": 0,
   "errors": 0,
-  "input_tokens": 6464,
-  "last_success": "2026-10-10T23:38:52+08:00",
-  "output_tokens": 3279,
-  "pending": 60,
-  "seconds": 13.7,
+  "input_tokens": 0,
+  "last_success": "2026-10-11T08:17:24+08:00",
+  "output_tokens": 0,
+  "pending": 0,
+  "seconds": 0.0,
   "status": "ok",
-  "tagged": 60
+  "tagged": 0
  },
  "gnews": {
-  "items": 987,
-  "last_success": "2026-10-10T23:30:00+08:00",
-  "new": 75,
-  "seconds": 668.0,
+  "items": 182,
+  "last_success": "2026-10-11T08:16:49+08:00",
+  "new": 11,
+  "seconds": 46.9,
   "status": "ok"
  },
  "ptt": {
@@ -49,19 +49,19 @@
  "tagger": {
   "batches": 1,
   "errors": 0,
-  "input_tokens": 3491,
-  "last_success": "2026-10-10T23:38:37+08:00",
-  "output_tokens": 2378,
-  "pending": 5,
-  "seconds": 13.0,
+  "input_tokens": 2114,
+  "last_success": "2026-10-11T08:17:24+08:00",
+  "output_tokens": 7344,
+  "pending": 17,
+  "seconds": 32.5,
   "status": "ok",
-  "tagged": 5
+  "tagged": 17
  },
  "tfda": {
   "items": 0,
-  "last_success": "2026-10-10T18:39:43+08:00",
+  "last_success": "2026-10-11T08:16:02+08:00",
   "new": 0,
-  "seconds": 3.9,
+  "seconds": 3.7,
   "status": "ok"
  },
  "threads": {
@@ -72,27 +72,27 @@
   "status": "ok"
  },
  "translator": {
-  "input_tokens": 1254,
-  "last_success": "2026-10-10T23:43:53+08:00",
-  "output_tokens": 613,
-  "seconds": 11.5,
+  "input_tokens": 6104,
+  "last_success": "2026-10-11T08:20:09+08:00",
+  "output_tokens": 5508,
+  "seconds": 46.8,
   "status": "ok",
-  "strings": 6,
-  "translated": 6
+  "strings": 104,
+  "translated": 104
  },
  "wiki": {
   "items": 90,
-  "last_success": "2026-10-10T18:40:28+08:00",
+  "last_success": "2026-10-11T08:16:51+08:00",
   "status": "ok"
  },
  "zh_items": {
   "batches": 0,
   "errors": 0,
   "input_tokens": 0,
-  "last_success": "2026-10-10T23:38:53+08:00",
+  "last_success": "2026-10-11T08:17:24+08:00",
   "output_tokens": 0,
   "pending": 0,
-  "seconds": 0.4,
+  "seconds": 0.0,
   "status": "ok",
   "tagged": 0
  }
