@@ -124,7 +124,7 @@ const hml = v => tr(v, LEVEL_ZH[String(v).toLowerCase()] || v);   // High / Medi
 // Who pays (公費 / 自費). Exclusive labels per item; the filter's 公費 and 自費 views also include "both".
 const FUNDING = ['public', 'self_pay', 'both', 'not_stated'];
 const FUND_TEXT = {
-  public: loc({ v: '--f-pub' }, { label: ['Public', '公費'], badge: ['Public-funded', '公費'] }),
+  public: loc({ v: '--f-pub' }, { label: ['Public', '公費'], badge: ['Publicly funded', '公費'] }),
   self_pay: loc({ v: '--f-self' }, { label: ['Self-pay', '自費'], badge: ['Self-pay', '自費'] }),
   both: loc({ v: '--f-both' }, { label: ['Both', '公費＋自費'], badge: ['Public + self-pay', '公費＋自費'] }),
   not_stated: loc({ v: '--f-ns' }, { label: ['Not stated', '未說明'], badge: ['Not stated', '未說明'] }),
@@ -370,8 +370,8 @@ function filterRow({ source = false, channel = false } = {}) {
       title: v.zh, onclick: () => toggleVac(v.key) }, h('span', { class: 'dot', style: `background:var(--s-${v.key})` }), v.label)));
   row.append(h('div', { class: 'filter' }, h('span', { class: 'filter-label' }, tr('Vaccines', '疫苗')), chips));
   const FUND_TIP = {
-    public: tr('Items that discuss public funding (公費), including those that also discuss self-pay', '談到公費的項目，含同時談到自費者'),
-    self_pay: tr('Items that discuss self-pay (自費), including those that also discuss public funding', '談到自費的項目，含同時談到公費者'),
+    public: tr('Items that discuss public funding, including those that also discuss self-pay', '談到公費的項目，含同時談到自費者'),
+    self_pay: tr('Items that discuss self-pay, including those that also discuss public funding', '談到自費的項目，含同時談到公費者'),
     both: tr('Items that discuss both', '同時談到公費與自費的項目'),
     not_stated: tr('Items that mention neither', '未提及費用來源的項目'),
   };
@@ -792,7 +792,7 @@ function selfPayTile(f, prior) {
   if (!f.total) return kpiTile({ label, value: '–', sub: tr('Appears once AI funding tags exist', 'AI 費用標註完成後顯示') });
   const share = x => (x.self_pay + x.both) / x.total;
   return kpiTile({ label, value: pct(share(f)), delta: prior.total ? deltaPts(share(f), share(prior)) : noPrior(),
-    sub: tr(`Public-funded ${pct((f.public + f.both) / f.total)} · not stated ${pct(f.not_stated / f.total)}`,
+    sub: tr(`Publicly funded ${pct((f.public + f.both) / f.total)} · not stated ${pct(f.not_stated / f.total)}`,
       `公費 ${pct((f.public + f.both) / f.total)} · 未說明 ${pct(f.not_stated / f.total)}`) });
 }
 
@@ -858,7 +858,7 @@ function fundingCards() {
     return { key: v.key, label: v.label, counts, total: sum(counts) };
   });
   const mixCard = chartCard({
-    title: tr('Who pays: 公費 vs 自費 by vaccine', '誰付費：各疫苗的公費與自費討論'),
+    title: tr('Who pays: publicly funded vs self-pay, by vaccine', '誰付費：各疫苗的公費與自費討論'),
     subtitle: tr(`Share of each vaccine’s mentions, last ${r} days, by the funding they discuss. “Both” means an item mentions public funding and self-pay.${filtered}`,
       `近 ${r} 天各疫苗提及中談到的費用來源比例。「公費＋自費」表示同一項目兩者都提到。${filtered}`),
     legend: fundLegend(MIX_ORDER),
@@ -874,7 +874,7 @@ function fundingCards() {
     { key: 'self', label: FUND_TEXT.self_pay.badge, color: 'var(--f-self)', values: avg7(self).slice(lo) },
   ];
   const trendCard = chartCard({
-    title: tr('公費 and 自費 conversation over time', '公費與自費討論趨勢'),
+    title: tr('Publicly funded and self-pay conversation over time', '公費與自費討論趨勢'),
     subtitle: tr(`Daily mentions that discuss each, 7-day average, selected vaccines. Items that discuss both count in both lines.${filtered}`,
       `所選疫苗中談到公費或自費的每日提及數（7 日平均）。兩者都談到的項目兩條線都計入。${filtered}`),
     legend: h('div', { class: 'legend' }, series.map(s => h('span', { class: 'legend-item' },
@@ -1131,7 +1131,7 @@ function renderLens(root) {
           h('div', { class: 'muted small' }, L(x, 'note'))))) : emptyState(tr('Nothing flagged.', '目前沒有需標記的議題。'))),
       h('section', { class: 'card' },
         h('h3', { class: 'card-title' }, tr('Self-pay market watch', '自費市場觀察')),
-        h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Clinic stock, prices and private demand outside the public programme (自費).',
+        h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Clinic stock, prices and private demand outside the public programme.',
           '公費計畫以外的診所庫存、價格與自費需求。')),
         (LENS.self_pay || []).length ? h('ul', { class: 'feed' }, LENS.self_pay.map(x => h('li', null,
           h('strong', null, L(x, 'title')),
@@ -1198,8 +1198,8 @@ function route() {
 
 const THEMES = ['auto', 'light', 'dark'];
 const THEME_TEXT = { auto: ['Auto', '自動'], light: ['Light', '淺色'], dark: ['Dark', '深色'] };
-let theme = 'auto';
-try { theme = localStorage.getItem('radar-theme') || 'auto'; } catch (e) { /* storage unavailable */ }
+let theme = 'light';   // default for every visitor; a choice made with the theme button is remembered
+try { theme = localStorage.getItem('radar-theme') || 'light'; } catch (e) { /* storage unavailable */ }
 function applyTheme() {
   if (theme === 'auto') delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = theme;
