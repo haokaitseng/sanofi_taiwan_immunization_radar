@@ -149,8 +149,9 @@ const inBrand = b => state.brand === 'all' || (!!b && BRAND_VIEWS[state.brand].i
 /* =========================================================
    Data
    ========================================================= */
-let D = null, LENS = null, N = 0, DATES = [], VACCINES = [], VAC_KEYS = [], VAC = {};
-const state = { view: 'today', range: 90, vac: new Set(), source: 'all', channel: 'all', funding: 'all', brand: 'all' };
+let D = null, LENS = null, N = 0, DATES = [], VACCINES = [], VAC_KEYS = [], VAC = {}, PLACES = [], PLACE_IDX = {}, DATA_BASE = '';
+const state = { view: 'today', range: 90, vac: new Set(), source: 'all', channel: 'all', funding: 'all', brand: 'all',
+  place: 'all', placeMetric: 'count' };
 
 function useData(data) {
   D = data;
@@ -159,12 +160,22 @@ function useData(data) {
   VACCINES = D.vaccines.map(v => loc({ key: v.key, zh: v.zh }, VAC_TEXT[v.key] || { label: [v.label, v.label], short: [v.label, v.label] }));
   VAC_KEYS = VACCINES.map(v => v.key);
   VAC = Object.fromEntries(VACCINES.map(v => [v.key, v]));
+  PLACES = D.counties || [];
+  PLACE_IDX = Object.fromEntries(PLACES.map((c, i) => [c.code, i]));
   state.vac = new Set(VAC_KEYS);
 }
 // The conversation arrives as coded rows [day, vaccine bits, channel, stance, issue bits, funding, brand]
 // (build.py _row; -1 = none). Charts are computed here, so the who-pays and brand filters combine freely.
 const rowFund = r => D.keys.funding[r[5]];
 const rowBrand = r => (r[6] >= 0 ? D.keys.brands[r[6]] : '');
+const rowPlaces = r => r[7] || 0;
+// Place filter: items about the chosen city or county. National items (no place) show only while it is off.
+const inPlaceBits = bits => state.place === 'all' || !!(bits & (1 << PLACE_IDX[state.place]));
+const inPlace = codes => state.place === 'all' || (codes || []).includes(state.place);
+const shortEn = en => (/^(Hsinchu|Chiayi) /.test(en) ? en : en.replace(/ (City|County)$/, ''));
+const placeOf = code => PLACES[PLACE_IDX[code]];
+const placeName = code => (placeOf(code) ? tr(shortEn(placeOf(code).en), placeOf(code).zh) : code);
+const placeLong = code => (placeOf(code) ? tr(placeOf(code).en, placeOf(code).zh) : code);
 const mixOf = rows => {      // stance shares among tagged rows; null below 5, like the old server-side figures
   const c = [0, 0, 0, 0, 0];
   let t = 0;
@@ -216,13 +227,13 @@ function aggregate(keep) {
 const AGG_CACHE = new Map();
 // Aggregates under the current filters (who pays, COVID-19 brand); the whole conversation when both are off.
 function AGG() {
-  const key = `${state.funding}|${state.brand}`;
-  if (!AGG_CACHE.has(key)) AGG_CACHE.set(key, aggregate(r => inFund(rowFund(r)) && inBrand(rowBrand(r))));
+  const key = `${state.funding}|${state.brand}|${state.place}`;
+  if (!AGG_CACHE.has(key)) AGG_CACHE.set(key, aggregate(r => inFund(rowFund(r)) && inBrand(rowBrand(r)) && inPlaceBits(rowPlaces(r))));
   return AGG_CACHE.get(key);
 }
 const avg7 = a => a.map((_, i) => sum(a.slice(Math.max(0, i - 6), i + 1)) / Math.min(7, i + 1));
 const AVG_CACHE = {};
-const avgOf = k => (AVG_CACHE[`${state.funding}|${state.brand}:${k}`] ||= avg7(AGG().series[k]));
+const avgOf = k => (AVG_CACHE[`${state.funding}|${state.brand}|${state.place}:${k}`] ||= avg7(AGG().series[k]));
 const selKeys = () => VAC_KEYS.filter(k => state.vac.has(k));
 const volume = (k, r, prior = false) => {
   const s = AGG().series[k];
@@ -230,8 +241,8 @@ const volume = (k, r, prior = false) => {
 };
 // Who-pays views count one mention per vaccine group (like the volume figures) and honour the brand filter;
 // brand views count each COVID-19 item once and honour the who-pays filter. Neither applies its own filter.
-const fundKeep = row => inBrand(rowBrand(row));
-const brandKeep = row => row[6] >= 0 && inFund(rowFund(row));
+const fundKeep = row => inBrand(rowBrand(row)) && inPlaceBits(rowPlaces(row));
+const brandKeep = row => row[6] >= 0 && inFund(rowFund(row)) && inPlaceBits(rowPlaces(row));
 function fundByVaccine(lo, hi) {
   const out = Object.fromEntries(D.keys.vaccines.map(v => [v, [0, 0, 0, 0]]));
   for (const row of D.rows) {
@@ -264,11 +275,11 @@ function brandDaily(cats) {
 }
 // A narrative's daily series and net stance under the filters, re-counted from its per-item marks.
 function narrView(n) {
-  if ((state.funding === 'all' && state.brand === 'all') || !n.marks) return { series: n.series, net: n.net, total: n.mentions };
+  if ((state.funding === 'all' && state.brand === 'all' && state.place === 'all') || !n.marks) return { series: n.series, net: n.net, total: n.mentions };
   const series = new Array(N).fill(0);
   let pos = 0, neg = 0, total = 0;
-  for (const [i, f, s, b] of n.marks) {
-    if (!inFund(FUND_CODE[f]) || !inBrand(BRAND_CODE[b] || '')) continue;
+  for (const [i, f, s, b, pb] of n.marks) {
+    if (!inFund(FUND_CODE[f]) || !inBrand(BRAND_CODE[b] || '') || !inPlaceBits(pb || 0)) continue;
     series[i]++; total++;
     if (s === 'a' || s === 'v') pos++;
     else if (s === 'o' || s === 'h') neg++;
@@ -293,7 +304,7 @@ function weekly(fn, weeks = 12) {
 }
 function computeKpis() {
   const keys = selKeys(), r = state.range;
-  const pol = D.policy.filter(p => p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand));
+  const pol = D.policy.filter(p => p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand) && inPlace(p.places));
   const cur = pol.filter(p => inRange(p.date, r)), pri = pol.filter(p => inPrior(p.date, r));
   const hes = prior => {
     let num = 0, den = 0;
@@ -405,6 +416,9 @@ const fundBadge = f => (FUND_TEXT[f] && f !== 'not_stated'
   ? h('span', { class: 'fund', title: tr('Who pays, as discussed by the item', '此項目談到的費用來源') }, FUND_TEXT[f].badge) : null);
 const brandBadge = b => (BRAND_TEXT[b] && b !== 'not_stated'
   ? h('span', { class: 'fund', title: tr('COVID-19 vaccine brand named by the item', '此項目點名的 COVID-19 疫苗廠牌') }, BRAND_TEXT[b].badge) : null);
+const placeBadge = codes => (codes && codes.length
+  ? h('span', { class: 'fund', title: tr('City or county the item is about', '此項目談到的縣市') },
+    codes.slice(0, 2).map(placeName).join(tr(', ', '、')) + (codes.length > 2 ? ` +${codes.length - 2}` : '')) : null);
 const lineLegend = series => h('div', { class: 'legend' }, series.map(s => h('span', { class: 'legend-item' },
   h('span', { class: 'key-line', style: s.dash ? `background:repeating-linear-gradient(90deg,${s.color} 0 5px,transparent 5px 8px)` : `background:${s.color}` }),
   s.label)));
@@ -490,6 +504,12 @@ function filterRow({ source = false, channel = false } = {}) {
     type: 'button', role: 'radio', 'aria-checked': String(state.brand === k), 'data-fkey': `brand-${k}`, title: BRAND_TIP[k] || null,
     onclick: () => setState({ brand: k }) }, k === 'all' ? tr('All', '全部') : BRAND_TEXT[k].label));
   row.append(h('div', { class: 'filter' }, h('span', { class: 'filter-label' }, tr('COVID-19 brand', 'COVID-19 廠牌')), bseg));
+  if (PLACES.length) {
+    const psel = h('select', { 'aria-label': tr('Place', '地區'), 'data-fkey': 'place', onchange: e => setState({ place: e.target.value }) },
+      h('option', { value: 'all' }, tr('All places', '全部地區')), PLACES.map(c => h('option', { value: c.code }, placeLong(c.code))));
+    psel.value = state.place;
+    row.append(h('div', { class: 'filter' }, h('span', { class: 'filter-label' }, tr('Place', '地區')), psel));
+  }
   if (source) {
     const s2 = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': tr('Source', '來源') });
     for (const [k, label] of [['all', tr('All', '全部')], ['cdc', sourceName('cdc')], ['tfda', sourceName('tfda')]]) s2.append(h('button', {
@@ -868,11 +888,11 @@ function briefCard() {
           '首次 AI 分析完成後，這裡會顯示每日簡報；在此之前先列出最新的官方公告與新聞標題。')))),
       h('ol', { class: 'brief-list' },
         latestPolicy.map(p => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand), h('span', null, fmtDate(asDate(p.date)))),
+          h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand), placeBadge(p.places), h('span', null, fmtDate(asDate(p.date)))),
           h('h3', { class: 'brief-h' }, extLink(p.url, policyTitle(p))),
           !ZH() && p.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, p.title_zh) : null)),
         heads.map(n => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge('media'), n.vaccines.map(vacChip), fundBadge(n.funding), brandBadge(n.brand), h('span', null, `${n.outlet} · ${fmtDate(asDate(n.date))}`)),
+          h('div', { class: 'meta-row' }, typeBadge('media'), n.vaccines.map(vacChip), fundBadge(n.funding), brandBadge(n.brand), placeBadge(n.places), h('span', null, `${n.outlet} · ${fmtDate(asDate(n.date))}`)),
           h('h3', { class: 'brief-h' }, extLink(n.url, ZH() ? n.title : n.title_en || n.title)),
           !ZH() && n.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, n.title) : null))));
   }
@@ -886,7 +906,7 @@ function briefCard() {
     h('div', { class: 'brief-body' },
       h('div', null,
         h('ol', { class: 'brief-list' }, b.entries.map(e => h('li', { class: 'brief-item' },
-          h('div', { class: 'meta-row' }, typeBadge(e.type), e.vaccines.map(vacChip), fundBadge(e.funding), brandBadge(e.brand), h('span', null, tr(`Confidence: ${e.confidence}`, `可信度：${hml(e.confidence)}`))),
+          h('div', { class: 'meta-row' }, typeBadge(e.type), e.vaccines.map(vacChip), fundBadge(e.funding), brandBadge(e.brand), placeBadge(e.places), h('span', null, tr(`Confidence: ${e.confidence}`, `可信度：${hml(e.confidence)}`))),
           h('h3', { class: 'brief-h' }, L(e, 'headline')),
           !ZH() && e.zh ? h('p', { class: 'zh', lang: 'zh-TW' }, e.zh) : null,
           whyLine(L(e, 'why')),
@@ -934,7 +954,7 @@ function volumeCard() {
   const r = state.range, lo = N - r, dates = DATES.slice(lo);
   const sel = VACCINES.filter(v => state.vac.has(v.key));
   const series = sel.map(v => ({ key: v.key, label: v.label, color: `var(--s-${v.key})`, values: avgOf(v.key).slice(lo) }));
-  const events = D.policy.filter(p => p.marker && p.date >= D.dates[lo] && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand))
+  const events = D.policy.filter(p => p.marker && p.date >= D.dates[lo] && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand) && inPlace(p.places))
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((p, j) => ({ n: j + 1, i: D.dates.indexOf(p.date) - lo, date: asDate(p.date), title: shortPolicyTitle(p), source: sourceName(p.source), url: p.url }))
     .filter(e => e.i >= 0);
@@ -1047,17 +1067,194 @@ function brandCards() {
   return h('div', { class: 'grid-2' }, shareCard, trendCard);
 }
 
+/* Where in Taiwan: a choropleth of mentions about each city or county, with a top-places list. */
+const MIN_RATED = 10;                     // below this, a per-100k rate is not shown: single-digit counts aren't comparable
+const SMALL_PLACES = new Set(['TPE', 'KEE', 'HSZ', 'CYI', 'PEN']);   // get a larger invisible hit target
+let GEO = null, GEO_LOADING = null;
+const loadGeo = () => (GEO_LOADING ||= fetch(DATA_BASE + 'data/taiwan-counties.json', { cache: 'no-cache' })
+  .then(r => (r.ok ? r.json() : null)).then(g => { GEO = g || false; }).catch(() => { GEO = false; }));
+
+// Mentions about each place over the selected vaccines, under the who-pays and brand filters (not its own).
+function placeStats(r = state.range) {
+  const lo = N - r, plo = Math.max(0, N - 2 * r);
+  const bits = selKeys().map(k => 1 << D.keys.vaccines.indexOf(k));
+  const P = PLACES.map(c => ({ code: c.code, pop: c.pop, cur: 0, prior: 0, vac: {}, iss: D.keys.issues.map(() => 0), tagged: 0 }));
+  let named = 0, total = 0;
+  for (const row of D.rows) {
+    if (row[0] < plo || !bits.some(b => row[1] & b) || !inFund(rowFund(row)) || !inBrand(rowBrand(row))) continue;
+    const cur = row[0] >= lo, pb = rowPlaces(row);
+    if (cur) total++;
+    if (!pb) continue;
+    if (cur) named++;
+    P.forEach((s, i) => {
+      if (!(pb & (1 << i))) return;
+      if (!cur) { s.prior++; return; }
+      s.cur++;
+      D.keys.vaccines.forEach((v, j) => { if ((row[1] & (1 << j)) && state.vac.has(v)) s.vac[v] = (s.vac[v] || 0) + 1; });
+      if (row[4] >= 0) { s.tagged++; D.keys.issues.forEach((_, k) => { if (row[4] & (1 << k)) s.iss[k]++; }); }
+    });
+  }
+  for (const s of P) {
+    s.rate = s.cur / s.pop * 1e5;
+    s.topVac = Object.entries(s.vac).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+    const top = Math.max(0, ...s.iss);
+    s.topIssue = top > 0 ? s.iss.indexOf(top) : -1;
+  }
+  return { P, named, total };
+}
+// Up to five classes from quantiles of the non-zero values, on the sequential blue ramp.
+function classBreaks(values) {
+  const v = values.filter(x => x > 0).sort((a, b) => a - b);
+  const out = [];
+  for (const q of [0.2, 0.4, 0.6, 0.8]) {
+    const t = v.length ? v[Math.min(v.length - 1, Math.floor(q * v.length))] : 0;
+    if (t > 0 && (!out.length || t > out[out.length - 1])) out.push(t);
+  }
+  if (out.length && v.length && out[out.length - 1] >= v[v.length - 1]) out.pop();
+  return out;
+}
+const placeChange = s => (!hasPrior() ? '–' : s.prior === 0 ? (s.cur ? tr('New', '新') : '–')
+  : `${s.cur >= s.prior ? '+' : '−'}${Math.abs(Math.round((s.cur - s.prior) / s.prior * 100))}%`);
+const pickPlace = code => setState({ place: state.place === code ? 'all' : code });
+
+function placeMapSvg(host, stats, metric) {
+  host.replaceChildren();
+  if (GEO === null) {
+    host.append(h('p', { class: 'muted small' }, tr('Loading map…', '地圖載入中…')));
+    loadGeo().then(() => { if (state.view === 'social') renderCurrent(); });
+    return null;
+  }
+  if (!GEO) { host.append(emptyState(tr('The map could not be loaded.', '無法載入地圖。'))); return null; }
+  const val = s => (metric === 'rate' ? (s.cur >= MIN_RATED ? s.rate : null) : s.cur);
+  const breaks = classBreaks(stats.P.map(val).filter(x => x != null));
+  const K = breaks.length + 1;
+  const step = c => Math.round(1 + (c - 1) * 4 / Math.max(1, K - 1));      // spread the classes over seq-1..seq-5
+  const cls = v => (v == null ? -1 : v <= 0 ? 0 : 1 + breaks.filter(b => v > b).length);
+  const [vw, vh] = GEO.viewBox;
+  const W = Math.min(Math.max(240, Math.floor(host.clientWidth)), 440), H = Math.round(W * vh / vw);
+  const svg = sv('svg', { width: W, height: H, viewBox: `0 0 ${vw} ${vh}`, class: 'chart map', role: 'group',
+    'aria-label': tr('Map of Taiwan by city and county. Use Tab to move between places and Enter to filter.', '台灣各縣市地圖。可用 Tab 鍵切換縣市，按 Enter 篩選。') });
+  const pid = `hatch-${++patternSeq}`;
+  svg.append(sv('defs', null, sv('pattern', { id: pid, width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' },
+    sv('rect', { width: 5, height: 5, style: 'fill:var(--surface-2)' }), sv('rect', { width: 1.4, height: 5, style: 'fill:var(--text-3)' }))));
+  const fillOf = s => {
+    const c = cls(val(s));
+    if (c < 0) return s.cur > 0 ? `url(#${pid})` : 'var(--surface-2)';
+    return c === 0 ? 'var(--surface-2)' : `var(--seq-${step(c)})`;
+  };
+  const describe = s => tr(`${placeLong(s.code)}: ${fmt(s.cur)} mentions${s.cur >= MIN_RATED ? `, ${s.rate.toFixed(1)} per 100,000 residents` : ''}`,
+    `${placeLong(s.code)}：${fmt(s.cur)} 則提及${s.cur >= MIN_RATED ? `，每10萬人 ${s.rate.toFixed(1)}` : ''}`);
+  const bind = (el, s) => {
+    hoverTip(el, () => [{ value: fmt(s.cur), label: tr('mentions', '則提及') },
+      { value: s.cur >= MIN_RATED ? s.rate.toFixed(1) : '–', label: tr('per 100,000 residents', '每10萬人') },
+      { value: placeChange(s), label: tr(`vs prior ${state.range} days`, `較前 ${state.range} 天`) }], placeLong(s.code));
+    el.addEventListener('click', () => pickPlace(s.code));
+  };
+  for (const ins of GEO.insets || []) {       // Kinmen and Matsu: the whole inset box is the target
+    const [x, y, w, hh] = ins.box, s = stats.P.find(p => p.code === ins.code);
+    if (!s) continue;
+    // the islands are specks at this size, so a colour chip beside the label carries the county's value
+    const frame = sv('g', { class: 'map-inset', 'aria-hidden': 'true' },
+      sv('rect', { x, y, width: w, height: hh, class: 'inset-frame' }),
+      sv('rect', { x: x + 5, y: y + 4, width: 9, height: 9, rx: 2, class: 'inset-chip', style: `fill:${fillOf(s)}` }),
+      sv('text', { x: x + 18, y: y + 11, class: 'inset-label', text: placeName(ins.code) }));
+    bind(frame, s);
+    svg.append(frame);
+  }
+  const order = [...stats.P].sort((a, b) => (a.code === state.place) - (b.code === state.place));
+  for (const s of order) {
+    const geo = GEO.counties[s.code];
+    if (!geo) continue;
+    const g = sv('g', { class: `map-county${state.place === s.code ? ' selected' : ''}`, tabindex: 0, role: 'button',
+      'aria-pressed': String(state.place === s.code), 'aria-label': describe(s) }, sv('path', { d: geo.d, style: `fill:${fillOf(s)}` }));
+    if (SMALL_PLACES.has(s.code)) g.append(sv('circle', { cx: geo.c[0], cy: geo.c[1], r: 9, class: 'hit' }));
+    bind(g, s);
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickPlace(s.code); } });
+    svg.append(g);
+  }
+  host.append(svg);
+  return { breaks, step };
+}
+function placeLegend(res, metric) {
+  if (!res) return null;
+  const { breaks, step } = res, fmtV = v => (metric === 'rate' ? v.toFixed(1) : fmt(v));
+  const items = [h('span', { class: 'legend-item' }, h('span', { class: 'key-rect', style: 'background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--grid)' }), tr('None', '無'))];
+  const bounds = [metric === 'rate' ? 0 : 1, ...breaks];
+  bounds.forEach((lo, i) => {
+    const hi = breaks[i];
+    let text;
+    if (metric === 'rate') text = hi == null ? (i ? `> ${fmtV(lo)}` : tr('Any', '皆有')) : (i ? `${fmtV(lo)}–${fmtV(hi)}` : `≤ ${fmtV(hi)}`);
+    else { const a = i ? lo + 1 : lo; text = hi == null ? `${fmt(a)}+` : a === hi ? fmt(a) : `${fmt(a)}–${fmt(hi)}`; }
+    items.push(h('span', { class: 'legend-item' }, h('span', { class: 'key-rect', style: `background:var(--seq-${step(i + 1)})` }), text));
+  });
+  if (metric === 'rate') items.push(h('span', { class: 'legend-item' }, h('span', { class: 'key-rect key-hatch' }), tr(`Too few mentions (under ${MIN_RATED})`, `提及數太少（少於 ${MIN_RATED} 則）`)));
+  return h('div', { class: 'legend map-legend' }, items);
+}
+function placeList(stats, metric) {
+  const val = s => (metric === 'rate' ? (s.cur >= MIN_RATED ? s.rate : -1) : s.cur);
+  const top = stats.P.filter(s => s.cur > 0).sort((a, b) => val(b) - val(a) || b.cur - a.cur).slice(0, 8);
+  if (!top.length) return emptyState(tr('No mentions about a specific city or county in this range.', '此期間沒有與特定縣市有關的提及。'));
+  return h('div', { class: 'table-wrap' }, h('table', { class: 'data-table place-table' },
+    h('thead', null, h('tr', null, h('th', { scope: 'col' }, tr('Place', '縣市')), h('th', { scope: 'col', class: 'num' }, tr('Mentions', '提及數')),
+      h('th', { scope: 'col', class: 'num' }, tr('Per 100k', '每10萬人')), h('th', { scope: 'col', class: 'num' }, tr('Change', '變化')),
+      h('th', { scope: 'col' }, tr('Leading', '主要')))),
+    h('tbody', null, top.map(s => h('tr', { class: state.place === s.code ? 'is-selected' : null },
+      h('th', { scope: 'row' }, h('button', { type: 'button', class: 'linklike', 'aria-pressed': String(state.place === s.code),
+        title: tr('Filter the page to this place', '以此縣市篩選整頁'), onclick: () => pickPlace(s.code) }, placeName(s.code))),
+      h('td', { class: 'num' }, fmt(s.cur)),
+      h('td', { class: 'num' }, s.cur >= MIN_RATED ? s.rate.toFixed(1) : '–'),
+      h('td', { class: 'num' }, placeChange(s)),
+      h('td', null, h('span', { class: 'chips-inline' }, s.topVac ? vacChip(s.topVac) : null,
+        s.topIssue >= 0 ? h('span', { class: 'muted small' }, ISSUES[s.topIssue].short) : null)))))));
+}
+function placeCard() {
+  if (!PLACES.length || !D.rows) return null;
+  const r = state.range, stats = placeStats(r), metric = state.placeMetric;
+  const share = stats.total ? stats.named / stats.total : 0;
+  const filtered = state.place !== 'all' ? tr(' The Place filter does not apply to this map.', '「地區」篩選不適用於此地圖。') : '';
+  const seg = h('div', { class: 'seg', role: 'radiogroup', 'aria-label': tr('Map shows', '地圖顯示') },
+    [['count', tr('Mentions', '提及數')], ['rate', tr('Per 100,000 residents', '每10萬人')]].map(([k, label]) => h('button', {
+      type: 'button', role: 'radio', 'aria-checked': String(metric === k), 'data-fkey': `pmetric-${k}`, onclick: () => setState({ placeMetric: k }) }, label)));
+  const selected = state.place !== 'all' ? h('button', { type: 'button', class: 'btn-ghost', onclick: () => setState({ place: 'all' }) },
+    tr(`Showing ${placeName(state.place)} ✕`, `目前：${placeName(state.place)} ✕`)) : null;
+  return chartCard({
+    title: tr('Where in Taiwan', '台灣各地的討論'),
+    subtitle: tr(`Mentions about each city or county, last ${r} days, under the other filters. ${pct(share)} of mentions are about a specific place; national items are not mapped. Click a county or a row to filter the page.${filtered}`,
+      `近 ${r} 天各縣市的相關提及（套用其他篩選條件）。${pct(share)}的提及與特定縣市有關；全國性的項目不列入地圖。點選縣市或列表可篩選整頁。${filtered}`),
+    legend: h('div', { class: 'map-controls' }, h('span', { class: 'filter-label' }, tr('Map shows', '地圖顯示')), seg, selected),
+    draw: host => {
+      host.replaceChildren();
+      const mapEl = h('div', { class: 'map-svg' }), legendSlot = h('div');
+      host.append(h('div', { class: 'map-wrap' },
+        h('div', { class: 'map-col' }, legendSlot, mapEl),
+        h('div', { class: 'map-side' }, h('h4', { class: 'map-side-title' }, metric === 'rate' ? tr('Top places per 100,000 residents', '每10萬人提及最多的縣市') : tr('Top places by mentions', '提及最多的縣市')),
+          placeList(stats, metric))));
+      const legend = placeLegend(placeMapSvg(mapEl, stats, metric), metric);
+      if (legend) legendSlot.replaceWith(legend);
+    },
+    table: () => dataTable([tr('Place', '縣市'), tr('Mentions', '提及數'), tr('Per 100,000 residents', '每10萬人'), tr('Previous period', '前一期間'),
+      tr('Leading vaccine', '主要疫苗'), tr('Leading issue', '主要議題')],
+      [...stats.P].sort((a, b) => b.cur - a.cur).map(s => [placeLong(s.code), fmt(s.cur), s.cur >= MIN_RATED ? s.rate.toFixed(1) : '–', fmt(s.prior),
+        s.topVac ? VAC[s.topVac].label : '–', s.topIssue >= 0 ? ISSUES[s.topIssue].long : '–']), [1, 2, 3]),
+    after: h('div', null,
+      metric === 'rate' ? h('p', { class: 'chart-note' }, tr(`Per-100,000 rates favour small counties, because local news covers them whatever their size; counties with fewer than ${MIN_RATED} mentions get no rate.`,
+        `每10萬人比率較有利於人口少的縣市，因為地方新聞不論縣市大小都會報導；提及數少於 ${MIN_RATED} 則的縣市不計算比率。`)) : null,
+      h('p', { class: 'chart-note' }, tr('Boundaries: Ministry of the Interior, via taiwan-atlas. Population: Ministry of the Interior, end of July 2026.',
+        '縣市界線：內政部（經 taiwan-atlas 整理）。人口：內政部，2026年7月底。'))),
+  });
+}
+
 // Links for cross-checking a narrative against its sources: up to two items under the current filters, newest
 // article and newest post first. The link shows the source name only; the headline (or paraphrase) is the hover text.
 function narrExamples(n) {
-  const matches = (Array.isArray(n.examples) ? n.examples : []).filter(ex => inFund(ex.funding) && inBrand(ex.brand));
+  const matches = (Array.isArray(n.examples) ? n.examples : []).filter(ex => inFund(ex.funding) && inBrand(ex.brand) && inPlace(ex.places));
   const list = [matches.find(ex => ex.kind === 'media'), matches.find(ex => ex.kind === 'social')].filter(Boolean);
   for (const ex of matches) if (list.length < 2 && !list.includes(ex)) list.push(ex);
   if (list.length === 2 && list[0].label === list[1].label) list.pop();
   if (!list.length) return null;
   return h('div', { class: 'narr-ex' }, h('span', { class: 'narr-ex-label' }, tr('Read: ', '原文：')),
     list.map((ex, i) => {
-      const badges = [fundBadge(ex.funding), brandBadge(ex.brand)].filter(Boolean);
+      const badges = [fundBadge(ex.funding), brandBadge(ex.brand), placeBadge(ex.places)].filter(Boolean);
       return h('span', { class: 'narr-ex-item' }, i ? h('span', { 'aria-hidden': 'true' }, ' · ') : null,
         h('a', { href: ex.url, target: '_blank', rel: 'noopener noreferrer', title: ZH() ? ex.t_zh : ex.t_en }, citeLabel(ex.label)),
         badges.map(b => [' ', b]));
@@ -1129,7 +1326,7 @@ function renderToday(root) {
 
 function renderPolicy(root) {
   const items = D.policy.filter(p => inRange(p.date) && p.vaccines.some(v => state.vac.has(v))
-    && (state.source === 'all' || p.source === state.source) && inFund(p.funding) && inBrand(p.brand));
+    && (state.source === 'all' || p.source === state.source) && inFund(p.funding) && inBrand(p.brand) && inPlace(p.places));
   const counts = {};
   items.forEach(p => { counts[p.type] = (counts[p.type] || 0) + 1; });
   const watch = (D.brief && D.brief.watch) || [];
@@ -1147,7 +1344,7 @@ function renderPolicy(root) {
         items.length ? h('ol', { class: 'timeline' }, items.map(p => h('li', { class: 'tl-item' },
           h('div', { class: 'tl-date' }, h('time', { datetime: p.date }, fmtDate(asDate(p.date)))),
           h('div', null,
-            h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), h('span', { class: 'tag' }, policyType(p.type)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand)),
+            h('div', { class: 'meta-row' }, typeBadge('policy', sourceName(p.source)), h('span', { class: 'tag' }, policyType(p.type)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand), placeBadge(p.places)),
             h('h4', { class: 'tl-title' }, policyTitle(p)),
             !ZH() && p.title_en ? h('p', { class: 'zh', lang: 'zh-TW' }, p.title_zh) : null,
             L(p, 'summary') ? h('p', { class: 'why' }, L(p, 'summary')) : null,
@@ -1208,15 +1405,16 @@ function attentionRow() {
 function renderSocial(root) {
   const keys = selKeys();
   const spikes = AGG().spikes.filter(s => state.vac.has(s.vaccine) && inRange(s.date));
-  const rebuttals = D.policy.filter(p => ['Clarification', 'Rumour rebuttal'].includes(p.type) && inRange(p.date) && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand));
-  const mis = D.misinfo.filter(x => state.vac.has(x.vaccine) && inFund(x.funding) && inBrand(x.brand));
-  const voices = D.voices.filter(v => state.vac.has(v.vaccine) && (state.channel === 'all' || v.channel === state.channel) && inFund(v.funding) && inBrand(v.brand));
+  const rebuttals = D.policy.filter(p => ['Clarification', 'Rumour rebuttal'].includes(p.type) && inRange(p.date) && p.vaccines.some(v => state.vac.has(v)) && inFund(p.funding) && inBrand(p.brand) && inPlace(p.places));
+  const mis = D.misinfo.filter(x => state.vac.has(x.vaccine) && inFund(x.funding) && inBrand(x.brand) && inPlace(x.places));
+  const voices = D.voices.filter(v => state.vac.has(v.vaccine) && (state.channel === 'all' || v.channel === state.channel) && inFund(v.funding) && inBrand(v.brand) && inPlace(v.places));
   const LEVEL = { monitor: ['good', tr('Monitor', '持續監測')], watch: ['warning', tr('Watch', '密切關注')], respond: ['serious', tr('Respond', '需要回應')] };
   root.replaceChildren(
     viewHead(tr('Social listening', '社群輿情'), tr('Aggregated public conversation on PTT, Threads and comments on public Facebook pages, plus news coverage. Posts are paraphrased and no usernames are stored.',
       '彙整 PTT、Threads 與 Facebook 公開粉專留言中的公開討論，以及新聞報導。貼文均經改寫，不儲存任何使用者名稱。')),
     filterRow({ channel: true }),
     channelCard(),
+    placeCard(),
     attentionRow() || '',
     narrativesCard(),
     h('div', { class: 'grid-2' },
@@ -1233,18 +1431,18 @@ function renderSocial(root) {
         mis.length || rebuttals.length ? h('ul', { class: 'feed' },
           mis.map(x => h('li', null,
             h('strong', null, L(x, 'claim')),
-            h('div', { class: 'meta-row' }, vacChip(x.vaccine), fundBadge(x.funding), brandBadge(x.brand), x.mentions != null ? h('span', null, tr(`${x.mentions} mentions in 7 days`, `7 天內 ${x.mentions} 則提及`)) : null, x.trend ? h('span', null, x.trend) : null,
+            h('div', { class: 'meta-row' }, vacChip(x.vaccine), fundBadge(x.funding), brandBadge(x.brand), placeBadge(x.places), x.mentions != null ? h('span', null, tr(`${x.mentions} mentions in 7 days`, `7 天內 ${x.mentions} 則提及`)) : null, x.trend ? h('span', null, x.trend) : null,
               h('span', { class: 'status' }, statusIcon((LEVEL[x.level] || LEVEL.monitor)[0]), (LEVEL[x.level] || LEVEL.monitor)[1])),
             L(x, 'note') ? h('div', { class: 'muted small' }, L(x, 'note')) : null)),
           rebuttals.map(p => h('li', null,
-            h('div', { class: 'meta-row' }, typeBadge('policy', tr(`${sourceName(p.source)} rebuttal`, `${sourceName(p.source)}澄清`)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand), h('span', null, fmtDate(asDate(p.date)))),
+            h('div', { class: 'meta-row' }, typeBadge('policy', tr(`${sourceName(p.source)} rebuttal`, `${sourceName(p.source)}澄清`)), p.vaccines.map(vacChip), fundBadge(p.funding), brandBadge(p.brand), placeBadge(p.places), h('span', null, fmtDate(asDate(p.date)))),
             extLink(p.url, policyTitle(p)))))
           : emptyState(tr('No claims or rebuttals for these vaccines in this range.', '此期間這些疫苗沒有假訊息或官方澄清。')))),
     h('section', { class: 'card' },
       h('h3', { class: 'card-title' }, tr('What people are saying', '民眾怎麼說')),
       h('p', { class: 'card-sub', style: 'margin-bottom:12px' }, tr('Representative posts, paraphrased by the AI tagger. Links open the public post.', '具代表性的貼文，由AI改寫。')),
       voices.length ? h('div', { class: 'voices' }, voices.map(v => h('article', { class: 'voice' },
-        h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, channelShort(v.channel)), vacChip(v.vaccine), stanceChip(v.stance), fundBadge(v.funding), brandBadge(v.brand)),
+        h('div', { class: 'meta-row' }, h('strong', { style: 'color:var(--text-1)' }, channelShort(v.channel)), vacChip(v.vaccine), stanceChip(v.stance), fundBadge(v.funding), brandBadge(v.brand), placeBadge(v.places)),
         h('p', null, L(v, 'text')),
         v.url ? h('p', { class: 'small' }, extLink(v.url, tr('View post', '查看貼文'))) : null)))
         : D.voices.length
@@ -1418,6 +1616,7 @@ async function boot() {
   document.querySelectorAll('[data-lang-set]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.langSet)));
   const isLens = document.body.dataset.page === 'lens';
   const base = isLens ? '../' : '';
+  DATA_BASE = base;
   try {
     const res = await fetch(base + 'data/latest.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1449,6 +1648,7 @@ async function boot() {
       requestAnimationFrame(() => $('#tab-' + next).focus());
     });
     window.addEventListener('hashchange', route);
+    loadGeo();          // map shapes for the Social listening card, fetched in the background
     route();
   }
   let lastW = 0, raf = 0;

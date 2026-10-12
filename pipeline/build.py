@@ -27,6 +27,7 @@ FUND_CODE = {"public": "p", "self_pay": "s", "both": "b", "not_stated": "n"}
 BRANDS = config.BRANDS
 BRAND_CODE = {"moderna": "m", "novavax": "v", "both": "b", "not_stated": "n"}
 VAC_ORDER = list(config.VACCINES)
+PLACE_ORDER = list(config.COUNTIES)
 STANCE_CODE = {"opposed": "o", "hesitant": "h", "neutral": "n", "accepting": "a", "advocating": "v"}
 
 SOURCE_ZH = {  # Chinese display metadata: (name, what is collected, method)
@@ -91,6 +92,16 @@ def _brand(it: dict) -> str:
     return (it.get("tags") or {}).get("covid_brand") or "not_stated"
 
 
+def _places(it: dict) -> list[str]:
+    """Cities/counties an item is about, in official order; [] for national items."""
+    named = set((it.get("tags") or {}).get("places") or [])
+    return [p for p in PLACE_ORDER if p in named]
+
+
+def _place_bits(it: dict) -> int:
+    return sum(1 << PLACE_ORDER.index(p) for p in _places(it))
+
+
 def _brand_union(items: list[dict]) -> str:
     """Brand of something written from several items: "" when none of them is about COVID-19."""
     named, covid = set(), False
@@ -104,7 +115,8 @@ def _brand_union(items: list[dict]) -> str:
 
 
 def _row(it: dict, index: dict) -> list[int]:
-    """One conversation item as codes: [day, vaccine bits, channel, stance, issue bits, funding, brand]; -1 = none."""
+    """One conversation item as codes: [day, vaccine bits, channel, stance, issue bits, funding, brand, place bits];
+    -1 = none (place bits 0 = no city or county)."""
     t = it.get("tags") or {}
     issues = t.get("issues") if t else None
     brand = _brand(it)
@@ -114,7 +126,8 @@ def _row(it: dict, index: dict) -> list[int]:
             STANCES.index(t["stance"]) if t.get("stance") in STANCES else -1,
             sum(1 << ISSUES.index(i) for i in issues if i in ISSUES) if issues is not None else -1,
             FUNDING.index(_fund(it)),
-            BRANDS.index(brand) if brand else -1]
+            BRANDS.index(brand) if brand else -1,
+            _place_bits(it)]
 
 
 def _fund_union(items: list[dict]) -> str:
@@ -153,7 +166,7 @@ def _example(it: dict) -> dict:
     else:
         label, t_en, t_zh = it.get("outlet") or "News", t.get("title_en") or it["title"], it["title"]
     return {"label": label, "url": it["url"], "date": it["published"], "t_en": t_en, "t_zh": t_zh, "funding": _fund(it),
-            "brand": _brand(it), "kind": it["kind"]}
+            "brand": _brand(it), "kind": it["kind"], "places": _places(it)}
 
 
 def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
@@ -183,7 +196,7 @@ def _narratives(analysis: dict, conv: list[dict], index: dict) -> list[dict]:
                     "channels": channels, "net": net, "series": series, "mentions": len(mine),
                     # one mark per item [day, funding, stance, brand]: lets the site re-count under its filters
                     "marks": [[index[it["published"]], FUND_CODE[_fund(it)], STANCE_CODE.get(it["tags"].get("stance"), ""),
-                               BRAND_CODE.get(_brand(it), "")] for it in mine],
+                               BRAND_CODE.get(_brand(it), ""), _place_bits(it)] for it in mine],
                     "examples": examples})
     return [n for n in out if n["mentions"]]
 
@@ -192,7 +205,7 @@ def _voice(it: dict) -> dict:
     t = it["tags"]
     return {"channel": it["channel"], "vaccine": (t.get("vaccines") or it["vaccines"])[0], "stance": t.get("stance"),
             "text": t.get("summary_en", ""), "text_zh": t.get("summary_zh", ""), "url": it["url"], "funding": _fund(it),
-            "brand": _brand(it)}
+            "brand": _brand(it), "places": _places(it)}
 
 
 def _fallback_voices(conv: list[dict], since: str, n: int = 6) -> list[dict]:
@@ -214,7 +227,8 @@ def _cited(rows: list[dict], by_id: dict) -> list[dict]:
     for r in rows:
         cited = [by_id[i] for i in r["source_ids"] if i in by_id]
         out.append({**{k: v for k, v in r.items() if k != "source_ids"}, "sources": _refs(r["source_ids"], by_id),
-                    "funding": _fund_union(cited), "brand": _brand_union(cited)})
+                    "funding": _fund_union(cited), "brand": _brand_union(cited),
+                    "places": [p for p in PLACE_ORDER if any(p in _places(c) for c in cited)]})
     return out
 
 
@@ -237,6 +251,7 @@ def build(analysis: dict | None = None) -> dict:
                 "title_en": t.get("title_en", ""), "summary": t.get("summary_en", ""), "summary_zh": t.get("summary_zh", ""),
                 "why": notes.get(it["id"], {}).get("why", ""), "why_zh": notes.get(it["id"], {}).get("why_zh", ""), "url": it["url"],
                 "marker": it["id"] in notes and notes[it["id"]].get("marker", False), "funding": _fund(it), "brand": _brand(it),
+                "places": _places(it),
             })
     policy.sort(key=lambda p: p["date"], reverse=True)
     if not notes:   # no analyst run yet: mark the latest press releases on the volume chart
@@ -245,7 +260,8 @@ def build(analysis: dict | None = None) -> dict:
 
     # Newest news headlines, shown on the Today view until the AI brief exists. News only: no social posts verbatim.
     headlines = [{"date": it["published"], "title": it["title"], "title_en": it.get("tags", {}).get("title_en", ""),
-                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"], "funding": _fund(it), "brand": _brand(it)}
+                  "outlet": it["outlet"], "url": it["url"], "vaccines": it["_vaccines"], "funding": _fund(it), "brand": _brand(it),
+                  "places": _places(it)}
                  for it in sorted((i for i in conv if i["kind"] == "media"), key=lambda i: i["published"], reverse=True)[:15]]
 
     attention_raw = json.loads((config.DATA_DIR / "attention.json").read_text(encoding="utf-8")) if (config.DATA_DIR / "attention.json").exists() else {}
@@ -279,7 +295,8 @@ def build(analysis: dict | None = None) -> dict:
         "vaccines": [{"key": k, **v} for k, v in config.VACCINES.items()],
         # The conversation as coded rows; the site computes volume, stance, issue, channel, funding and brand views.
         "keys": {"vaccines": VAC_ORDER, "channels": CHANNELS, "stance": STANCES, "issues": ISSUES,
-                 "funding": FUNDING, "brands": BRANDS},
+                 "funding": FUNDING, "brands": BRANDS, "places": PLACE_ORDER},
+        "counties": [{"code": k, **v} for k, v in config.COUNTIES.items()],
         "rows": [_row(it, index) for it in conv],
         "policy": policy,
         "headlines": headlines,

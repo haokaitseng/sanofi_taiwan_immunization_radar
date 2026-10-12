@@ -420,3 +420,26 @@ html:not([lang|="zh"]) [data-lang="zh"], html[lang|="zh"] [data-lang="en"] { dis
 }
 .narr-ex { font-size: 12.5px; font-weight: 400; line-height: 1.7; margin-top: 6px; }
 .narr-ex-label { color: var(--text-2); }
+
+/* ---------- where in Taiwan (choropleth) ---------- */
+.map-wrap { display: grid; gap: 16px 28px; grid-template-columns: minmax(240px, 440px) minmax(0, 1fr); align-items: start; }
+.map-wrap > * { min-width: 0; }          /* let the top-places table scroll instead of widening the card */
+@media (max-width: 800px) { .map-wrap { grid-template-columns: minmax(0, 1fr); } }
+.map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 10px; }
+.map-legend { margin: 0 0 8px; }
+.chart.map { display: block; max-width: 100%; height: auto; }
+.map-county { outline: none; cursor: pointer; }
+.map-county path { stroke: var(--surface); stroke-width: 0.8; stroke-linejoin: round; }
+.map-county:hover path { stroke: var(--text-2); stroke-width: 1.4; }
+.map-county:focus-visible path { stroke: var(--accent); stroke-width: 2.2; }
+.map-county.selected path { stroke: var(--text-1); stroke-width: 2; }
+.map .hit { fill: transparent; }
+.inset-frame { fill: transparent; stroke: var(--axis); stroke-dasharray: 3 3; cursor: pointer; }
+.inset-label { fill: var(--text-2); font-size: 10px; pointer-events: none; }
+.inset-chip { stroke: var(--grid); stroke-width: 1; pointer-events: none; }
+.key-hatch { background: repeating-linear-gradient(45deg, var(--surface-2) 0 3px, var(--text-3) 3px 4.5px); }
+.map-side-title { font-size: 13px; font-weight: 600; color: var(--text-2); margin: 0 0 8px; }
+.place-table .linklike { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--accent);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.place-table tr.is-selected > * { background: var(--accent-wash); }
+

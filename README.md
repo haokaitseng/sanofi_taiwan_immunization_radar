@@ -22,9 +22,10 @@ table view, and every AI-written sentence links to the sources it rests on.
 - **Filters (Today, Policy and Social listening),** in one row above the content they scope:
   - date range (7, 30 or 90 days) and vaccines (Flu, Enhanced, Adjuvanted, High-dose, RSV, Tdap, COVID-19);
   - **Who pays:** publicly funded (公費), self-pay (自費), both or not stated;
-  - **COVID-19 brand:** Moderna, Novavax, both or not stated.
+  - **COVID-19 brand:** Moderna, Novavax, both or not stated;
+  - **Place:** one of Taiwan's 22 cities and counties.
 
-  The filters combine freely.
+  The filters combine freely. Items about a specific city or county carry a place badge; national items have none.
 
 ### Today
 
@@ -55,6 +56,9 @@ type.
 ### Social listening
 
 - **Where the conversation happens:** mentions by channel (news, PTT, Threads, comments on public Facebook pages).
+- **Where in Taiwan:** a map of mentions about each city or county, switchable to per 100,000 residents (places
+  with fewer than 10 mentions are marked as too few to rate). Beside it, the top places with their leading vaccine
+  and issue. Click a county or a row to filter the whole page to that place.
 - **Public attention:** Wikipedia pageviews, a proxy for curiosity.
 - **Narrative explorer:** every tracked storyline with trend, change and net stance.
 - **Spike alerts:** days well above the 28-day baseline.
@@ -64,7 +68,7 @@ type.
 ### Methodology
 
 The daily pipeline, every source with its live status, definitions (vaccine groups, COVID-19 brands, who pays,
-stance scale, evidence tiers, issues), limitations, and the privacy, compliance and AI-use rules.
+place, stance scale, evidence tiers, issues), limitations, and the privacy, compliance and AI-use rules.
 
 ### Sanofi lens
 
@@ -79,8 +83,8 @@ market watch and compliance guardrails. It contains no product claims and no pro
 ```
 04:00 Taipei, daily (GitHub Actions; scheduled runs can start late)
   collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
-  tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), COVID-19 brand, issue, stance, speaker, storyline,
-            English and Traditional Chinese summaries
+  tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), COVID-19 brand, city or county, issue, stance,
+            speaker, storyline, English and Traditional Chinese summaries
   scrub     verbatim social text deleted; only paraphrase, tags and link stay
   analyse   Claude Opus 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens
   translate Claude Opus 5.5: Traditional Chinese version of the analysis (only new text is sent)
@@ -130,6 +134,9 @@ Keywords, sources and the vaccine taxonomy are in `pipeline/config.py`.
   (`pipeline.run scrub`), and usernames or profile data are never stored, so nothing personal lands in this repo.
 - Dcard is not covered: no reliable, permitted collector is available.
 - Only public pages and permitted APIs are collected, politely rate-limited.
+- Map boundaries: Ministry of the Interior (data.gov.tw, Open Government Data License), simplified from
+  [taiwan-atlas](https://github.com/dkaoster/taiwan-atlas) (MIT). Population for per-100,000 rates: Ministry of the
+  Interior, end of July 2026.
 - The Sanofi lens (`site/lens/`) is linked from the dashboard's top banner. It is independent analysis, not
   affiliated with Sanofi, and marked `noindex` so search engines don't list it.
 
@@ -164,19 +171,20 @@ data/       items per day, status.json, attention.json, analysis.json
   標題、摘要與「為何重要」。
 - **社群輿情：** 新聞、PTT、Threads 與 Facebook 公開粉專留言的討論量、維基百科瀏覽量、敘事總覽、聲量暴增警示、
   假訊息監測，以及具代表性的貼文。貼文均經改寫，不含使用者名稱。
+  - 台灣各縣市地圖：顯示各縣市的相關提及數，可切換為每10萬人比率，旁邊列出提及最多的縣市。點選縣市即可篩選整頁。
 - **方法：** 資料流程、各資料來源的即時狀態、名詞定義、限制，以及隱私與 AI 使用原則。
 - **Sanofi 視角：** 由首頁上方紫色橫幅進入。針對 Beyfortus、高劑量流感疫苗、Tdap 追加劑與 Novavax COVID-19疫苗
   四項產品的獨立策略筆記，另有未來 30 天需預先準備的議題與自費市場觀察。不含產品宣稱，也不是行銷宣傳。
 
-今日、政策與社群輿情頁面上方可依期間、疫苗、費用來源（公費／自費）與 COVID-19 廠牌篩選，各篩選可以自由組合。每張圖表都可切換成表格
-檢視。
+今日、政策與社群輿情頁面上方可依期間、疫苗、費用來源（公費／自費）、COVID-19 廠牌與縣市篩選，各篩選可以自由組合。
+每張圖表都可切換成表格檢視。
 
 ### 運作方式
 
 每天清晨，GitHub Actions 會自動完成以下步驟：
 
 1. 收集疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言與維基百科的資料。
-2. 由 Claude Haiku 為每則資料標註疫苗、費用來源、立場與議題。
+2. 由 Claude Haiku 為每則資料標註疫苗、費用來源、縣市、立場與議題。
 3. 由 Claude Opus 撰寫每日簡報與分析，再譯成繁體中文。
 4. 自動發布到網站。
 

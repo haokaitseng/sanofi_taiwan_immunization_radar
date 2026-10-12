@@ -27,6 +27,33 @@ VACCINES = {
 # protein-based, distributed in Taiwan by Sanofi). Each COVID-19 mention is labelled with the brands it names.
 BRANDS = ["moderna", "novavax", "both", "not_stated"]
 
+# Taiwan's 22 cities and counties (ISO 3166-2:TW codes), in official order. Items are tagged with the places they
+# are about; national items carry none. Population: Ministry of the Interior, end of July 2026 (for per-100k rates).
+COUNTIES = {
+    "TPE": {"zh": "臺北市", "en": "Taipei City", "pop": 2424159},
+    "NWT": {"zh": "新北市", "en": "New Taipei City", "pop": 4037150},
+    "TAO": {"zh": "桃園市", "en": "Taoyuan City", "pop": 2357121},
+    "TXG": {"zh": "臺中市", "en": "Taichung City", "pop": 2867246},
+    "TNN": {"zh": "臺南市", "en": "Tainan City", "pop": 1847288},
+    "KHH": {"zh": "高雄市", "en": "Kaohsiung City", "pop": 2708485},
+    "KEE": {"zh": "基隆市", "en": "Keelung City", "pop": 358287},
+    "HSZ": {"zh": "新竹市", "en": "Hsinchu City", "pop": 455813},
+    "CYI": {"zh": "嘉義市", "en": "Chiayi City", "pop": 261469},
+    "HSQ": {"zh": "新竹縣", "en": "Hsinchu County", "pop": 598352},
+    "MIA": {"zh": "苗栗縣", "en": "Miaoli County", "pop": 529541},
+    "CHA": {"zh": "彰化縣", "en": "Changhua County", "pop": 1202758},
+    "NAN": {"zh": "南投縣", "en": "Nantou County", "pop": 466786},
+    "YUN": {"zh": "雲林縣", "en": "Yunlin County", "pop": 647070},
+    "CYQ": {"zh": "嘉義縣", "en": "Chiayi County", "pop": 470049},
+    "PIF": {"zh": "屏東縣", "en": "Pingtung County", "pop": 778640},
+    "ILA": {"zh": "宜蘭縣", "en": "Yilan County", "pop": 448317},
+    "HUA": {"zh": "花蓮縣", "en": "Hualien County", "pop": 311067},
+    "TTT": {"zh": "臺東縣", "en": "Taitung County", "pop": 207747},
+    "PEN": {"zh": "澎湖縣", "en": "Penghu County", "pop": 106573},
+    "KIN": {"zh": "金門縣", "en": "Kinmen County", "pop": 137433},
+    "LIE": {"zh": "連江縣", "en": "Lienchiang County", "pop": 13641},
+}
+
 # Keyword rules for the deterministic tagger. Case-insensitive regular expressions.
 # The LLM tagger refines these; the rules are the fallback and the collection pre-filter.
 # Note: Chinese characters count as word characters, so \b fails in "RSV疫苗"; use ASCII-letter lookarounds instead.

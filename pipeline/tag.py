@@ -27,6 +27,8 @@ SPEAKERS = ["government", "health_professional", "medical_society", "media", "ko
             "general_public", "industry", "other"]
 FUNDING = ["public", "self_pay", "both", "not_stated"]
 BRANDS = config.BRANDS
+PLACES = list(config.COUNTIES)
+PLACE_LIST = ", ".join(f"{k} {v['zh']}" for k, v in config.COUNTIES.items())
 
 ZH_STYLE = ("Write natural Traditional Chinese as used in Taiwan (疫苗接種, 公費, 自費, 疾管署, 食藥署, 衛福部); never "
             "Mainland vocabulary or Simplified characters. Keep product and brand names (Moderna, Novavax, Nuvaxovid), "
@@ -62,6 +64,11 @@ Fields
 - funding: who pays for the vaccination the item discusses. public = 公費 (the government-funded programme,
   free for eligible groups); self_pay = 自費 (paid out of pocket, e.g. clinics' own stock, private prices);
   both = the item mentions both, even in passing (e.g. "公費之外也可自費接種"); not_stated = neither is mentioned.
+- places: the Taiwanese cities and counties the item is about, as codes: {PLACE_LIST}.
+  Tag a place when the item concerns it: a local programme, campaign or health-bureau action, local outbreak or
+  cases, clinic stock or queues there, a local event. Map districts, towns and local landmarks to their city or
+  county (鳳山 -> KHH, 竹北 -> HSQ, 員林 -> CHA). Do not tag a place only because a speaker, hospital, agency or
+  outlet is based there, and use [] for national, international or unspecified items (most official notices).
 - covid_brand: which COVID-19 vaccine brands the item names: moderna, novavax, both (both appear, even in
   passing) or not_stated. Moderna's flu or other non-COVID vaccines do not count. not_stated when covid is not
   among the vaccines.
@@ -104,6 +111,7 @@ SCHEMA = {
                     "vaccines": {"type": "array", "items": {"type": "string", "enum": VACCINE_KEYS}},
                     "funding": {"type": "string", "enum": FUNDING},
                     "covid_brand": {"type": "string", "enum": BRANDS},
+                    "places": {"type": "array", "items": {"type": "string", "enum": PLACES}},
                     "issues": {"type": "array", "items": {"type": "string", "enum": ISSUES}},
                     "stance": {"type": "string", "enum": STANCES},
                     "speaker": {"type": "string", "enum": SPEAKERS},
@@ -115,7 +123,7 @@ SCHEMA = {
                     "summary_zh": {"type": "string"},
                     "pa_relevance": {"type": "integer", "enum": [1, 2, 3, 4, 5]},
                 },
-                "required": ["id", "relevant", "vaccines", "funding", "covid_brand", "issues", "stance", "speaker", "misinformation",
+                "required": ["id", "relevant", "vaccines", "funding", "covid_brand", "places", "issues", "stance", "speaker", "misinformation",
                              "storyline", "title_en", "summary_en", "title_zh", "summary_zh", "pa_relevance"],
                 "additionalProperties": False,
             },
@@ -205,6 +213,37 @@ def _covid_payload(batch: list[dict]) -> str:
     rows = [{"id": it["id"], "title_en": it["tags"].get("title_en", ""), "summary_en": it["tags"].get("summary_en", "")}
             for it in batch]
     return "Label these posts. Return exactly one record per id.\n\n" + json.dumps(rows, ensure_ascii=False)
+
+
+PLACE_SYSTEM = f"""For each item from a Taiwanese vaccine-monitoring dashboard, list the Taiwanese cities and counties the item is about, as codes: {PLACE_LIST}.
+  Tag a place when the item concerns it: a local programme, campaign or health-bureau action, local outbreak or
+  cases, clinic stock or queues there, a local event. Map districts, towns and local landmarks to their city or
+  county (鳳山 -> KHH, 竹北 -> HSQ, 員林 -> CHA). Do not tag a place only because a speaker, hospital, agency or
+  outlet is based there, and use [] for national, international or unspecified items (most official notices).
+Judge from the title, summary and text given; be literal about what the item is about."""
+
+PLACE_SCHEMA = {
+    "type": "object",
+    "properties": {"items": {"type": "array", "items": {
+        "type": "object",
+        "properties": {"id": {"type": "string"}, "places": {"type": "array", "items": {"type": "string", "enum": PLACES}}},
+        "required": ["id", "places"], "additionalProperties": False}}},
+    "required": ["items"],
+    "additionalProperties": False,
+}
+
+
+def _place_payload(batch: list[dict]) -> str:
+    rows = []
+    for it in batch:
+        t = it["tags"]
+        row = {"id": it["id"], "kind": it["kind"], "outlet": it.get("outlet", ""),
+               "title": it["title"] if it["kind"] != "social" else t.get("title_zh") or t.get("title_en", ""),
+               "summary": t.get("summary_en", "")}
+        if it["kind"] == "policy" and it.get("text"):
+            row["text"] = it["text"][:1500]
+        rows.append(row)
+    return "List the places for these items. Return exactly one record per id.\n\n" + json.dumps(rows, ensure_ascii=False)
 
 
 def _funding_payload(batch: list[dict]) -> str:
@@ -336,6 +375,12 @@ def funding_backfill(days: int = config.BACKFILL_DAYS) -> dict:
     """Funding labels for items tagged before the field existed (social posts: judged from their paraphrase)."""
     pending = _scan(days, lambda it: (it.get("tags") or {}).get("relevant") and "funding" not in it["tags"])
     return _run_batches(pending, FUNDING_SYSTEM, FUNDING_SCHEMA, _funding_payload, merge=True, batch_size=60, label="funding")
+
+
+def places_backfill(days: int = config.BACKFILL_DAYS) -> dict:
+    """City/county tags for items tagged before places existed (posts: judged from their paraphrase)."""
+    pending = _scan(days, lambda it: (it.get("tags") or {}).get("relevant") and "places" not in it["tags"])
+    return _run_batches(pending, PLACE_SYSTEM, PLACE_SCHEMA, _place_payload, merge=True, batch_size=40, label="places")
 
 
 def covid_backfill(days: int = config.BACKFILL_DAYS) -> dict:

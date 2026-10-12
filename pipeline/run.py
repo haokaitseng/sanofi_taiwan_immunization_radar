@@ -148,6 +148,16 @@ def funding_step() -> bool:
     return _ai_step("funding_items", run)
 
 
+def places_step() -> bool:
+    """City/county tags for items tagged before places existed (catch-up; new items get them from the tagger)."""
+    from .tag import places_backfill
+    def run():
+        stats = places_backfill()
+        print(f"[places] {stats}", flush=True)
+        return stats
+    return _ai_step("places_items", run)
+
+
 def covid_step() -> bool:
     """COVID-19 group and brand for posts tagged before COVID-19 was in scope (one-time; new posts get it when tagged)."""
     from .tag import covid_backfill
@@ -182,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     from dotenv import load_dotenv
     load_dotenv(config.ROOT / ".env")   # local runs; in GitHub Actions the variables come from secrets
     p = argparse.ArgumentParser(prog="pipeline.run")
-    p.add_argument("step", choices=["collect", "tag", "retag", "zh", "funding", "covid", "analyze", "translate", "scrub", "build", "daily"])
+    p.add_argument("step", choices=["collect", "tag", "retag", "zh", "funding", "covid", "places", "analyze", "translate", "scrub", "build", "daily"])
     p.add_argument("--backfill", action="store_true", help=f"collect the last {config.BACKFILL_DAYS} days")
     p.add_argument("--only", default="", help="comma-separated source names")
     p.add_argument("--limit", type=int, default=None, help="tag at most N items (testing)")
@@ -205,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if retag_step() else 1
     if args.step == "covid":
         return 0 if covid_step() else 1
+    if args.step == "places":
+        return 0 if places_step() else 1
     if args.step == "translate":
         return 0 if translate_step() else 1
     if args.step == "scrub":
@@ -218,6 +230,7 @@ def main(argv: list[str] | None = None) -> int:
         tag_step(None, False)
         zh_step()
         funding_step()
+        places_step()
         print(f"[scrub] {scrub_social()} social records reduced to paraphrase + tags", flush=True)
         analyze_step(False)
         translate_step()  # only fields without a Chinese version are sent
