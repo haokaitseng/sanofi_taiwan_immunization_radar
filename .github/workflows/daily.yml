@@ -2,7 +2,8 @@ name: Daily update
 
 on:
   schedule:
-    - cron: "0 20 * * *"   # 04:00 Asia/Taipei (UTC+8). Cron is UTC; GitHub may start scheduled runs late
+    - cron: "53 18 * * *"  # 02:53 Asia/Taipei (UTC+8). Cron is UTC. Off the hour, since GitHub delays scheduled runs most
+                           # at the top of the hour; they can still start hours late
   workflow_dispatch:
     inputs:
       backfill:

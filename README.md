@@ -81,7 +81,7 @@ market watch and compliance guardrails. It contains no product claims and no pro
 ## How it works
 
 ```
-04:00 Taipei, daily (GitHub Actions; scheduled runs can start late)
+About 03:00 Taipei, daily (GitHub Actions; scheduled runs can start hours late)
   collect   Taiwan CDC · TFDA · Google News · PTT (local runs) · Threads + Facebook page comments (Apify) · Wikipedia
   tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), COVID-19 brand, city or county, issue, stance,
             speaker, storyline, English and Traditional Chinese summaries
