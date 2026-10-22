@@ -4,21 +4,21 @@
    {
     "type": "policy",
     "vaccines": [
-     "covid"
+     "covid",
+     "flu"
     ],
-    "headline": "Novavax XFG COVID-19 vaccine joins public programme from October 19 for ages 12+",
-    "zh": "115年度公費流感及新冠疫苗接種踴躍 提醒符合資格民眾儘早接種 還可獲得健康幣 另10月19日起新增提供不同製程之Novavax公費新冠疫苗",
-    "why": "Public programme (公費): eligible people aged 12+ can now choose Novavax (Nuvaxovid) alongside Moderna, and Taiwan CDC says it plans additional Novavax doses. Rollout coverage across several outlets was neutral and factual.",
+    "headline": "Taiwan CDC adds Novavax as public COVID-19 option, urges shots before holiday",
+    "zh": "連假將至 籲請符合流感及新冠疫苗公費接種資格民眾儘早接種 增加保護力 還可獲得健康幣",
+    "why": "Public programme (公費): eligible people aged 12+ can now choose Novavax alongside Moderna, and CDC has said it plans additional flu and Novavax doses. This changes brand choice within the tender arena, not the self-pay market.",
     "source_ids": [
-     "0cd5b195ac37fa25",
      "ceb5ae9c03a8589e",
-     "918f4bb775f6b6e9",
-     "fb9d2c33f34e6002",
-     "af0e147af9db046a"
+     "0cd5b195ac37fa25",
+     "af0e147af9db046a",
+     "47eb118dc177f096"
     ],
     "confidence": "High",
-    "headline_zh": "Novavax XFG COVID-19疫苗10月19日起納入公費，12歲以上適用",
-    "why_zh": "公費：符合資格的12歲以上民眾現可選擇Novavax（Nuvaxovid）或Moderna，疾管署表示計畫增購Novavax疫苗。多家媒體對開打的報導中性、以事實為主。"
+    "headline_zh": "疾管署新增Novavax為公費COVID-19疫苗選項，呼籲連假前接種",
+    "why_zh": "公費計畫：符合資格的12歲以上民眾現可選擇Novavax或Moderna，疾管署並表示計畫追加流感疫苗及Novavax疫苗。此舉改變的是採購標案領域內的廠牌選擇，而非自費市場。"
    },
    {
     "type": "policy",
@@ -26,20 +26,20 @@
      "flu",
      "covid"
     ],
-    "headline": "Taiwan CDC rebuts viral claim of a US military ban on Moderna's mRNA flu vaccine",
+    "headline": "CDC calls claimed Pentagon ban on Moderna mRNA flu vaccine false",
     "zh": "疾管署澄清網傳「十月十四日突發消息：五角大廈已在全美軍範圍內禁止採購和接種莫德納Moderna的mRNA流感疫苗」，為錯誤訊息並非事實，請民眾勿信勿轉傳",
-    "why": "The CDC says the vaccine is not covered only because the US CDC has not yet recommended it; the claim does not concern a product in Taiwan's programme. Some headlines ('Moderna vaccine in trouble?') blur it with Moderna's COVID-19 vaccine, which is in the public programme.",
+    "why": "CDC said the US military has not covered the vaccine only because US CDC has not yet recommended it; dozens of outlets carried the rebuttal and some coverage drew in Moderna's COVID-19 vaccine. Not tied to either funding arena, but it is a live reputational test for mRNA products during the public campaign.",
     "source_ids": [
      "c4777d3c28d52b5d",
+     "054d75526b63baf3",
      "578574377e2f17f5",
-     "61dc327db2bb5a23",
-     "ce6bb77247e45b65",
+     "c8616551a8f418dd",
      "91502ec3e2f4f07f",
-     "5fd5c0de5d99df0a"
+     "9d4f152bb6e0d98e"
     ],
     "confidence": "High",
-    "headline_zh": "疾管署駁斥美軍禁用Moderna mRNA流感疫苗的網傳說法",
-    "why_zh": "疾管署表示，該疫苗未獲給付僅因美國CDC尚未建議使用；此說法與台灣接種計畫中的產品無關。部分標題（「Moderna疫苗出包？」）將其與已納入公費的Moderna COVID-19疫苗混為一談。"
+    "headline_zh": "疾管署澄清美國國防部禁用Moderna mRNA流感疫苗說法為假訊息",
+    "why_zh": "疾管署表示，美軍未納入該疫苗僅因美國CDC尚未建議使用；數十家媒體轉載澄清，部分報導並牽連Moderna的COVID-19疫苗。此事與公費或自費領域皆無直接關聯，但在公費接種期間對mRNA產品構成實際的聲譽考驗。"
    },
    {
     "type": "media",
@@ -47,41 +47,38 @@
      "flu",
      "covid"
     ],
-    "headline": "Flu severity stays high: 44 weekly deaths, H1N1 at 92.7%; public antivirals extended",
+    "headline": "Public flu shots near 3.8 million in under a month; stock reportedly under half",
     "zh": "",
-    "why": "Outlets report 159 new severe cases, 44 deaths and 123,000 visits in a week, Nantou reports 17 flu and COVID-19 deaths this year, and the CDC extended expanded public antiviral eligibility to November 15. This keeps urgency high for the public programme (公費).",
+    "why": "Mainly the public programme: CNA and others report close to 3.8 million doses, and ETtoday says remaining flu stock is below half while also covering self-pay options. Supply pacing before the 2 November second stage is the key question.",
     "source_ids": [
-     "c713b63f7654c3a1",
-     "0fa4260bfd08dbe8",
-     "11fe3c39f7936afa",
-     "cf338aa2083476a1",
-     "761e1e46ac62a3d7",
+     "7abb6e903477e64f",
+     "47eb118dc177f096",
+     "0e6f9add3f5af58e",
+     "65abccbc4555a0cf",
+     "52c4a1b4db903f5f"
+    ],
+    "confidence": "High",
+    "headline_zh": "公費流感疫苗不到一個月接種近380萬劑；據報庫存不到一半",
+    "why_zh": "主要涉及公費計畫：中央社等媒體報導接種已近380萬劑，ETtoday指流感疫苗剩餘庫存不到一半，並介紹自費選項。11月2日第二階段開打前的供貨調度是關鍵問題。"
+   },
+   {
+    "type": "policy",
+    "vaccines": [
+     "flu"
+    ],
+    "headline": "Public flu antiviral eligibility extended to 15 November as weekly deaths hit 44",
+    "zh": "因應流感疫情仍處流行期，公費流感抗病毒藥劑擴大用藥條件將延長至2026年11月15日止",
+    "why": "Public programme: CDC extended expanded antiviral criteria amid 159 severe cases and 44 deaths in a week, with media reporting H1N1 at 92.7%. Sustained severity keeps vaccination urgency high in official and media messaging.",
+    "source_ids": [
      "f3f5d677456d217d",
-     "23682de4672500c6",
-     "9acbf9e41321b706"
+     "761e1e46ac62a3d7",
+     "cf338aa2083476a1",
+     "0fa4260bfd08dbe8",
+     "c713b63f7654c3a1"
     ],
     "confidence": "High",
-    "headline_zh": "流感疫情仍嚴峻：單週44人死亡，H1N1占92.7%；公費抗病毒藥物延長",
-    "why_zh": "媒體報導單週新增159例重症、44人死亡、12.3萬就診人次；南投今年累計17例流感及COVID-19死亡；疾管署將擴大公費抗病毒藥物使用對象延長至11月15日。公費接種的急迫性持續居高。"
-   },
-   {
-    "type": "media",
-    "vaccines": [
-     "flu",
-     "covid"
-    ],
-    "headline": "Public flu shots reach 3.24 million, up 9.5%; Kaohsiung opens to 50+ November 2",
-    "zh": "",
-    "why": "Public programme (公費): reports put Kaohsiung flu uptake up 13.6% and COVID-19 up 36.1% year on year, with second-stage expansion from November 2. Separately, Nantou will give 400 company-donated flu doses free to non-subsidised groups from November 2, a hybrid of public and outside-eligibility demand.",
-    "source_ids": [
-     "5c4962bd7b18f328",
-     "3746d621d2d701cb",
-     "4485ce78023453bc",
-     "8b316dc46a1db1f8"
-    ],
-    "confidence": "High",
-    "headline_zh": "公費流感疫苗接種達324萬劑，增加9.5%；高雄11月2日開放50歲以上",
-    "why_zh": "公費：報導指高雄流感疫苗接種年增13.6%、COVID-19疫苗年增36.1%，第二階段自11月2日擴大開放。另南投自11月2日起將企業捐贈的400劑流感疫苗免費提供非公費對象，兼具公費與資格外需求性質。"
+    "headline_zh": "公費流感抗病毒藥劑擴大適用延長至11月15日，單週死亡達44例",
+    "why_zh": "公費計畫：一週內新增159例重症、44例死亡，疾管署延長抗病毒藥劑擴大用藥條件，媒體報導H1N1占92.7%。疫情嚴重度持續，使官方與媒體訊息維持高度接種急迫性。"
    },
    {
     "type": "media",
@@ -90,20 +87,18 @@
      "adj",
      "hd"
     ],
-    "headline": "Doctors link flu to heart attack and stroke risk in over-65s, discuss enhanced vaccines",
+    "headline": "Doctors link flu to heart attack risk in older adults, discuss enhanced vaccines",
     "zh": "",
-    "why": "Multiple outlets carried physician commentary on immune ageing that mentions adjuvanted and high-dose flu vaccines, and one explainer sets out public versus self-paid options. Funding is mostly not stated, so this touches both arenas without clear self-pay detail.",
+    "why": "Physician-led coverage discusses adjuvanted and high-dose vaccines for older adults; one explainer also covers self-paid choices, so this touches both the public programme and the self-pay market. Funding is otherwise unstated.",
     "source_ids": [
      "cd5fd6a989d92775",
-     "1c4e28cdca3f2f90",
-     "6ffaa9b11b036b34",
      "21be39bc96a2ccdf",
      "8713a6b14c68c28e",
      "0e647dd2f2a73a28"
     ],
     "confidence": "Medium",
-    "headline_zh": "醫師指流感增加65歲以上長者心肌梗塞與中風風險，並討論加強型疫苗",
-    "why_zh": "多家媒體刊登醫師談免疫老化的評論，提及佐劑型與高劑量流感疫苗，另有一篇說明文比較公費與自費選項。多數未說明費用來源，因此兩個領域皆有涉及，但無明確自費細節。"
+    "headline_zh": "醫師指流感與長者心肌梗塞風險相關，討論加強型疫苗",
+    "why_zh": "醫師主導的報導討論長者適用的佐劑型與高劑量疫苗；其中一篇衛教文也介紹自費選項，因此同時觸及公費計畫與自費市場。其餘未說明經費來源。"
    },
    {
     "type": "signal",
@@ -112,59 +107,58 @@
      "tdap",
      "rsv"
     ],
-    "headline": "Posts recycle COVID-19 vaccine harm claims; pregnancy post describes delaying RSV shot",
+    "headline": "Threads posts push COVID-19 vaccine-injury claims; pregnant user delays RSV after Tdap",
     "zh": "",
-    "why": "The most-engaged post claims long COVID is really vaccine injury, alongside blood-clot and relative-death claims; none name a brand or funding route. A separate pregnancy post describes an ER visit after Tdap and a decision to delay RSV, while noting the doctor said the symptoms were unrelated.",
+    "why": "Users claim long COVID is vaccine injury and cite clots and relatives' deaths, while a pregnant poster reports an ER visit after Tdap and says the couple will delay RSV, though her doctor said the symptoms were unrelated. These are thin, unverified signals and the funding arena is not stated.",
     "source_ids": [
      "b274a1d8c4ae5e02",
      "c43a414fcc0c987c",
      "799847fc3e5c9680",
-     "2a03858d074620c3",
      "fc0bcc8e15f07df8"
     ],
     "confidence": "Low",
-    "headline_zh": "貼文重炒COVID-19疫苗傷害說法；孕婦貼文描述延後接種RSV疫苗",
-    "why_zh": "互動最高的貼文聲稱長COVID-19其實是疫苗傷害，另有血栓及親屬死亡等說法；皆未提及品牌或費用來源。另一則孕婦貼文描述接種Tdap後掛急診並決定延後RSV疫苗，同時提到醫師表示症狀與疫苗無關。"
+    "headline_zh": "Threads貼文散播COVID-19疫苗傷害說法；孕婦接種Tdap後延後接種RSV疫苗",
+    "why_zh": "有使用者聲稱長COVID-19其實是疫苗傷害，並提及血栓與親友死亡；另一名懷孕網友表示接種Tdap後掛急診，夫妻倆將延後接種RSV疫苗，但醫師表示症狀與疫苗無關。這些訊號零星且未經查證，亦未說明經費領域。"
    }
   ],
   "watch": [
    {
     "when": "2026-11-02",
-    "text": "Second-stage public eligibility opens; Kaohsiung extends to adults 50+ and Nantou starts donated free doses for non-subsidised groups.",
+    "text": "Second-stage public eligibility opens. Kaohsiung expands to adults 50+, and Nantou starts offering 400 donated doses to non-subsidised groups.",
     "when_zh": "2026-11-02",
-    "text_zh": "第二階段公費對象開放；高雄擴及50歲以上成人，南投開始為非公費對象提供捐贈免費疫苗。"
+    "text_zh": "第二階段公費對象開放接種。高雄擴大至50歲以上成人，南投開始提供400劑捐贈疫苗予非公費對象。"
    },
    {
     "when": "2026-11-15",
-    "text": "Expanded public flu antiviral eligibility expires; watch whether the CDC extends it again given a still-active season.",
+    "text": "Expanded public flu antiviral criteria expire; watch whether CDC extends them a third time if severity stays high.",
     "when_zh": "2026-11-15",
-    "text_zh": "擴大公費流感抗病毒藥物使用對象到期；觀察疾管署是否因疫情仍活躍而再度延長。"
+    "text_zh": "公費流感抗病毒藥劑擴大用藥條件到期；若疫情嚴重度仍高，留意疾管署是否第三度延長。"
    },
    {
-    "when": "Upcoming holiday weekend",
-    "text": "CDC and local bureaus (e.g. Keelung) push pre-holiday vaccination; watch uptake figures and any Novavax supply top-up announcements.",
-    "when_zh": "即將到來的連假",
-    "text_zh": "疾管署與地方衛生局（如基隆）呼籲連假前接種；關注接種數據及Novavax補貨公告。"
+    "when": "Ongoing",
+    "text": "Flu vaccine stock reported below half; watch for CDC top-up deliveries of flu and Novavax doses and any local shortages.",
+    "when_zh": "持續進行",
+    "text_zh": "據報流感疫苗庫存不到一半；留意疾管署追加流感及Novavax疫苗的到貨情形，以及各地是否缺貨。"
    }
   ],
   "qa": [
    {
-    "q": "Is the Moderna 'US ban' rumour affecting COVID-19 vaccine confidence?",
-    "a": "The CDC's rebuttal is about an mRNA flu vaccine not yet recommended in the US, but several outlets headlined it as 'Moderna vaccine in trouble?'. Social posts in today's sample do not reference the rumour directly; the COVID-19 safety posts are generic and brand-free.",
-    "q_zh": "Moderna「美國禁用」謠言是否影響COVID-19疫苗信心？",
-    "a_zh": "疾管署澄清的是美國尚未建議的mRNA流感疫苗，但多家媒體以「Moderna疫苗出包？」為標題。今日樣本中的社群貼文未直接提及此謠言；COVID-19安全性貼文皆屬泛論，未提品牌。"
+    "q": "Does the Moderna 'Pentagon ban' rumour affect Taiwan's programme?",
+    "a": "CDC called it false: the US military has not covered the mRNA flu vaccine only because US CDC has not yet recommended it. Coverage was heavy on 20-21 October, and some articles also mentioned Moderna's COVID-19 vaccine, so mRNA-related questions may linger.",
+    "q_zh": "Moderna遭「美國國防部禁用」謠言是否影響台灣接種計畫？",
+    "a_zh": "疾管署澄清為假訊息：美軍未納入mRNA流感疫苗，僅因美國CDC尚未建議使用。相關報導集中於10月20至21日，部分文章亦提及Moderna的COVID-19疫苗，mRNA相關疑問可能持續存在。"
    },
    {
-    "q": "How is the Novavax public rollout being covered?",
-    "a": "Neutrally: outlets report it is available from October 19 and that eligible people aged 12+ can choose a brand, and the CDC says it plans extra Novavax doses. No social posts about Novavax appear in today's sample.",
-    "q_zh": "Novavax公費開打的報導情況如何？",
-    "a_zh": "報導中性：媒體指自10月19日起提供，符合資格的12歲以上民眾可選擇廠牌，疾管署表示計畫增購Novavax。今日樣本中無Novavax相關社群貼文。"
+    "q": "Is there public-programme supply pressure on flu vaccine?",
+    "a": "Media report close to 3.8 million public doses in under a month, and ETtoday says stock is below half. CDC said on 13 October it plans additional flu and Novavax doses, and second-stage groups open on 2 November.",
+    "q_zh": "公費流感疫苗是否面臨供貨壓力？",
+    "a_zh": "媒體報導公費疫苗不到一個月已接種近380萬劑，ETtoday指庫存不到一半。疾管署10月13日表示計畫追加流感及Novavax疫苗，第二階段對象將於11月2日開打。"
    },
    {
-    "q": "Is there any self-pay (自費) signal for enhanced flu, RSV or Tdap?",
-    "a": "Very thin. One explainer mentions self-paid options alongside adjuvanted and high-dose vaccines, and Nantou's donated doses target people outside public eligibility; there is no price or clinic-stock reporting, and RSV/Tdap appear only in individual social posts.",
-    "q_zh": "加強型流感疫苗、RSV或Tdap是否有自費相關訊號？",
-    "a_zh": "非常少。一篇說明文在介紹佐劑型與高劑量疫苗時提及自費選項，南投捐贈疫苗則針對公費資格以外民眾；無價格或診所庫存報導，RSV/Tdap僅見於個別社群貼文。"
+    "q": "What is being said about enhanced flu vaccines this week?",
+    "a": "Doctors' pieces link flu to cardiovascular risk in older adults and discuss adjuvanted and high-dose options. Malan Veterans Home began public vaccination that includes enhanced flu vaccines. Enhanced-type mentions fell to 10 from 43 week on week, while high-dose mentions held at 13.",
+    "q_zh": "本週關於加強型流感疫苗的討論有哪些？",
+    "a_zh": "醫師文章將流感與長者心血管風險連結，並討論佐劑型與高劑量選項。馬蘭榮譽國民之家已開始公費接種，包括加強型流感疫苗。加強型相關提及量較前週由43則降至10則，高劑量提及量則持平於13則。"
    }
   ]
  },
@@ -189,94 +183,94 @@
   },
   {
    "id": "0cd5b195ac37fa25",
-   "why": "Formally adds Novavax as a public COVID-19 option from October 19 and signals extra flu and Novavax procurement, shaping supply expectations for the rest of the season.",
+   "why": "Confirms strong public uptake, adds Novavax to the public COVID-19 programme from 19 October and signals extra flu and Novavax procurement, a direct tender-arena development.",
    "marker": true,
-   "why_zh": "正式將Novavax自10月19日起納入公費COVID-19疫苗選項，並釋出增購流感疫苗與Novavax的訊號，影響本季後續供應預期。"
+   "why_zh": "證實公費接種踴躍，自10月19日起將Novavax納入公費COVID-19接種計畫，並釋出追加採購流感及Novavax疫苗訊號，屬採購標案領域的直接進展。"
   },
   {
    "id": "ceb5ae9c03a8589e",
-   "why": "The pre-holiday call reports rising uptake, reiterates Novavax as an option and keeps health coins as the main incentive lever for the public programme.",
+   "why": "The pre-holiday appeal reiterates Novavax as a public option and ties vaccination to health-coin incentives to sustain momentum.",
    "marker": false,
-   "why_zh": "連假前呼籲說明接種率上升，重申Novavax為選項之一，並維持健康幣作為公費接種的主要誘因。"
+   "why_zh": "連假前呼籲重申Novavax為公費選項，並以健康幣獎勵連結接種以維持動能。"
   },
   {
    "id": "f3f5d677456d217d",
-   "why": "The public-facing version of the antiviral extension notes antivirals are not covered by National Health Insurance, underlining the cost framing around flu illness.",
-   "marker": false,
-   "why_zh": "抗病毒藥物延長措施的民眾版說明指出，抗病毒藥物不在健保給付範圍，凸顯流感患病的費用框架。"
+   "why": "Extending expanded antiviral eligibility to 15 November signals CDC judges the flu season still in its epidemic phase.",
+   "marker": true,
+   "why_zh": "將抗病毒藥劑擴大適用延長至11月15日，顯示疾管署判斷流感仍處流行期。"
   },
   {
    "id": "761e1e46ac62a3d7",
-   "why": "The letter to physicians extending public antiviral use to November 15 confirms the CDC still sees an active flu season, sustaining urgency around vaccination.",
-   "marker": true,
-   "why_zh": "致醫師函將公費抗病毒藥物使用延長至11月15日，顯示疾管署仍認為流感疫情活躍，維持接種急迫性。"
+   "why": "The physician circular operationalises the antiviral extension for high-transmission groups and asks doctors to make full use of the public supply.",
+   "marker": false,
+   "why_zh": "致醫師函落實高傳播族群的抗病毒藥劑延長措施，並請醫師善用公費藥劑。"
   },
   {
    "id": "c4777d3c28d52b5d",
-   "why": "An official rebuttal of a fast-spreading mRNA rumour that gives companies and partners a citable reference if the claim resurfaces or gets conflated with COVID-19 vaccines.",
+   "why": "An official rebuttal of a viral mRNA vaccine rumour shows CDC is actively policing vaccine misinformation during the campaign.",
    "marker": true,
-   "why_zh": "官方對迅速擴散的mRNA謠言提出澄清，若說法再起或與COVID-19疫苗混淆，企業與合作夥伴可加以引用。"
+   "why_zh": "官方澄清廣傳的mRNA疫苗謠言，顯示疾管署在接種期間積極處理疫苗假訊息。"
   }
  ],
  "misinfo": [
   {
+   "claim": "The Pentagon has banned procurement and use of Moderna's mRNA flu vaccine across the US military",
+   "vaccine": "flu",
+   "level": "monitor",
+   "note": "CDC has already issued a rebuttal that outlets amplified widely; track for resurfacing and defer to the official clarification.",
+   "source_ids": [
+    "c4777d3c28d52b5d",
+    "5fd5c0de5d99df0a",
+    "696424c2bcb441c1",
+    "1e979f7b99f665d1"
+   ],
+   "claim_zh": "美國國防部已禁止全美軍採購及使用Moderna mRNA流感疫苗",
+   "note_zh": "疾管署已發布澄清並獲媒體廣泛轉載；持續追蹤是否再度流傳，並以官方澄清為準。"
+  },
+  {
    "claim": "Long COVID does not exist and is actually COVID-19 vaccine injury",
    "vaccine": "covid",
    "level": "watch",
-   "note": "Highest-engagement post in the sample; track spread and keep authoritative long-COVID and safety-monitoring references ready for partners, without direct public rebuttal by companies.",
+   "note": "This is the highest-engagement post of the week; prepare evidence summaries for health-professional partners in case it spreads beyond Threads.",
    "source_ids": [
     "b274a1d8c4ae5e02"
    ],
-   "claim_zh": "長COVID-19不存在，其實是COVID-19疫苗傷害",
-   "note_zh": "樣本中互動最高的貼文；追蹤擴散情形，備妥長COVID-19與安全性監測的權威資料供合作夥伴參考，企業不宜直接公開反駁。"
+   "claim_zh": "長COVID-19並不存在，其實是COVID-19疫苗傷害",
+   "note_zh": "此為本週互動數最高的貼文；應為醫療專業合作夥伴準備實證摘要，以防擴散至Threads以外。"
   },
   {
-   "claim": "The US military banned Moderna's mRNA flu vaccine",
-   "vaccine": "flu",
-   "level": "watch",
-   "note": "Taiwan CDC has already debunked it; align any stakeholder queries with the CDC clarification and watch for conflation with COVID-19 vaccines in the public programme.",
-   "source_ids": [
-    "c4777d3c28d52b5d",
-    "578574377e2f17f5",
-    "5fd5c0de5d99df0a",
-    "91502ec3e2f4f07f"
-   ],
-   "claim_zh": "美軍禁用Moderna mRNA流感疫苗",
-   "note_zh": "疾管署已澄清；利害關係人詢問時依疾管署說明回應，並留意是否與公費COVID-19疫苗混淆。"
-  },
-  {
-   "claim": "COVID-19 vaccines are dangerous, carry a black box warning and caused relatives' deaths or illness",
+   "claim": "COVID-19 vaccines carry a black box warning and caused relatives' deaths or serious illness",
    "vaccine": "covid",
    "level": "monitor",
-   "note": "Low-engagement anecdotal posts; monitor for any brand-specific turn and keep pharmacovigilance facts available for media enquiries.",
+   "note": "Anecdotal posts with low engagement; monitor without amplifying and keep regulator-sourced labelling facts ready.",
    "source_ids": [
     "c43a414fcc0c987c",
     "2a03858d074620c3"
    ],
-   "claim_zh": "COVID-19疫苗很危險、有黑框警語，並造成親屬死亡或患病",
-   "note_zh": "低互動的個人經驗貼文；監測是否轉向特定品牌，並備妥藥物安全監視資料以回應媒體詢問。"
+   "claim_zh": "COVID-19疫苗有黑框警語，並導致親友死亡或重病",
+   "note_zh": "屬個人經驗貼文且互動低；監測但勿擴大聲量，並備妥主管機關仿單資訊。"
   },
   {
    "claim": "Blood clots did not exist before COVID-19 vaccines",
    "vaccine": "covid",
    "level": "monitor",
-   "note": "Isolated claim alongside a personal clot story; no response needed beyond monitoring.",
+   "note": "Low reach; no proactive response needed, but log it alongside personal clot stories for trend tracking.",
    "source_ids": [
     "799847fc3e5c9680"
    ],
    "claim_zh": "COVID-19疫苗出現前沒有血栓",
-   "note_zh": "零星說法，伴隨個人血栓經驗；僅需持續監測。"
+   "note_zh": "觸及率低；無須主動回應，但應與個人血栓經驗一併記錄以追蹤趨勢。"
   },
   {
    "claim": "Vaccine deaths and side effects have never been studied",
    "vaccine": "covid",
    "level": "monitor",
-   "note": "Appears in an otherwise pro-vaccine post; low reach, monitor only.",
+   "note": "Appears inside an otherwise pro-vaccine post; low reach, so simply track it.",
    "source_ids": [
     "2e29a2c886d7649a"
    ],
-   "claim_zh": "疫苗死亡與副作用從未被研究",
-   "note_zh": "出現在整體支持疫苗的貼文中；觸及率低，僅需監測。"
+   "claim_zh": "疫苗死亡與副作用從未被研究過",
+   "note_zh": "出現在一則整體支持疫苗的貼文中；觸及率低，僅需追蹤。"
   }
  ],
  "voices_ids": [
@@ -284,7 +278,8 @@
   "fc0bcc8e15f07df8",
   "4276d0ddbfe88e27",
   "53b7a4d695b73ece",
-  "a7995f34cf304e87"
+  "a7995f34cf304e87",
+  "c43a414fcc0c987c"
  ],
  "narratives": [
   {
@@ -295,42 +290,42 @@
     "covid"
    ],
    "status": "emerging",
-   "para": "Taiwan CDC called a viral claim of a Pentagon ban on Moderna's mRNA flu vaccine false, saying it is only not yet covered because the US CDC has not recommended it; dozens of outlets carried the correction.",
+   "para": "A viral claim that the Pentagon banned Moderna's mRNA flu vaccine was called false by Taiwan CDC, which said the vaccine is simply not yet recommended or covered, and dozens of outlets carried the correction.",
    "storylines": [
     "us military moderna mrna flu vaccine rumor",
     "fake pentagon ban on moderna flu vaccine",
     "us pentagon moderna flu vaccine ban rumor",
     "us military moderna flu vaccine ban rumor",
     "us military moderna ban rumour debunked",
-    "Rumored US ban on Moderna vaccine",
-    "Moderna vaccine US ban rumour debunked"
+    "us moderna vaccine ban rumor"
    ],
-   "title_zh": "疾管署澄清美軍禁用Moderna mRNA流感疫苗謠言",
-   "para_zh": "疾管署指網傳美國國防部禁用Moderna mRNA流感疫苗為假訊息，表示該疫苗僅因美國CDC尚未建議而暫未給付；數十家媒體刊出澄清。"
+   "title_zh": "疾管署破解美軍禁用Moderna mRNA流感疫苗謠言",
+   "para_zh": "網傳美國國防部禁用Moderna mRNA流感疫苗，疾管署澄清為假訊息，表示該疫苗僅是尚未獲建議或納入給付，數十家媒體轉載更正。"
   },
   {
    "id": "n-uptake-surge",
-   "title": "Public programme uptake runs ahead of last year; Kaohsiung reports double-digit gains",
+   "title": "Public flu uptake nears 3.8 million doses; Kaohsiung reports double-digit gains",
    "vaccines": [
     "flu",
-    "covid"
+    "covid",
+    "enh"
    ],
    "status": "steady",
-   "para": "Officials report cumulative public flu shots at 3.24 million, up 9.5% year on year, and Kaohsiung cites flu up 13.6% and COVID-19 up 36.1% ahead of the November 2 expansion to adults 50+.",
+   "para": "Coverage tracks public flu doses approaching 3.8 million in under a month, a 9.5% year-on-year rise, and Kaohsiung flu and COVID-19 uptake up 13.6% and 36.1%.",
    "storylines": [
     "joint flu and covid-19 campaign uptake",
     "flu vaccination uptake milestone october 2026",
-    "flu and covid-19 vaccine uptake surge in taiwan",
     "flu and covid-19 vaccine uptake surge",
+    "flu and covid-19 vaccine uptake surge in taiwan",
+    "joint flu and covid-19 campaign uptake surge",
     "joint flu and covid-19 campaign uptake 2026",
     "flu vaccine uptake by county among elderly",
-    "Kaohsiung dual vaccine uptake and age expansion",
     "joint flu and covid-19 campaign vaccine top-up",
     "cdc public vaccine top-up orders",
     "cdc procures extra flu and covid vaccine doses"
    ],
-   "title_zh": "公費接種進度超前去年；高雄增幅達兩位數",
-   "para_zh": "官方公布公費流感疫苗累計接種324萬劑，年增9.5%；高雄指流感疫苗增13.6%、COVID-19疫苗增36.1%，並將於11月2日擴及50歲以上成人。"
+   "title_zh": "公費流感疫苗接種近380萬劑；高雄接種量兩位數成長",
+   "para_zh": "報導追蹤公費流感疫苗不到一個月接種近380萬劑，年增9.5%；高雄流感及COVID-19疫苗接種量分別增加13.6%與36.1%。"
   },
   {
    "id": "n-novavax-rollout",
@@ -339,14 +334,14 @@
     "covid"
    ],
    "status": "steady",
-   "para": "Taiwan CDC added Novavax as a publicly funded COVID-19 option from October 19 for eligible people aged 12+, with media coverage of the launch and CDC plans for additional doses.",
+   "para": "Taiwan CDC added Novavax as a publicly funded COVID-19 option from October 19, letting eligible people aged 12 and over choose a brand, and plans additional Novavax doses.",
    "storylines": [
-    "Novavax COVID-19 vaccine rollout to 12 plus",
     "Novavax added to COVID-19 public vaccine options",
-    "CDC urges public flu and COVID vaccination"
+    "joint flu and covid-19 campaign vaccine top-up",
+    "cdc extra purchase of joint flu-covid vaccines"
    ],
-   "title_zh": "Novavax公費COVID-19疫苗10月19日起提供12歲以上接種",
-   "para_zh": "疾管署自10月19日起將Novavax納入公費COVID-19疫苗選項，供符合資格的12歲以上民眾接種，媒體報導開打消息及疾管署增購計畫。"
+   "title_zh": "Novavax公費COVID-19疫苗10月19日起開放12歲以上接種",
+   "para_zh": "疾管署自10月19日起新增Novavax為公費COVID-19疫苗選項，符合資格的12歲以上民眾可選擇廠牌，並計畫追加Novavax疫苗。"
   },
   {
    "id": "n-severity",
@@ -356,16 +351,16 @@
     "covid"
    ],
    "status": "steady",
-   "para": "Weekly data show 159 new severe flu cases, 44 deaths and 123,000 visits with H1N1 dominant, while Nantou reports 17 flu and COVID-19 deaths and death rates above the national level.",
+   "para": "Weekly data show 159 new severe flu cases, 44 deaths and 123,000 medical visits, H1N1 dominant, and Nantou reporting flu and COVID-19 death rates above national levels.",
    "storylines": [
     "taiwan weekly flu severity and deaths update",
     "nantou flu and covid-19 deaths 2026",
-    "Flu H1N1 surge and vaccine uptake",
-    "Weekly flu deaths hit year high",
-    "Rising flu and COVID-19 cases and deaths"
+    "record weekly severe flu cases and deaths",
+    "flu severe cases and deaths rise in taiwan",
+    "weekly severe flu cases urge chronic patients vaccinate"
    ],
-   "title_zh": "流感疫情仍嚴峻：單週44人死亡，H1N1逾九成，南投傳死亡個案",
-   "para_zh": "每週數據顯示新增159例流感重症、44人死亡、12.3萬就診人次，以H1N1為主；南投通報17例流感及COVID-19死亡，死亡率高於全國。"
+   "title_zh": "流感疫情嚴重度居高：單週44例死亡、H1N1逾九成、南投出現死亡個案",
+   "para_zh": "每週數據顯示新增159例流感重症、44例死亡、門急診12.3萬人次，以H1N1為主；南投流感及COVID-19死亡率高於全國。"
   },
   {
    "id": "n-antiviral-extension",
@@ -374,14 +369,13 @@
     "flu"
    ],
    "status": "emerging",
-   "para": "Taiwan CDC extended expanded eligibility for publicly funded flu antivirals for high-transmission groups to November 15, citing an ongoing epidemic period.",
+   "para": "Taiwan CDC extended expanded eligibility for publicly funded flu antivirals for high-transmission groups to November 15 and urged physicians to use them.",
    "storylines": [
     "public flu antiviral eligibility extension",
-    "flu season severity and public antiviral extension",
-    "Flu season surge and extended public antivirals"
+    "flu season severity and public antiviral extension"
    ],
-   "title_zh": "公費流感抗病毒藥物擴大對象延長至11月15日",
-   "para_zh": "疾管署以疫情期持續為由，將高傳播族群公費流感抗病毒藥物擴大使用對象延長至11月15日。"
+   "title_zh": "公費流感抗病毒藥劑擴大適用延長至11月15日",
+   "para_zh": "疾管署將高傳播族群公費流感抗病毒藥劑擴大適用延長至11月15日，並呼籲醫師善加使用。"
   },
   {
    "id": "n-cost-of-illness",
@@ -390,39 +384,36 @@
     "flu"
    ],
    "status": "emerging",
-   "para": "Outlets report an unvaccinated 80-year-old who caught flu after a Thailand trip and faced about NT$600,000 in hospital costs.",
+   "para": "Several outlets report an elderly woman who skipped flu vaccination, caught influenza in Thailand and ran up about NT$600,000 in hospital costs.",
    "storylines": [
     "unvaccinated elderly flu case abroad cost",
     "unvaccinated elderly flu case after thailand trip",
     "unvaccinated elder flu hospitalization after thailand trip",
     "unvaccinated elderly traveller flu cost",
-    "unvaccinated traveler flu icu cost story",
-    "Elderly flu death with false negative test"
+    "unvaccinated traveler flu icu cost story"
    ],
-   "title_zh": "未接種旅客住院花費60萬元成警世案例",
-   "para_zh": "媒體報導一名未接種疫苗的80歲長者赴泰國旅遊後感染流感，住院費用約NT$600,000。"
+   "title_zh": "未接種疫苗旅客住院帳單NT$600,000成警世案例",
+   "para_zh": "多家媒體報導一名未接種流感疫苗的長者赴泰國感染流感，住院費用約NT$600,000。"
   },
   {
    "id": "n-older-access",
-   "title": "Local health bureaus push holiday vaccination, school drives and community outreach",
+   "title": "Local governments push holiday services, school drives and institutional rollouts",
    "vaccines": [
     "flu",
     "covid",
     "enh"
    ],
    "status": "steady",
-   "para": "Local governments in Nantou, Keelung, Tainan and Pingtung publish holiday service information, school drives and appeals, and a veterans home starts public flu, enhanced flu and COVID-19 shots.",
+   "para": "Keelung, Nantou, Pingtung and a veterans home publicise holiday clinic hours, school drives, incentives and the start of public flu, enhanced flu and COVID-19 vaccination.",
    "storylines": [
     "officials urge flu and covid-19 vaccination",
     "school flu vaccination drive in pingtung",
-    "Keelung flu vaccination holiday service info",
-    "Keelung public flu and COVID-19 vaccine rollout",
-    "Flu and COVID vaccine uptake holiday call",
-    "Veterans home public vaccination launch",
-    "Tainan district clinic flu and COVID-19 vaccination stations"
+    "hospital outreach vaccinating elderly residents",
+    "hsinchu city elderly-friendly flu vaccination lanes",
+    "local leaders urge flu and covid-19 vaccination"
    ],
-   "title_zh": "地方衛生局推動連假接種、校園接種與社區宣導",
-   "para_zh": "南投、基隆、台南、屏東等地方政府公布連假服務資訊、校園接種及呼籲，一處榮家開始提供公費流感、加強型流感與COVID-19疫苗接種。"
+   "title_zh": "地方政府推動連假門診、校園接種及機構接種",
+   "para_zh": "基隆、南投、屏東及一所榮家宣傳連假門診時間、校園接種、獎勵措施，以及公費流感、加強型流感與COVID-19疫苗開打。"
   },
   {
    "id": "n-enhanced-older",
@@ -430,18 +421,19 @@
    "vaccines": [
     "flu",
     "adj",
-    "hd"
+    "hd",
+    "enh"
    ],
    "status": "steady",
-   "para": "Physician-led articles warn flu can sharply raise heart attack and stroke risk in people 65+ and discuss adjuvanted and high-dose vaccines, alongside explainers on vaccine choice.",
+   "para": "Physician-led pieces frame flu as a heart-attack risk for older adults and discuss adjuvanted and high-dose vaccines, while general enhanced-vaccine launch coverage has cooled.",
    "storylines": [
     "Flu-linked heart attack risk in older adults",
-    "Influenza cardiovascular risk for adults over 65",
     "High-dose flu vaccine options for older adults",
-    "Public flu vaccine 2026 eligibility and choices"
+    "enhanced flu vaccine first public use 2026",
+    "nursing home first enhanced flu vaccine rollout"
    ],
-   "title_zh": "醫師指流感增加長者心血管風險，提及加強型疫苗",
-   "para_zh": "醫師撰文警告流感可大幅提高65歲以上者心肌梗塞與中風風險，並討論佐劑型與高劑量疫苗，另有疫苗選擇說明文。"
+   "title_zh": "醫師指流感與長者心血管風險相關，提及加強型疫苗",
+   "para_zh": "醫師主導的文章將流感定位為長者心肌梗塞風險，並討論佐劑型與高劑量疫苗；加強型疫苗上市的一般報導則已降溫。"
   },
   {
    "id": "n-safety-doubts",
@@ -449,73 +441,76 @@
    "vaccines": [
     "covid",
     "tdap",
-    "flu",
-    "rsv"
+    "rsv",
+    "flu"
    ],
    "status": "steady",
-   "para": "Threads posts claim long COVID is vaccine injury, cite a black box warning and blood clots, and blame vaccines for relatives' illness, while pregnant users describe side effects after Tdap, flu and RSV shots.",
+   "para": "Threads posts claim long COVID is vaccine injury, cite blood clots and family deaths, while other users share side-effect experiences or counter with study links.",
    "storylines": [
     "Long COVID blamed on vaccine injury claims",
     "COVID-19 vaccine black box warning danger claims",
     "Blood clot claims about COVID-19 vaccines",
     "Personal blame of COVID-19 vaccine for relative's illness",
-    "Pregnant patient reports vaccine side effects and delays",
     "Personal side-effect reports after vaccines",
-    "Cambridge study on COVID-19 vaccine heart benefits"
+    "debate over covid-19 vaccine harm claims"
    ],
-   "title_zh": "Threads上的COVID-19安全性錯誤訊息與個人副作用經驗",
-   "para_zh": "Threads貼文聲稱長COVID-19是疫苗傷害，引用黑框警語與血栓，並將親屬患病歸咎疫苗；孕婦用戶則描述接種Tdap、流感與RSV疫苗後的副作用。"
+   "title_zh": "Threads上的COVID-19疫苗安全假訊息與個人副作用經驗",
+   "para_zh": "Threads貼文聲稱長COVID-19是疫苗傷害，並提及血栓與家人死亡；其他使用者則分享副作用經驗或以研究連結反駁。"
   },
   {
    "id": "n-supply-selfpay",
-   "title": "Donated doses for non-subsidised groups and procurement price questions",
+   "title": "Stock falls below half; donated doses for non-subsidised groups; price leak claim",
    "vaccines": [
     "flu",
     "covid"
    ],
    "status": "rising",
-   "para": "Nantou will give 400 company-donated flu doses free to non-subsidised groups from November 2, while a PTT post alleging a COVID-19 vaccine procurement price drew a reporting response from Medigen.",
+   "para": "Reports say flu vaccine stock is under half, Nantou will give 400 donated doses to non-subsidised groups from November 2, and an anonymous post alleging a vaccine procurement price drew a Medigen response.",
    "storylines": [
     "donated flu vaccines for nantou non-subsidised groups",
     "nantou donated flu doses for eligible groups",
+    "Flu vaccine stock dwindles as uptake surges",
     "Alleged COVID-19 vaccine procurement price leak"
    ],
-   "title_zh": "非公費對象捐贈疫苗與採購價格疑問",
-   "para_zh": "南投自11月2日起將企業捐贈的400劑流感疫苗免費提供非公費對象；PTT一則指稱COVID-19疫苗採購價格的貼文，引發高端疫苗提出檢舉回應。"
+   "title_zh": "庫存跌破一半；捐贈疫苗供非公費對象；採購價格外洩傳言",
+   "para_zh": "報導指流感疫苗庫存不到一半，南投將自11月2日起提供400劑捐贈疫苗予非公費對象；一則匿名貼文指稱疫苗採購價格，引發高端疫苗回應。"
   },
   {
    "id": "n-health-coins",
-   "title": "Health coin incentives and local rewards",
+   "title": "Health coin incentives persist in CDC messaging but fade as a story",
    "vaccines": [
     "flu",
     "covid"
    ],
    "status": "fading",
-   "para": "The ministry's health coin rewards for flu and COVID-19 shots still appear in CDC appeals, but dedicated coverage has dropped off.",
+   "para": "Health coin rewards still appear in CDC and county appeals, but stand-alone coverage of the incentive has largely stopped.",
    "storylines": [
-    "health coin rewards for vaccination",
-    "Health coin rewards for flu and COVID-19 shots",
     "health coin incentive boosts combined vaccine uptake",
-    "Nantou health coin vaccination incentive"
+    "health coin incentive for flu vaccination",
+    "health coin incentive boosts vaccination uptake",
+    "health coin app registration problems",
+    "Nantou health coin incentive for COVID-19 vaccine"
    ],
-   "title_zh": "健康幣誘因與地方獎勵",
-   "para_zh": "衛福部接種流感與COVID-19疫苗的健康幣獎勵仍見於疾管署呼籲，但專題報導已減少。"
+   "title_zh": "健康幣獎勵仍見於疾管署訊息，但新聞熱度消退",
+   "para_zh": "健康幣獎勵仍出現在疾管署與縣市的呼籲中，但針對該獎勵的單獨報導已大致停止。"
   },
   {
    "id": "n-rsv-maternal",
-   "title": "RSV conversation thins: older-adult risk piece and maternal hesitancy posts",
+   "title": "RSV conversation thins: older-adult risk pieces and maternal hesitancy posts",
    "vaccines": [
-    "rsv"
+    "rsv",
+    "tdap"
    ],
    "status": "fading",
-   "para": "RSV mentions fell sharply week on week, limited to a doctor's piece on older-adult risk and posts from pregnant users about side effects or delaying an RSV shot.",
+   "para": "RSV volume halved, limited to doctor pieces on risks for older and chronically ill adults and pregnancy posts describing side effects and delaying RSV vaccination.",
    "storylines": [
     "RSV risk for older adults and chronic patients",
-    "social posts about multi-vaccine shot days",
-    "medical societies urge chronic lung disease patients vaccinate"
+    "RSV high-risk groups and complications",
+    "Pregnant patient reports vaccine side effects and delays",
+    "medical societies urge vaccines for chronic lung disease"
    ],
-   "title_zh": "RSV討論降溫：長者風險文章與孕婦猶豫貼文",
-   "para_zh": "RSV提及量較上週大幅下降，僅見一篇醫師談長者風險的文章，以及孕婦用戶談副作用或延後接種RSV疫苗的貼文。"
+   "title_zh": "RSV討論減少：長者風險文章與孕婦猶豫貼文",
+   "para_zh": "RSV聲量減半，僅限醫師談長者與慢性病患風險的文章，以及描述副作用並延後接種RSV疫苗的孕期貼文。"
   }
  ],
  "lens": {
@@ -525,210 +520,207 @@
     "sub": "nirsevimab, infant RSV antibody",
     "vaccine": "rsv",
     "risk": "low",
-    "signal": "Little this week: RSV mentions fell from 35 to 13 and nothing named infant antibodies. The closest signals are a pregnant user who says the couple will delay an RSV shot after side effects from other vaccines, and a doctor's piece on RSV risk in older adults.",
-    "implication": "No live issue for infant antibodies, but maternal posts show RSV decisions are being bundled with Tdap and flu experiences during pregnancy, which could shape how parents later weigh infant options.",
-    "action": "Keep an evidence pack ready on infant RSV prevention options and timing, and keep monitoring maternal and parenting conversations rather than engaging publicly now.",
+    "signal": "Nothing this week on Beyfortus or infant RSV antibodies; RSV coverage centred on older and chronically ill adults, plus a pregnancy post saying a couple will delay RSV vaccination after side effects from other shots.",
+    "implication": "The infant-protection conversation is quiet, and the only maternal signal is hesitancy-tinged, so any parent-facing debate could start from side-effect anecdotes rather than policy.",
+    "action": "Keep monitoring maternal and infant RSV threads; prepare a neutral evidence pack on infant RSV burden and prevention pathways for paediatric and obstetric societies, ready for any policy or funding discussion.",
     "who": [
-     "Paediatric and neonatology clinicians",
-     "Obstetricians and maternal health societies",
-     "Taiwan CDC immunisation officials"
+     "Taiwan Pediatric Association",
+     "Taiwan obstetrics and gynecology society",
+     "Taiwan CDC immunisation advisers",
+     "neonatal and paediatric hospital leads"
     ],
     "source_ids": [
      "fc0bcc8e15f07df8",
-     "4276d0ddbfe88e27",
-     "75f8031d6f4b5f4e"
+     "75f8031d6f4b5f4e",
+     "c5fe73166d8a6c03"
     ],
     "name_zh": "Beyfortus",
-    "sub_zh": "nirsevimab，嬰兒RSV單株抗體",
-    "signal_zh": "本週動態不多：RSV提及量由35降至13，無任何內容提及嬰兒抗體。最相關的訊號是一名孕婦表示因其他疫苗副作用，夫妻將延後接種RSV疫苗，以及一篇醫師談長者RSV風險的文章。",
-    "implication_zh": "嬰兒抗體目前無實際議題，但孕婦貼文顯示RSV決策正與孕期Tdap及流感疫苗經驗綁在一起，可能影響家長日後評估嬰兒選項。",
-    "action_zh": "備妥嬰兒RSV預防選項與接種時機的實證資料，持續監測孕產與育兒討論，暫不公開介入。",
+    "sub_zh": "nirsevimab，嬰兒RSV抗體",
+    "signal_zh": "本週無Beyfortus或嬰兒RSV抗體相關討論；RSV報導集中於長者與慢性病成人，另有一則孕期貼文表示夫妻倆因其他疫苗副作用將延後接種RSV疫苗。",
+    "implication_zh": "嬰兒保護相關討論平靜，唯一的孕產婦訊號帶有猶豫色彩，因此任何面向家長的爭論可能源自副作用個案而非政策。",
+    "action_zh": "持續監測孕產婦與嬰兒RSV討論串；為兒科及婦產科醫學會準備中立的嬰兒RSV疾病負擔與預防途徑實證資料，以備任何政策或經費討論。",
     "who_zh": [
-     "兒科與新生兒科醫師",
-     "婦產科醫師與孕產婦健康學會",
-     "疾管署預防接種官員"
+     "台灣兒科醫學會",
+     "台灣婦產科醫學會",
+     "疾管署預防接種諮詢委員",
+     "新生兒及兒科醫院主管"
     ]
    },
    {
     "name": "High-dose influenza vaccine",
-    "sub": "Efluelda (菲優達), in the public programme for 65+ in long-term care",
+    "sub": "Efluelda, publicly funded for 65+ in long-term care and residential facilities",
     "vaccine": "hd",
     "risk": "medium",
-    "signal": "High-dose mentions held at 13. Several outlets ran a physician's warning that flu sharply raises heart attack and stroke risk in people 65+, discussing adjuvanted and high-dose vaccines. One piece framed enhanced vaccines as a new option, an explainer covered public and self-paid choices, and a veterans home began public enhanced flu shots.",
-    "implication": "Media interest in enhanced vaccines for older adults is steady and physician-led, but coverage that singles out prescription vaccines carries advertising-compliance sensitivity. The November 2 second stage may also bring questions about who can access the limited enhanced allocation.",
-    "action": "Review any company-linked media or HCP engagement for compliance with prescription-medicine advertising rules. Prepare factual briefing materials on the enhanced-vaccine allocation and long-term care rollout for officials and facility operators ahead of November 2.",
+    "signal": "Doctor-led media pieces discuss flu-linked heart attack risk in older adults and mention adjuvanted and high-dose vaccines; one piece presents high-dose vaccines as a new option for seniors. Enhanced vaccines are being given at a veterans home, and reports say overall flu vaccine stock is under half.",
+    "implication": "Enhanced flu talk is moving from launch news to clinician framing, which builds the case for future eligibility discussions but invites scrutiny of industry links. Falling stock ahead of the November 2 expansion may prompt questions about enhanced-dose allocation.",
+    "action": "Check that any company-supported media or physician content complies with Taiwan's prescription-medicine advertising rules; prepare factual Q&A on enhanced-dose deployment in long-term care with the CDC and facility operators; assemble real-world data for geriatric and cardiology societies.",
     "who": [
-     "Taiwan CDC and local health bureaus",
-     "Long-term care and veterans home operators",
-     "Geriatric and cardiology societies",
-     "TFDA (advertising compliance)"
+     "Taiwan CDC",
+     "Taiwan Association of Gerontology and Geriatrics",
+     "cardiology societies",
+     "long-term care facility operators",
+     "local health bureaus"
     ],
     "source_ids": [
      "cd5fd6a989d92775",
-     "1c4e28cdca3f2f90",
-     "6ffaa9b11b036b34",
      "21be39bc96a2ccdf",
      "8713a6b14c68c28e",
-     "0e647dd2f2a73a28",
      "4435a56b972c503c",
-     "3746d621d2d701cb"
+     "0e6f9add3f5af58e",
+     "7abb6e903477e64f"
     ],
     "name_zh": "高劑量流感疫苗",
-    "sub_zh": "Efluelda（菲優達），公費提供長照機構65歲以上對象",
-    "signal_zh": "高劑量提及量維持13則。多家媒體刊出醫師警告流感大幅提高65歲以上者心肌梗塞與中風風險，並討論佐劑型與高劑量疫苗。一篇將加強型疫苗定位為新選項，一篇說明文介紹公費與自費選擇，一處榮家開始提供公費加強型流感疫苗。",
-    "implication_zh": "媒體對長者加強型疫苗的關注穩定且由醫師主導，但點名處方疫苗的報導涉及廣告合規敏感性。11月2日第二階段也可能引發誰能取得有限加強型疫苗配額的疑問。",
-    "action_zh": "檢視任何與公司相關的媒體或醫療人員互動是否符合處方藥廣告規範。於11月2日前為官員與機構業者準備加強型疫苗配額與長照接種的事實說明資料。",
+    "sub_zh": "Efluelda，公費提供長照及住宿式機構65歲以上住民",
+    "signal_zh": "醫師主導的媒體文章討論流感相關的長者心肌梗塞風險，並提及佐劑型與高劑量疫苗；一篇文章將高劑量疫苗介紹為長者的新選項。榮家正在接種加強型疫苗，報導指流感疫苗整體庫存不到一半。",
+    "implication_zh": "加強型流感疫苗的討論正從上市新聞轉向臨床醫師觀點，有助於未來擴大對象的討論，但也可能引來對業界關係的檢視。11月2日擴大接種前庫存下降，可能引發加強型疫苗分配的疑問。",
+    "action_zh": "確認任何由公司支持的媒體或醫師內容符合台灣處方藥廣告規範；與疾管署及機構業者準備長照加強型疫苗配送的事實問答；為老年醫學及心臟學會彙整真實世界數據。",
     "who_zh": [
-     "疾管署與地方衛生局",
-     "長照機構與榮家業者",
-     "老年醫學與心臟學會",
-     "食藥署（廣告合規）"
+     "疾管署",
+     "台灣老年學暨老年醫學會",
+     "心臟醫學會",
+     "長照機構業者",
+     "地方衛生局"
     ]
    },
    {
     "name": "Tdap booster",
-    "sub": "pertussis booster, incl. maternal use",
+    "sub": "pertussis booster, incl. pregnancy",
     "vaccine": "tdap",
     "risk": "low",
-    "signal": "Thin: Tdap mentions dropped from 7 to 3. One pregnant user reports contractions and an ER visit after a pertussis shot, though her doctor said the symptoms were unrelated. Another user reports evening fever and headache after Tdap.",
-    "implication": "No media or policy activity, but first-person maternal side-effect stories can circulate in parenting communities and feed broader hesitancy across pregnancy vaccines.",
-    "action": "Monitor maternal-forum conversation and keep pharmacovigilance and safety-information channels to clinicians current, so obstetric providers can answer patient questions if posts spread.",
+    "signal": "Very thin: Tdap mentions fell from 7 to 3. Two Threads posts describe side effects, one from a pregnant user who went to the ER after the shot (her doctor said the symptoms were unrelated) and one reporting evening fever and headache.",
+    "implication": "No policy or media movement; maternal side-effect anecdotes are low-reach but could feed broader pregnancy hesitancy alongside RSV and flu.",
+    "action": "Keep obstetric clinicians supplied with official TFDA and CDC safety information and a clear adverse-event reporting pathway; monitor whether pregnancy side-effect posts gain traction.",
     "who": [
-     "Obstetricians and midwives",
-     "Maternal and child health officials",
-     "Company pharmacovigilance team"
+     "obstetrics and gynecology society",
+     "maternity clinics",
+     "TFDA pharmacovigilance",
+     "Taiwan CDC"
     ],
     "source_ids": [
      "fc0bcc8e15f07df8",
      "4276d0ddbfe88e27"
     ],
     "name_zh": "Tdap追加劑",
-    "sub_zh": "百日咳追加劑，含孕婦接種",
-    "signal_zh": "動態稀少：Tdap提及量由7降至3。一名孕婦表示接種百日咳疫苗後出現宮縮並掛急診，但醫師表示症狀與疫苗無關。另一名用戶表示接種Tdap後晚間發燒、頭痛。",
-    "implication_zh": "無媒體或政策動態，但孕婦第一人稱副作用經驗可能在育兒社群流傳，加劇對孕期疫苗的整體猶豫。",
-    "action_zh": "監測孕產論壇討論，並維持向醫師提供最新藥物安全監視與安全性資訊，以便貼文擴散時婦產科人員能回答病人疑問。",
+    "sub_zh": "百日咳追加劑，含孕期接種",
+    "signal_zh": "聲量極低：Tdap提及數由7則降至3則。兩則Threads貼文描述副作用，一則來自接種後掛急診的孕婦（醫師表示症狀無關），另一則提及晚間發燒與頭痛。",
+    "implication_zh": "無政策或媒體動態；孕婦副作用個案觸及率低，但可能與RSV及流感一同助長更廣泛的孕期疫苗猶豫。",
+    "action_zh": "持續提供婦產科醫師食藥署與疾管署官方安全資訊及明確的不良事件通報管道；監測孕期副作用貼文是否擴散。",
     "who_zh": [
-     "婦產科醫師與助產師",
-     "婦幼健康官員",
-     "公司藥物安全監視團隊"
+     "婦產科醫學會",
+     "婦產科診所",
+     "食藥署藥物安全監視",
+     "疾管署"
     ]
    },
    {
     "name": "Novavax (Nuvaxovid) XFG COVID-19 vaccine",
-    "sub": "protein-based, distributed in Taiwan by Sanofi",
+    "sub": "protein-based, distributed by Sanofi, public programme from Oct 19",
     "vaccine": "covid",
     "risk": "medium",
-    "signal": "Taiwan CDC added Novavax as a publicly funded COVID-19 option from October 19 for eligible people aged 12+ and said it plans additional Novavax doses. Several outlets covered the launch, and CDC repeated the option in its pre-holiday appeal.",
-    "implication": "Novavax now has visible public-programme status and media attention, so supply adequacy and clinic availability become the main exposure if demand outpaces doses.",
-    "action": "Stay in close contact with Taiwan CDC on delivery schedules for the additional doses and on site-level availability information. Prepare a factual Q&A on eligibility and supply for officials and clinics.",
+    "signal": "Taiwan CDC added Novavax as a publicly funded option from October 19 and plans additional Novavax doses; news reports say eligible people aged 12 and over can choose it, and CDC's holiday appeal repeats the option.",
+    "implication": "Awareness depends on CDC and local health bureau messaging in the first weeks, and clinic-level stock and eligibility clarity will shape early experience.",
+    "action": "Work with the CDC and local health bureaus to ensure accurate eligibility and site information reaches contracted clinics; track distribution questions; keep brand-neutral safety Q&A ready given ongoing COVID-19 safety misinformation online.",
     "who": [
-     "Taiwan CDC procurement and immunisation units",
-     "Local health bureaus",
-     "Contracted clinics and hospitals"
+     "Taiwan CDC",
+     "local health bureaus",
+     "contracted clinics and hospitals",
+     "Taiwan Medical Association"
     ],
     "source_ids": [
      "0cd5b195ac37fa25",
      "ceb5ae9c03a8589e",
-     "918f4bb775f6b6e9",
-     "fb9d2c33f34e6002",
      "af0e147af9db046a",
-     "7bb68e4a8e6972f2"
+     "47eb118dc177f096",
+     "65abccbc4555a0cf"
     ],
     "name_zh": "Novavax（Nuvaxovid）XFG COVID-19疫苗",
-    "sub_zh": "蛋白質疫苗，由Sanofi在台經銷",
-    "signal_zh": "疾管署自10月19日起將Novavax納入公費COVID-19疫苗選項，供符合資格的12歲以上民眾接種，並表示計畫增購Novavax。多家媒體報導開打消息，疾管署連假前呼籲亦重申此選項。",
-    "implication_zh": "Novavax已具明確公費地位並受媒體關注，若需求超過供應，供應是否充足與診所可及性將成主要風險。",
-    "action_zh": "與疾管署密切聯繫增購疫苗的交貨時程與各接種點供應資訊。為官員與診所準備資格與供應的事實問答。",
+    "sub_zh": "蛋白質次單位疫苗，由Sanofi經銷，10月19日起納入公費",
+    "signal_zh": "疾管署自10月19日起新增Novavax為公費選項，並計畫追加Novavax疫苗；新聞報導指符合資格的12歲以上民眾可選擇，疾管署連假呼籲亦重申此選項。",
+    "implication_zh": "民眾認知取決於前幾週疾管署與地方衛生局的宣導，診所端庫存與資格說明是否清楚將影響初期接種經驗。",
+    "action_zh": "與疾管署及地方衛生局合作，確保正確的資格與接種地點資訊傳達至合約院所；追蹤配送問題；鑑於網路上COVID-19安全假訊息持續，備妥不分廠牌的安全問答。",
     "who_zh": [
-     "疾管署採購與預防接種單位",
+     "疾管署",
      "地方衛生局",
-     "合約院所"
+     "合約診所及醫院",
+     "中華民國醫師公會全國聯合會"
     ]
    }
   ],
   "issues": [
    {
     "when": "From 2026-11-02",
-    "title": "Second-stage expansion to adults 50+ tests supply and enhanced-vaccine access",
+    "title": "Second-stage expansion to adults 50+ while flu vaccine stock is under half",
     "likelihood": "High",
-    "impact": "Medium",
-    "note": "Kaohsiung confirms expansion to adults 50+ from November 2 after strong uptake. Expect questions about stock and about who can receive the limited enhanced doses.",
+    "impact": "High",
+    "note": "Kaohsiung confirms expansion to 50+ on November 2 and reports say stock is below half; expect questions on allocation, top-up deliveries and enhanced-dose availability.",
     "when_zh": "2026-11-02起",
-    "title_zh": "第二階段擴及50歲以上成人，考驗供應與加強型疫苗可及性",
-    "note_zh": "高雄在接種踴躍後確認11月2日起擴及50歲以上成人。預期將出現庫存及誰能接種有限加強型疫苗的疑問。"
+    "title_zh": "流感疫苗庫存不到一半之際，第二階段擴大至50歲以上成人",
+    "note_zh": "高雄證實11月2日擴大至50歲以上，報導指庫存不到一半；預期將出現分配、追加到貨及加強型疫苗供應的疑問。"
    },
    {
     "when": "Next 30 days",
-    "title": "Fast-moving vaccine rumours amplified by media and Threads",
+    "title": "Imported vaccine rumours spread to new brands or products",
     "likelihood": "Medium",
     "impact": "Medium",
-    "note": "A single false Pentagon-ban claim produced dozens of correction stories within a day, and COVID-19 safety misinformation continues on Threads. Have rapid-response facts and spokespeople ready.",
+    "note": "The Pentagon-ban rumour shows US-origin claims spread quickly and need CDC rebuttal; keep factual holding lines ready for any portfolio product.",
     "when_zh": "未來30天",
-    "title_zh": "媒體與Threads放大快速擴散的疫苗謠言",
-    "note_zh": "單一國防部禁用假訊息一天內即引發數十則澄清報導，Threads上的COVID-19安全性錯誤訊息持續。應備妥快速回應資料與發言人。"
+    "title_zh": "境外疫苗謠言擴及其他廠牌或產品",
+    "note_zh": "國防部禁用謠言顯示源自美國的說法擴散迅速，需疾管署澄清；應為所有產品備妥事實性回應口徑。"
    },
    {
-    "when": "Ongoing",
-    "title": "Scrutiny of vaccine procurement prices",
-    "likelihood": "Low",
+    "when": "Next 30 days",
+    "title": "Scrutiny of public vaccine procurement prices",
+    "likelihood": "Medium",
     "impact": "Medium",
-    "note": "A PTT post alleging a COVID-19 vaccine procurement price drew a formal report from Medigen. Tender pricing could become a transparency issue for all suppliers.",
-    "when_zh": "持續中",
-    "title_zh": "疫苗採購價格受檢視",
-    "note_zh": "PTT一則指稱COVID-19疫苗採購價格的貼文，引發高端疫苗正式檢舉。標案價格可能成為所有供應商的透明度議題。"
+    "note": "An anonymous post alleging a vaccine procurement price drew a Medigen response; tender pricing questions could widen to other suppliers.",
+    "when_zh": "未來30天",
+    "title_zh": "公費疫苗採購價格受檢視",
+    "note_zh": "一則匿名貼文指稱疫苗採購價格，引發高端疫苗回應；標案價格疑問可能擴及其他供應商。"
    }
   ],
   "self_pay": [
    {
-    "title": "Enhanced vaccines appear in choice explainers, not in price or stock reporting",
-    "note": "An explainer walks readers through public eligibility and choices including adjuvanted, high-dose and self-paid options. No items report clinic stock levels or prices for enhanced vaccines this week.",
+    "title": "Self-pay enhanced flu appears in explainers, without prices",
+    "note": "Consumer explainers and stock reports cover public and self-paid options, including adjuvanted and high-dose vaccines, but give no clinic prices or self-pay stock figures.",
     "source_ids": [
      "0e647dd2f2a73a28",
-     "8713a6b14c68c28e"
+     "0e6f9add3f5af58e",
+     "47eb118dc177f096"
     ],
-    "title_zh": "加強型疫苗出現在選擇說明文中，未見於價格或庫存報導",
-    "note_zh": "一篇說明文介紹公費資格與選擇，包括佐劑型、高劑量及自費選項。本週無報導提及加強型疫苗的診所庫存或價格。"
+    "title_zh": "自費加強型流感疫苗見於衛教文，但未列價格",
+    "note_zh": "消費者衛教文與庫存報導涵蓋公費及自費選項，包括佐劑型與高劑量疫苗，但未提供診所價格或自費庫存數據。"
    },
    {
-    "title": "Donated doses reach non-subsidised groups in Nantou",
-    "note": "A company donated 400 flu doses that Nantou will give free to non-subsidised groups from November 2. Locally, this covers some people who would otherwise pay out of pocket.",
+    "title": "Non-subsidised demand partly met by donations",
+    "note": "Nantou will give 400 company-donated flu doses free to non-subsidised groups from November 2, suggesting local demand outside eligibility that is being met outside the private market.",
     "source_ids": [
-     "8b316dc46a1db1f8"
+     "8b316dc46a1db1f8",
+     "afcf022ab17987d3"
     ],
-    "title_zh": "南投捐贈疫苗提供非公費對象",
-    "note_zh": "一家企業捐贈400劑流感疫苗，南投將自11月2日起免費提供非公費對象。在地方層面涵蓋了部分原需自費的民眾。"
+    "title_zh": "非公費需求部分由捐贈滿足",
+    "note_zh": "南投將自11月2日起免費提供400劑企業捐贈流感疫苗予非公費對象，顯示資格外的在地需求正由私人市場以外的管道滿足。"
    },
    {
-    "title": "Cost-of-illness stories frame private decisions",
-    "note": "Coverage of an unvaccinated 80-year-old's roughly NT$600,000 hospital bill after travel puts a price on skipping vaccination, a frame that may shape demand among travellers outside the eligible groups.",
-    "source_ids": [
-     "11f75a5ed0f6a55e",
-     "904d2f8ec02d00d8"
-    ],
-    "title_zh": "疾病費用報導形塑自費決策",
-    "note_zh": "未接種疫苗的80歲長者旅遊後住院花費約NT$600,000的報導，為不接種疫苗標上價格，此框架可能影響資格外旅客的需求。"
-   },
-   {
-    "title": "Nothing on self-pay RSV infant antibodies or Tdap",
-    "note": "Posts mention Tdap and RSV shots during pregnancy without saying how they were funded. No items address clinic availability or prices for these products.",
+    "title": "No self-pay signal for RSV infant antibodies or Tdap",
+    "note": "This week's RSV and Tdap items are personal side-effect posts with no information on clinic stock, prices or private demand.",
     "source_ids": [
      "fc0bcc8e15f07df8",
      "4276d0ddbfe88e27"
     ],
-    "title_zh": "無自費RSV嬰兒抗體或Tdap相關內容",
-    "note_zh": "貼文提及孕期接種Tdap與RSV疫苗，但未說明費用來源。無內容涉及這些產品的診所供應或價格。"
+    "title_zh": "RSV嬰兒抗體及Tdap無自費訊號",
+    "note_zh": "本週RSV與Tdap相關內容皆為個人副作用貼文，無診所庫存、價格或私人需求資訊。"
    }
   ]
  },
- "date": "2026-10-22",
+ "date": "2026-10-23",
  "model": "claude-opus-5-5",
  "usage": {
-  "input_tokens": 81378,
-  "output_tokens": 14630
+  "input_tokens": 81138,
+  "output_tokens": 13185
  },
  "items_considered": 85,
  "usage_translate": {
-  "input_tokens": 7152,
-  "output_tokens": 6354
+  "input_tokens": 6876,
+  "output_tokens": 6266
  }
 }
