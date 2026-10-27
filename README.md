@@ -86,8 +86,8 @@ About 03:00 Taipei, daily (GitHub Actions; scheduled runs can start hours late)
   tag       Claude Haiku 5.5: relevance, vaccine, who pays (公費 / 自費), COVID-19 brand, city or county, issue, stance,
             speaker, storyline, English and Traditional Chinese summaries
   scrub     verbatim social text deleted; only paraphrase, tags and link stay
-  analyse   Claude Opus 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens
-  translate Claude Opus 5.5: Traditional Chinese version of the analysis (only new text is sent)
+  analyse   Claude Haiku 5.5: daily brief, notes on official actions, narratives, misinformation, analyst lens
+  translate Claude Haiku 5.5: Traditional Chinese version of the analysis (only new text is sent)
   build     data/items/*.jsonl  ->  site/data/latest.json (+ lens.json)
   publish   commit data (git history = archive) and deploy site/ to GitHub Pages
 ```
@@ -122,7 +122,7 @@ tags, since their text is gone by then).
 
 | Secret | Used for |
 |---|---|
-| `ANTHROPIC_API_KEY` | tagging (Haiku 5.5) and the daily analysis (Opus 5.5) |
+| `ANTHROPIC_API_KEY` | tagging, the daily analysis and its translation (all Claude Haiku 5.5) |
 | `APIFY_TOKEN` | Threads and comments on public Facebook pages (hard USD cap per run) |
 
 Locally they live in `.env` (git-ignored); on GitHub in *Settings → Secrets and variables → Actions*.
@@ -185,7 +185,7 @@ data/       items per day, status.json, attention.json, analysis.json
 
 1. 收集疾管署、食藥署、Google 新聞、PTT、Threads、Facebook 公開粉專留言與維基百科的資料。
 2. 由 Claude Haiku 為每則資料標註疫苗、費用來源、縣市、立場與議題。
-3. 由 Claude Opus 撰寫每日簡報與分析，再譯成繁體中文。
+3. 由 Claude Haiku 撰寫每日簡報與分析，再譯成繁體中文。
 4. 自動發布到網站。
 
 如果某個來源當天失敗，其他部分照常更新。

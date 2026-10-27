@@ -1,12 +1,10 @@
 {
  "analyst": {
-  "failed_at": "2026-10-27T06:57:03+08:00",
-  "input_tokens": 61396,
-  "last_error": "AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CgRg7Yo5xyzpJGKeVCusY'}",
-  "last_success": "2026-10-26T05:27:18+08:00",
-  "output_tokens": 15418,
-  "seconds": 150.8,
-  "status": "failed"
+  "input_tokens": 46210,
+  "last_success": "2026-10-27T16:27:50+08:00",
+  "output_tokens": 18252,
+  "seconds": 86.4,
+  "status": "ok"
  },
  "cdc": {
   "items": 4,
@@ -96,10 +94,13 @@
   "status": "ok"
  },
  "translator": {
-  "last_success": "2026-10-27T06:57:03+08:00",
-  "seconds": 0.0,
+  "input_tokens": 6911,
+  "last_success": "2026-10-27T16:28:37+08:00",
+  "output_tokens": 11746,
+  "seconds": 45.7,
   "status": "ok",
-  "strings": 0
+  "strings": 116,
+  "translated": 116
  },
  "wiki": {
   "items": 106,

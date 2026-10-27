@@ -1,4 +1,4 @@
-"""Daily analyst run with Claude Opus 5.5: brief, notes on official actions, narratives, misinformation, Sanofi lens.
+"""Daily analyst run with Claude Haiku 5.5: brief, notes on official actions, narratives, misinformation, Sanofi lens.
 
 Input is a compact digest of tagged items (never raw usernames). Output is a JSON schema-constrained object saved
 to data/analysis.json, which build.py turns into the dashboard files. Every claim must cite item ids, which
@@ -6,15 +6,17 @@ build.py resolves to links.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 from collections import Counter, defaultdict
 from datetime import timedelta
 
 from . import config
 from .common import days_ago, load_day, today
 
-MODEL = "claude-opus-5-5"
+MODEL = "claude-haiku-5-5"
 VACCINE_KEYS = list(config.VACCINES)
 ANALYSIS_FILE = config.DATA_DIR / "analysis.json"
 # Plain string arrays (not enums): the full schema with enums exceeds the structured-output grammar limit.
@@ -181,7 +183,7 @@ def digest() -> dict:
     policy = [dict(brief_row(it), title_zh=it["title"]) for it in items30
               if it["kind"] == "policy" and it["published"] >= prior_cut]
     recent = sorted((it for it in items30 if it["kind"] != "policy" and it["published"] >= recent_cut),
-                    key=lambda it: (it["tags"].get("pa_relevance", 0), it.get("engagement", 0)), reverse=True)[:80]
+                    key=lambda it: (it["tags"].get("pa_relevance", 0), it.get("engagement", 0)), reverse=True)[:50]
 
     counts = {}
     for v in VACCINE_KEYS:
@@ -205,7 +207,7 @@ def digest() -> dict:
     storylines = sorted(({"label": k, **{kk: vv for kk, vv in v.items() if kk not in ("vaccines", "funding")},
                           "vaccines": [x for x, _ in v["vaccines"].most_common(3)], "funding": dict(v["funding"])}
                          for k, v in lines.items()),
-                        key=lambda r: r["count_30d"], reverse=True)[:120]
+                        key=lambda r: r["count_30d"], reverse=True)[:60]
 
     previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}
     return {
@@ -216,6 +218,19 @@ def digest() -> dict:
         "storylines_last_30_days": storylines,
         "previous_narratives": [{"id": n["id"], "title": n["title"], "status": n["status"]} for n in previous.get("narratives", [])],
     }
+
+
+def _reader_words(x):
+    """The model sometimes cites "the digest" despite the prompt; readers see "today's coverage" instead."""
+    if isinstance(x, dict):
+        return {k: v if k in ("id", "source_ids") else _reader_words(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_reader_words(v) for v in x]
+    if isinstance(x, str):
+        x = re.sub(r"\bThe digest\b", "Today's coverage", x)
+        x = re.sub(r"\bthe digest\b", "today's coverage", x)
+        return re.sub(r"\bdigest\b", "coverage", x)
+    return x
 
 
 def _clean(result: dict) -> dict:
@@ -231,12 +246,16 @@ def _clean(result: dict) -> dict:
     return result
 
 
-def _stream(client, system: str, content: str, schema: dict, effort: str = "high"):
-    with client.beta.messages.stream(
+def _fingerprint(d: dict) -> str:
+    """What the analyst sees, minus its own previous output: if this is unchanged, a re-run would add nothing."""
+    core = {k: v for k, v in d.items() if k != "previous_narratives"}
+    return hashlib.sha256(json.dumps(core, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+
+
+def _stream(client, system: str, content: str, schema: dict, effort: str = "medium"):
+    with client.messages.stream(
         model=MODEL,
         max_tokens=32000,
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
         system=system,
         messages=[{"role": "user", "content": content}],
         output_config={"effort": effort, "format": {"type": "json_schema", "schema": schema}},
@@ -260,7 +279,7 @@ def _fill_qa(client, d: dict, result: dict, usage: dict) -> None:
     msg, out = _stream(client, SYSTEM, "Today's brief and items (JSON):\n" + json.dumps(compact, ensure_ascii=False)
                        + "\n\nReturn qa only: exactly 3 questions a public-affairs lead at a vaccine company in Taiwan "
                        "would ask today, each with a short answer (1-2 sentences) resting only on these items.",
-                       QA_SCHEMA, effort="medium")
+                       QA_SCHEMA)
     result["brief"]["qa"] = out.get("qa", [])[:3]
     usage["input_tokens"] += msg.usage.input_tokens
     usage["output_tokens"] += msg.usage.output_tokens
@@ -268,6 +287,11 @@ def _fill_qa(client, d: dict, result: dict, usage: dict) -> None:
 
 def analyze(dry_run: bool = False) -> dict:
     d = digest()
+    fp = _fingerprint(d)
+    previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}
+    if not dry_run and previous.get("date") == d["today"] and previous.get("digest") == fp:
+        print("[analyze] nothing new since today's analysis; reusing it", flush=True)
+        return {**previous, "usage": {"input_tokens": 0, "output_tokens": 0}}
     payload = "Today's digest (JSON):\n" + json.dumps(d, ensure_ascii=False)
     if dry_run:
         print(f"[analyze] digest: {len(d['official_items_last_14_days'])} official, {len(d['top_items_last_72_hours'])} recent, "
@@ -278,8 +302,6 @@ def analyze(dry_run: bool = False) -> dict:
 
     import anthropic
     client = anthropic.Anthropic()
-    # Server-side fallback: if Opus declines on a safety classifier, the API reruns the request on the
-    # recommended fallback model inside the same call.
     # Two calls: the whole schema in one request exceeds the structured-output grammar limit.
     result, usage, model = {}, {"input_tokens": 0, "output_tokens": 0}, MODEL
     for part in PARTS:
@@ -295,13 +317,14 @@ def analyze(dry_run: bool = False) -> dict:
         _fill_qa(client, d, result, usage)
 
     # Keep notes on older official items from previous runs; today's run only sees the last 14 days.
-    previous = json.loads(ANALYSIS_FILE.read_text(encoding="utf-8")) if ANALYSIS_FILE.exists() else {}
     notes = {n["id"]: n for n in previous.get("policy_notes", [])}
     notes.update({n["id"]: n for n in result["policy_notes"]})
     result["policy_notes"] = list(notes.values())
+    result = _reader_words(result)
     result["date"] = d["today"]
     result["model"] = model
     result["usage"] = usage
+    result["digest"] = fp
     result["items_considered"] = len(d["top_items_last_72_hours"]) + len(d["official_items_last_14_days"])
     ANALYSIS_FILE.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result

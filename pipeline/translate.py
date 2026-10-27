@@ -2,7 +2,7 @@
 
 Every translatable string is flattened into a numbered list, so the structured-output schema stays tiny, and
 each translation is written back next to its source as <field>_zh. Missing translations fall back to English
-on the site. Uses Claude Opus 5.5, like the analysis it translates.
+on the site. Uses Claude Haiku 5.5, like the analysis it translates.
 """
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import os
 from . import config
 from .common import zh_terms
 
-MODEL = "claude-opus-5-5"
+MODEL = "claude-haiku-5-5"
 ANALYSIS_FILE = config.DATA_DIR / "analysis.json"
 
 # Which fields of analysis.json to translate. "who" is a list of strings.
@@ -87,11 +87,9 @@ def translate(force: bool = False) -> dict:
     client = anthropic.Anthropic()
     payload = "Translate each item. Return exactly one record per id.\n\n" + json.dumps(
         [{"id": k, "en": v} for k, v in strings.items()], ensure_ascii=False)
-    with client.beta.messages.stream(
+    with client.messages.stream(
         model=MODEL,
         max_tokens=32000,
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
         system=SYSTEM,
         messages=[{"role": "user", "content": payload}],
         output_config={"effort": "low", "format": {"type": "json_schema", "schema": SCHEMA}},

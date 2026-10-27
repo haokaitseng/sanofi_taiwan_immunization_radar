@@ -92,6 +92,12 @@ def _brand(it: dict) -> str:
     return (it.get("tags") or {}).get("covid_brand") or "not_stated"
 
 
+def _model_name(model_id: str) -> str:
+    """claude-haiku-5-5 -> Claude Haiku 5.5 (the brief says which model wrote it)."""
+    parts = model_id.split("-")
+    return f"Claude {parts[1].title()} {'.'.join(parts[2:])}" if len(parts) >= 3 and parts[0] == "claude" else "Claude"
+
+
 def _places(it: dict) -> list[str]:
     """Cities/counties an item is about, in official order; [] for national items."""
     named = set((it.get("tags") or {}).get("places") or [])
@@ -312,7 +318,7 @@ def build(analysis: dict | None = None) -> dict:
         by_id = {it["id"]: it for it in items}
         b = analysis["brief"]
         latest["brief"] = {
-            "date": analysis.get("date", end.isoformat()), "model": "Claude Opus 5.5",
+            "date": analysis.get("date", end.isoformat()), "model": _model_name(analysis.get("model", "")),
             "items": analysis.get("items_considered", 0),
             "entries": _cited(b["entries"], by_id),
             "watch": b.get("watch", []), "qa": b.get("qa", []),
