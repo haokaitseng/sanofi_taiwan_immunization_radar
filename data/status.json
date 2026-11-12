@@ -1,6 +1,6 @@
 {
  "analyst": {
-  "failed_at": "2026-11-11T07:49:01+08:00",
+  "failed_at": "2026-11-12T09:14:01+08:00",
   "input_tokens": 46210,
   "last_error": "RuntimeError: ANTHROPIC_API_KEY is not set (put it in .env locally or in GitHub secrets)",
   "last_success": "2026-10-27T16:27:50+08:00",
@@ -9,10 +9,10 @@
   "status": "failed"
  },
  "cdc": {
-  "items": 1,
-  "last_success": "2026-11-11T07:46:55+08:00",
+  "items": 2,
+  "last_success": "2026-11-12T09:05:24+08:00",
   "new": 1,
-  "seconds": 22.8,
+  "seconds": 15.9,
   "status": "ok"
  },
  "covid_items": {
@@ -27,17 +27,17 @@
   "tagged": 58
  },
  "facebook": {
-  "items": 5,
-  "last_success": "2026-11-09T06:39:39+08:00",
-  "new": 5,
-  "seconds": 26.2,
+  "items": 6,
+  "last_success": "2026-11-12T09:13:01+08:00",
+  "new": 6,
+  "seconds": 26.5,
   "status": "ok"
  },
  "funding_items": {
   "batches": 0,
   "errors": 0,
   "input_tokens": 0,
-  "last_success": "2026-11-11T07:49:01+08:00",
+  "last_success": "2026-11-12T09:14:01+08:00",
   "output_tokens": 0,
   "pending": 0,
   "seconds": 0.0,
@@ -45,17 +45,17 @@
   "tagged": 0
  },
  "gnews": {
-  "items": 139,
-  "last_success": "2026-11-11T07:48:16+08:00",
-  "new": 59,
-  "seconds": 76.9,
+  "items": 151,
+  "last_success": "2026-11-12T09:06:48+08:00",
+  "new": 37,
+  "seconds": 75.9,
   "status": "ok"
  },
  "places_items": {
   "batches": 0,
   "errors": 0,
   "input_tokens": 0,
-  "last_success": "2026-11-11T07:49:01+08:00",
+  "last_success": "2026-11-12T09:14:01+08:00",
   "output_tokens": 0,
   "pending": 0,
   "seconds": 0.0,
@@ -73,7 +73,7 @@
  "tagger": {
   "batches": 0,
   "errors": 3,
-  "failed_at": "2026-11-11T07:49:00+08:00",
+  "failed_at": "2026-11-12T09:14:01+08:00",
   "input_tokens": 0,
   "last_error": "RuntimeError: ANTHROPIC_API_KEY is not set (put it in .env locally or in GitHub secrets)",
   "last_success": "2026-10-27T06:57:03+08:00",
@@ -85,34 +85,34 @@
  },
  "tfda": {
   "items": 0,
-  "last_success": "2026-11-11T07:47:00+08:00",
+  "last_success": "2026-11-12T09:05:32+08:00",
   "new": 0,
-  "seconds": 4.6,
+  "seconds": 8.2,
   "status": "ok"
  },
  "threads": {
-  "items": 4,
-  "last_success": "2026-11-09T06:39:13+08:00",
-  "new": 4,
-  "seconds": 290.7,
+  "items": 48,
+  "last_success": "2026-11-12T09:12:34+08:00",
+  "new": 48,
+  "seconds": 346.1,
   "status": "ok"
  },
  "translator": {
-  "last_success": "2026-11-11T07:49:01+08:00",
+  "last_success": "2026-11-12T09:14:01+08:00",
   "seconds": 0.0,
   "status": "ok",
   "strings": 0
  },
  "wiki": {
-  "items": 121,
-  "last_success": "2026-11-11T07:49:00+08:00",
+  "items": 122,
+  "last_success": "2026-11-12T09:14:01+08:00",
   "status": "ok"
  },
  "zh_items": {
   "batches": 0,
   "errors": 0,
   "input_tokens": 0,
-  "last_success": "2026-11-11T07:49:00+08:00",
+  "last_success": "2026-11-12T09:14:01+08:00",
   "output_tokens": 0,
   "pending": 0,
   "seconds": 0.0,
