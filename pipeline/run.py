@@ -18,6 +18,7 @@ from datetime import datetime
 
 from . import config
 from .collect import SOURCES, wiki
+from .collect.apify import BudgetReached
 from .common import NotConfigured, days_ago, save_items, scrub_social, today
 
 STATUS_FILE = config.DATA_DIR / "status.json"
@@ -62,6 +63,9 @@ def collect(backfill: bool, only: set[str] | None) -> int:
         except NotConfigured as e:
             status[name] = {"status": "pending", "note": str(e)}
             print(f"[{name}] not configured: {e}", flush=True)
+        except BudgetReached as e:   # expected on the free plan: amber light until the monthly credit resets
+            status[name] = {**status.get(name, {}), "status": "paused", "paused_at": _now(), "last_error": str(e)}
+            print(f"[{name}] {e}", flush=True)
         except Exception as e:  # noqa: BLE001 - isolation is the point
             failures += 1
             status[name] = {**status.get(name, {}), "status": "failed", "failed_at": _now(),

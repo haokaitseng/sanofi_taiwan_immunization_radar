@@ -21,12 +21,51 @@ def _client():
     return ApifyClient(token)
 
 
+class BudgetReached(RuntimeError):
+    """This cycle's Apify credit can't cover another capped run."""
+
+
+def _attr(obj, *names):
+    """A field from the client's model objects (snake_case attributes) or from plain dicts (camelCase keys)."""
+    for n in names:
+        v = obj.get(n) if isinstance(obj, dict) else getattr(obj, n, None)
+        if v is not None:
+            return v
+    return None
+
+
+def _check_budget(cap_usd: float) -> None:
+    """Skip a run that the remaining monthly credit can't cover. When the credit runs out mid-run, Apify cuts the
+    run short but still reports it as succeeded (9 Nov 2026: 4 posts instead of ~30, light still green)."""
+    try:
+        lim = _client().user("me").limits()
+        limit = _attr(_attr(lim, "limits"), "max_monthly_usage_usd", "maxMonthlyUsageUsd")
+        used = _attr(_attr(lim, "current"), "monthly_usage_usd", "monthlyUsageUsd")
+        end = _attr(_attr(lim, "monthly_usage_cycle", "monthlyUsageCycle"), "end_at", "endAt")
+    except Exception as e:  # noqa: BLE001 - can't tell; the run's own cap and status check still apply
+        print(f"[apify] could not read the monthly credit: {e}", flush=True)
+        return
+    if limit is None or used is None or limit - used >= cap_usd:
+        return
+    when = "next month"
+    if end is not None:
+        end = end if isinstance(end, datetime) else datetime.fromisoformat(str(end).replace("Z", "+00:00"))
+        reset = (end + timedelta(seconds=1)).astimezone(config.TZ)
+        when = f"{reset.day} {reset:%b}"
+    raise BudgetReached(f"Paused: this month's Apify credit is used up; collection resumes {when}")
+
+
 def _run(actor: str, run_input: dict, cap_usd: float, max_items: int) -> list[dict]:
+    _check_budget(cap_usd)
     run = _client().actor(actor).call(run_input=run_input, max_items=max_items,
                                       max_total_charge_usd=Decimal(str(cap_usd)), run_timeout=timedelta(minutes=15))
     if run is None:
         raise RuntimeError(f"{actor}: run did not finish")
-    dataset_id = getattr(run, "default_dataset_id", None) or (run.get("defaultDatasetId") if isinstance(run, dict) else None)
+    status = _attr(run, "status")
+    status = getattr(status, "value", status)
+    if status != "SUCCEEDED":     # aborted, timed out or failed: partial results would undercount the week
+        raise RuntimeError(f"{actor}: run ended {status}")
+    dataset_id = _attr(run, "default_dataset_id", "defaultDatasetId")
     return list(_client().dataset(dataset_id).iterate_items(clean=True))
 
 
